@@ -1,0 +1,78 @@
+# Unity 自动生成的临时文件
+Temp/
+Library/
+
+# Unity 日志文件
+*.log
+*.tmp
+*.bak
+
+# Unity 打包产物
+Build/
+Builds/
+bin/
+obj/
+
+# Unity 配置备份
+*.pidb.meta
+*.pidb
+*.suo
+*.user
+*.userprefs
+*.unityproj
+*.sln
+*.tmpmeta
+*.asmdef.meta
+.vs/
+.vscode/
+
+# macOS/Windows 系统文件
+.DS_Store
+Thumbs.db
+
+# Unity 本地用户配置（编辑器个性化设置，无需共享）
+UserSettings/
+
+# Unity 地址簿/资源索引缓存
+AddressablesBuildCache/
+Library/PackageCache/       # 包缓存（可通过 Package Manager 重新下载）
+Library/ShaderCache/        # 着色器缓存
+Library/Metadata/           # 元数据缓存
+
+# Rider/Resharper 编辑器配置
+.idea/
+*.sln.iml
+*.csproj.DotSettings
+# VS Code 扩展/缓存
+.vscode/extensions/
+.vscode/settings.json       # 若团队共享设置可保留，否则忽略
+.vscode/launch.json
+# Git 相关临时文件
+.gitattributes.local
+.gitignore.local
+# 压缩包/安装包
+*.zip
+*.7z
+*.rar
+*.pkg
+*.msi
+
+# 测试/调试相关文件
+TestResults/                # 单元测试结果
+*.debug
+*.pdb                       # 调试符号文件
+Logs/                       # 自定义日志目录（若项目有）
+
+# 移动端/平台专属打包产物
+iOS/                        # Unity 导出的 iOS 工程
+Android/                    # Unity 导出的 Android 工程
+Linux/
+macOS/
+Windows/
+WebGL/
+
+# 其他冗余文件
+*.manifest.lock             # 包管理锁文件（部分场景无需提交）
+*.swp                       # Vim 交换文件
+*.swo
+*~                          # 临时文件后缀
