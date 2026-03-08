@@ -58,15 +58,14 @@
     <Analyzer Include="D:\visual studio\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="D:\Unity\2022.3.53f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="D:\Unity\2022.3.53f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
-    <Analyzer Include="D:\Unity_project\GlobalConqueror\Assets\Plugins\AstarPathfindingProject\Plugins\DotNetZip\Pathfinding.Ionic.Zip.Reduced.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\BinaryHeap.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Legacy\Editor\LegacyRichAIEditor.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Modifiers\RaycastModifier.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Generators\Utilities\BBTree.cs" />
-    <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\AI\NavmeshController.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Generators\Utilities\PointKDTree.cs" />
+    <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\AI\NavmeshController.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\ArrayPool.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\AI\AIPath.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\ExampleScenes\ExampleScripts\SnapToNode.cs" />
@@ -86,8 +85,8 @@
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Utilities\AstarParallel.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Utilities\Funnel.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Generators\NodeClasses\GridNode.cs" />
-    <Compile Include="Assets\Plugins\AstarPathfindingProject\Utilities\AstarMemory.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\NodeLink2.cs" />
+    <Compile Include="Assets\Plugins\AstarPathfindingProject\Utilities\AstarMemory.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\EditorResourceHelper.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\astarclasses.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\ExampleScenes\ExampleScripts\AstarSmoothFollow2.cs" />
@@ -124,9 +123,9 @@
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Generators\NodeClasses\PointNode.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Serialization\TinyJson.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Legacy\Editor\LegacyAIPathEditor.cs" />
+    <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\NodeLink.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\MovementUtilities.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Generators\Utilities\NavmeshTile.cs" />
-    <Compile Include="Assets\Plugins\AstarPathfindingProject\Core\Misc\NodeLink.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Generators\Utilities\GridLookup.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Modifiers\AlternativePath.cs" />
     <Compile Include="Assets\Plugins\AstarPathfindingProject\Utilities\UnityReferenceHelper.cs" />
