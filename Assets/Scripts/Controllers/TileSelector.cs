@@ -39,7 +39,6 @@ namespace GlobalConqueror.Controllers
         private void Update()
         {
             HandleTileSelection();
-            UpdateHighlight();
         }
 
         /// <summary>
@@ -51,9 +50,10 @@ namespace GlobalConqueror.Controllers
             {
                 Vector3 worldPos = Input.mousePosition;
                 worldPos = Camera.main.ScreenToWorldPoint(worldPos);
+                worldPos.z = 0;
                 Vector3Int cellPos = MapManager.instance.Tilemap.WorldToCell(worldPos);
 
-                if (cellPos != null && MapManager.instance.IsCoordinateValid(cellPos))
+                if (MapManager.instance.IsCoordinateValid(cellPos))
                     SelectTile(cellPos);
             }
         }
@@ -75,55 +75,22 @@ namespace GlobalConqueror.Controllers
             {
                 Debug.Log($"选中地块: {coordinate}");
             }
+            
+            UpdateHighlight(coordinate);
         }
 
         /// <summary>
         /// 更新高亮显示
         /// </summary>
-        private void UpdateHighlight()
+        private void UpdateHighlight(Vector3Int selectedCoord)
         {
-            Vector3Int? selectedCoord = MapManager.instance.SelectedTileCoordinate;
-
-            // 如果选中了新的地块，更新高亮
-            if (selectedCoord.HasValue && selectedCoord != lastSelectedCoordinate)
+            Vector3 worldPos = MapManager.instance.Tilemap.CellToWorld(selectedCoord);
+            if (currentHighlight == null)
             {
-                ClearHighlight();
-                ShowHighlight(selectedCoord.Value);
-                lastSelectedCoordinate = selectedCoord;
-            }
-            else if (!selectedCoord.HasValue && lastSelectedCoordinate.HasValue)
-            {
-                ClearHighlight();
-                lastSelectedCoordinate = null;
-            }
-        }
-
-        /// <summary>
-        /// 显示高亮
-        /// </summary>
-        private void ShowHighlight(Vector3Int coordinate)
-        {
-            if (highlightPrefab != null)
-            {
-                // 使用预制体高亮
-                if (!highlightObjects.ContainsKey(coordinate))
-                {
-                    Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(coordinate);
-                    worldPos.y = highlightHeight;
-                    currentHighlight = Instantiate(highlightPrefab, worldPos, Quaternion.identity);
-                    highlightObjects[coordinate] = currentHighlight;
-                }
-                else
-                {
-                    currentHighlight = highlightObjects[coordinate];
-                    currentHighlight.SetActive(true);
-                }
+                currentHighlight = Instantiate(highlightPrefab, worldPos, Quaternion.identity);
             }
             else
-            {
-                // 使用Gizmos高亮（在OnDrawGizmos中绘制）
-                // 这里可以添加其他高亮方式，比如改变材质颜色等
-            }
+                currentHighlight.transform.position = worldPos;
         }
 
         /// <summary>
