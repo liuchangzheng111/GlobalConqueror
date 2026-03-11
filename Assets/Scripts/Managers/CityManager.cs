@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using GlobalConqueror.Models;
+using System.Linq;
 
 namespace GlobalConqueror.Managers
 {
@@ -12,13 +13,19 @@ namespace GlobalConqueror.Managers
     {
         public static CityManager instance;
 
-        [Header("城市设置")]
-        [SerializeField] private List<CityData> allCities = new List<CityData>();
+        [Header("城市地块簇")]
+        public GameObject cities;
 
-        private Dictionary<Vector3Int, CityData> cityLocationMap = new Dictionary<Vector3Int, CityData>();
-        private Dictionary<int, CityData> cityIdMap = new Dictionary<int, CityData>();
+        private Dictionary<string, CityData> citiesDic = new Dictionary<string, CityData>();
 
+        // 索引即城市ID，一个场景的整局游戏中初始化后不会改动
+        private List<CityData> allCities;
+
+        public bool IsCityTilemapInitialized { get; private set; } = false;
         public List<CityData> AllCities => allCities;
+        public Dictionary<string, CityData> CitiesDic => citiesDic;
+        
+        public System.Action OnCitiesTilemapInitialized;
 
         private void Awake()
         {
@@ -34,7 +41,10 @@ namespace GlobalConqueror.Managers
 
         private void Start()
         {
-            InitializeCityMaps();
+            if (MapManager.instance.InitializeMapCompleted)
+            {
+                InitializeCityMaps();
+            }         
         }
 
         /// <summary>
@@ -42,84 +52,62 @@ namespace GlobalConqueror.Managers
         /// </summary>
         private void InitializeCityMaps()
         {
-            cityLocationMap.Clear();
-            cityIdMap.Clear();
+            citiesDic.Clear();
+            IsCityTilemapInitialized = false;
 
-            foreach (CityData city in allCities)
+            if (cities == null)
             {
-                if (city != null)
+                Debug.LogError("CityManager: 城市簇对象cities未赋值！");
+                return;
+            }
+
+            // 初始化城市地块
+            Dictionary<string, Tilemap> cityTilemap = new Dictionary<string, Tilemap>();
+            Tilemap[] childTilemaps = cities.GetComponentsInChildren<Tilemap>(includeInactive: false);
+            foreach (Tilemap tilemap in childTilemaps)
+            {
+                if (!cityTilemap.ContainsKey(tilemap.name))
                 {
-                    cityLocationMap[city.cityLocation] = city;
-                    cityIdMap[city.cityId] = city;
+                    cityTilemap.Add(tilemap.name, tilemap);
+                    Debug.Log($"CityManager: 加载城市Tilemap - {tilemap.name}");
                 }
             }
-        }
 
-        /// <summary>
-        /// 添加城市
-        /// </summary>
-        public void AddCity(CityData city)
-        {
-            if (city == null) return;
-
-            if (!allCities.Contains(city))
+            // 初始化城市（在编辑器中已绑定，确保每一个城市都有国家归属且不要有不存在的城市，否则会出现问题）
+            int countIndex = 0;
+            foreach (var item in MapManager.instance.CitiesTile)
             {
-                allCities.Add(city);
-                cityLocationMap[city.cityLocation] = city;
-                cityIdMap[city.cityId] = city;
+                foreach (var keyValuePair in cityTilemap)
+                {
+                    if (keyValuePair.Value.GetTile(item))
+                    {
+                        citiesDic.Add(keyValuePair.Key, new CityData(
+                            countIndex,
+                            keyValuePair.Key,
+                            keyValuePair.Value,
+                            item,
+                            -1
+                            ));
+                        break;
+                    }
+                }
             }
-        }
+            allCities = citiesDic.Values.ToList();
 
-        /// <summary>
-        /// 移除城市
-        /// </summary>
-        public void RemoveCity(CityData city)
-        {
-            if (city == null) return;
-
-            allCities.Remove(city);
-            cityLocationMap.Remove(city.cityLocation);
-            cityIdMap.Remove(city.cityId);
-        }
-
-        /// <summary>
-        /// 根据位置获取城市
-        /// </summary>
-        public CityData GetCityAt(Vector3Int location)
-        {
-            cityLocationMap.TryGetValue(location, out CityData city);
-            return city;
-        }
-
-        /// <summary>
-        /// 根据ID获取城市
-        /// </summary>
-        public CityData GetCityById(int cityId)
-        {
-            cityIdMap.TryGetValue(cityId, out CityData city);
-            return city;
-        }
-
-        /// <summary>
-        /// 检查位置是否有城市
-        /// </summary>
-        public bool HasCityAt(Vector3Int location)
-        {
-            return cityLocationMap.ContainsKey(location);
+            IsCityTilemapInitialized = true;
+            OnCitiesTilemapInitialized?.Invoke();
+            Debug.Log($"CityManager: 城市初始化完成，共加载 {cityTilemap.Count} 个城市Tilemap");
         }
 
         /// <summary>
         /// 获取指定国家的所有城市
         /// </summary>
-        public List<CityData> GetCitiesByNation(int nationId)
+        public List<CityData> GetCitiesByNation(string nation)
         {
             List<CityData> result = new List<CityData>();
-            foreach (CityData city in allCities)
+            foreach (var city in NationManager.instance.NationsDic[nation].ownedCitiesNames)
             {
-                if (city != null && city.ownerNationId == nationId)
-                {
-                    result.Add(city);
-                }
+                result.Add(citiesDic[city]);
             }
             return result;
         }
@@ -127,15 +115,14 @@ namespace GlobalConqueror.Managers
         /// <summary>
         /// 转移城市所有权
         /// </summary>
-        public void TransferCityOwnership(CityData city, int newOwnerId)
+        public void TransferCityOwnership(CityData city, string newOwnerName)
         {
             if (city == null) return;
 
             int oldOwnerId = city.ownerNationId;
-            city.ownerNationId = newOwnerId;
 
-            NationData oldOwner = TurnManager.instance?.GetNation(oldOwnerId);
-            NationData newOwner = TurnManager.instance?.GetNation(newOwnerId);
+            NationData oldOwner = NationManager.instance?.GetNation(oldOwnerId);
+            NationData newOwner = NationManager.instance?.NationsDic[newOwnerName];
 
             if (oldOwner != null)
             {

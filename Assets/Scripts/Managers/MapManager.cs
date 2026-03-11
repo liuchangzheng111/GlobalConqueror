@@ -29,14 +29,18 @@ namespace GlobalConqueror.Managers
         // 地块数据字典：坐标 -> 地块数据
         private Dictionary<Vector3Int, MapTileData> tileDataMap = new Dictionary<Vector3Int, MapTileData>();
 
+        // 城市地块列表
+        private List<Vector3Int> citiesTile = new List<Vector3Int>();
+
         // 当前选中的地块
         private Vector3Int? selectedTileCoordinate = null;
 
+        // 地图是否初始化完成
+        [HideInInspector]
+        public bool InitializeMapCompleted = false;
+
         // 事件：地块被选中
-        public System.Action<Vector3Int> OnTileSelected;
-        
-        // 事件：地图初始化完成
-        public System.Action<Bounds> OnMapInitialized;
+        public System.Action<Vector3Int> OnTileSelected;      
 
         private Vector3 cellSize;
 
@@ -48,10 +52,12 @@ namespace GlobalConqueror.Managers
 
         public Tilemap Tilemap => sourceTilemap;
 
+        public Dictionary<Vector3Int, MapTileData> TileDataMap => tileDataMap;
+
+        public List<Vector3Int> CitiesTile => citiesTile;
+
         private void Awake()
         {
-            InitializeMap();
-
             if (instance == null)
             {
                 instance = this;
@@ -60,6 +66,12 @@ namespace GlobalConqueror.Managers
             {
                 Destroy(gameObject);
             }
+        }
+
+        // 此脚本为在默认时间前进行编译，即其他所有脚本在编译前此脚本就已经编译，即第一编译
+        private void Start()
+        {
+            InitializeMap();
         }
 
         /// <summary>
@@ -82,8 +94,7 @@ namespace GlobalConqueror.Managers
                     InitializeRandomMap();
                 }
             }
-
-            OnMapInitialized?.Invoke(MapBounds);
+            InitializeMapCompleted = true;
         }
 
         /// <summary>
@@ -140,6 +151,10 @@ namespace GlobalConqueror.Managers
                     // 创建地块数据
                     MapTileData tileData = new MapTileData(tile, tileType);
                     tileDataMap[pos] = tileData;
+                    if(tileType == TileType.City)
+                    {
+                        citiesTile.Add(pos);
+                    }
                     tileCount++;
                 }
             }

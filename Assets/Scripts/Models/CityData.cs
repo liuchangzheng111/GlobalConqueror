@@ -14,13 +14,13 @@ namespace GlobalConqueror.Models
         public string cityName;
 
         public int cityGoldProduced = 50;
-        public int cityIndustryProduced = 15;
-        public int cityScienceProduced = 5;
+        public int cityIndustryProduced = 10;
+        public int cityScienceProduced = 2;
 
         public Tilemap cityTiles;
         public Vector3Int cityLocation;
 
-        public int ownerNationId;
+        public int ownerNationId; 
         public CityLevel cityLevel;
 
         public CityData(int id, string name, Tilemap tiles, Vector3Int location, int ownerId)

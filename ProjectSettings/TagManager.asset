@@ -12,7 +12,7 @@ TagManager:
   - Water
   - UI
   - Map
-  - Nation
+  - City
   - 
   - 
   - 
@@ -44,6 +44,6 @@ TagManager:
   - name: Map
     uniqueID: 7562519
     locked: 0
-  - name: Nation
+  - name: City
     uniqueID: 1997541039
     locked: 0

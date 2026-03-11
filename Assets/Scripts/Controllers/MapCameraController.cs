@@ -2,6 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 using GlobalConqueror.Managers;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 namespace GlobalConqueror.Controllers
 {
@@ -60,16 +61,10 @@ namespace GlobalConqueror.Controllers
         
         private void OnEnable()
         {
-            if (autoInitializeFromMap)
-            {
-                MapManager.instance.OnMapInitialized += InitializeFromMapBounds;
-            }
         }
         
         private void OnDisable()
         {
-            MapManager.instance.OnMapInitialized -= InitializeFromMapBounds;
-
             // 停止所有正在运行的Tween，避免禁用后仍执行
             positionTween?.Kill();
             zoomTween?.Kill();
@@ -79,7 +74,7 @@ namespace GlobalConqueror.Controllers
         private void Start()
         {
             // 如果地图已经初始化，立即初始化相机
-            if (autoInitializeFromMap && MapManager.instance.MapBounds.size.magnitude > 0)
+            if (MapManager.instance.InitializeMapCompleted)
             {
                 InitializeFromMapBounds(MapManager.instance.MapBounds);
             }
@@ -90,6 +85,13 @@ namespace GlobalConqueror.Controllers
             HandleDrag();
             HandleZoom();
             ApplySmoothMovement();
+        }
+
+
+        private void OnDestroy()
+        {
+            positionTween?.Kill();
+            zoomTween?.Kill();
         }
 
         /// <summary>
@@ -220,6 +222,14 @@ namespace GlobalConqueror.Controllers
             float scroll = Input.GetAxis("Mouse ScrollWheel");
             if (Mathf.Abs(scroll) > 0.01f)
             {
+                // 鼠标指针在UI上时不触发缩放
+                bool isOverUI = IsPointerOverUIElement();
+                if (isOverUI)
+                {
+                    // 仅在UI上时跳过缩放逻辑，无需修改isDragging（拖拽状态由拖拽逻辑管理）
+                    return;
+                }
+
                 // 原有缩放逻辑
                 float oldZoom = targetZoom;
                 float speedMultiplier = Mathf.Lerp(0.5f, 2f, (targetZoom - minZoom) / (maxZoom - minZoom));
@@ -361,10 +371,23 @@ namespace GlobalConqueror.Controllers
             targetZoom = Mathf.Clamp(targetZoom, minZoom, maxZoom);
         }
 
-        private void OnDestroy()
+        /// <summary>
+        /// 通用UI穿透检测方法（兼容鼠标滚轮/触屏/多输入）
+        /// </summary>
+        private bool IsPointerOverUIElement()
         {
-            positionTween?.Kill();
-            zoomTween?.Kill();
+            if (EventSystem.current == null) return false;
+
+            // 构建鼠标指针的事件数据
+            PointerEventData eventData = new PointerEventData(EventSystem.current);
+            eventData.position = Input.mousePosition;
+
+            // 检测是否有UI元素接收该指针事件
+            List<RaycastResult> raycastResults = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, raycastResults);
+
+            // 有UI元素被检测到 → 返回true（指针在UI上）
+            return raycastResults.Count > 0;
         }
     }
 }

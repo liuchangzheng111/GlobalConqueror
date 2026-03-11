@@ -60,16 +60,18 @@
     <Analyzer Include="D:\Unity\2022.3.53f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Managers\TurnManager.cs" />
     <Compile Include="Assets\Scripts\Debug\TileCoordinateDebugger.cs" />
     <Compile Include="Assets\Scripts\Controllers\TurnUIController.cs" />
     <Compile Include="Assets\Scripts\Models\NationData.cs" />
+    <Compile Include="Assets\Scripts\Managers\NationManager.cs" />
     <Compile Include="Assets\Scripts\Managers\MapManager.cs" />
     <Compile Include="Assets\Scripts\Models\TileTypeMapping.cs" />
     <Compile Include="Assets\Scripts\Controllers\MapCameraController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\NationListPanelController.cs" />
     <Compile Include="Assets\Scripts\Models\TileData.cs" />
     <Compile Include="Assets\Scripts\Managers\CityManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\TileSelector.cs" />
+    <Compile Include="Assets\Scripts\Controllers\NationListItemView.cs" />
     <Compile Include="Assets\Scripts\Models\CityData.cs" />
   </ItemGroup>
   <ItemGroup>

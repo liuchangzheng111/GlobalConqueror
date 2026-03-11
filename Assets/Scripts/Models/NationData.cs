@@ -1,4 +1,6 @@
+using GlobalConqueror.Managers;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -15,31 +17,31 @@ namespace GlobalConqueror.Models
         public string nationName;
         public Color nationColor;
         
-        public int gold;
-        public int industry;
-        public int science;
+        public int gold = 500;
+        public int industry = 100;
+        public int science = 25;
         
-        public List<CityData> ownedCity;
-        public CityData? capital;
+        public List<string> ownedCitiesNames;
+        public string? capital;      // TOEXTEND:
         
-        public bool isPlayer;
-        public bool isDefeated;
+        public bool isPlayer = false;
+        public bool isDefeated = false;
 
         public NationData(
             int id, 
             string name, 
             Color color, 
-            List<CityData> cities,
+            List<string> cities,
             int _gold = 1000,
             int _industry = 200,
             int _science = 50,
-            CityData? cap = null, 
+            string? cap = null, 
             bool player = false)
         {
             nationId = id;
             nationName = name;
             nationColor = color;
-            ownedCity = cities;           
+            ownedCitiesNames = cities;           
             
             gold = _gold;
             industry = _industry;
@@ -50,42 +52,47 @@ namespace GlobalConqueror.Models
             isDefeated = false;
         }
 
+        /// <summary>
+        /// 添加城市
+        /// </summary>
+        /// <param name="city"></param>
         public void AddCity(CityData city)
         {
-            if (city == null) return;
-            
-            if (!ownedCity.Contains(city))
+            if (city == null)
             {
-                ownedCity.Add(city);
+                Debug.LogError("NationData: 不存在此城市！");
+                return;
+            }
+
+            if (!ownedCitiesNames.Contains(city.cityName))
+            {
+                ownedCitiesNames.Add(city.cityName);
+                city.cityTiles.color = nationColor;
                 city.ownerNationId = nationId;
             }
         }
 
+        /// <summary>
+        /// 移除城市
+        /// </summary>
+        /// <param name="city"></param>
         public void RemoveCity(CityData city)
         {
-            if (city == null) return;
-            
-            ownedCity.Remove(city);
-            
-            if (capital == city)
+            if (city == null)
             {
-                capital = null;
+                Debug.LogError("NationData: 不存在此城市！");
+                return;
             }
-        }
 
-        public bool HasCity(CityData city)
-        {
-            return city != null && ownedCity.Contains(city);
-        }
-
-        public CityData GetCityAt(Vector3Int location)
-        {
-            return ownedCity.Find(c => c.cityLocation == location);
-        }
-
-        public bool HasCityAt(Vector3Int location)
-        {
-            return GetCityAt(location) != null;
+            if (ownedCitiesNames.Contains(city.cityName))
+            {
+                ownedCitiesNames.Remove(city.cityName);
+            }
+            else
+            {
+                Debug.LogWarning("NationData: 要删除的城市不在此国家！");
+                return;
+            }
         }
     }
     #nullable disable

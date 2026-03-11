@@ -21,10 +21,10 @@ namespace GlobalConqueror.Controllers
 
         private void Start()
         {
-            if (TurnManager.instance != null)
+            if (NationManager.instance != null)
             {
-                TurnManager.instance.OnTurnStart += UpdateUI;
-                TurnManager.instance.OnNationTurnStart += UpdateNationUI;
+                NationManager.instance.OnTurnStart += UpdateUI;
+                NationManager.instance.OnNationTurnStart += UpdateNationUI;
             }
 
             if (endTurnButton != null)
@@ -37,18 +37,18 @@ namespace GlobalConqueror.Controllers
 
         private void OnDestroy()
         {
-            if (TurnManager.instance != null)
+            if (NationManager.instance != null)
             {
-                TurnManager.instance.OnTurnStart -= UpdateUI;
-                TurnManager.instance.OnNationTurnStart -= UpdateNationUI;
+                NationManager.instance.OnTurnStart -= UpdateUI;
+                NationManager.instance.OnNationTurnStart -= UpdateNationUI;
             }
         }
 
         private void Update()
         {
-            if (TurnManager.instance != null && TurnManager.instance.CurrentNation != null)
+            if (NationManager.instance != null && NationManager.instance.CurrentNation != null)
             {
-                UpdateResourceUI(TurnManager.instance.CurrentNation);
+                UpdateResourceUI(NationManager.instance.CurrentNation);
             }
         }
 
@@ -56,7 +56,7 @@ namespace GlobalConqueror.Controllers
         {
             if (turnText != null)
             {
-                turnText.text = $"回合: {turn}";
+                turnText.text = $"回合数 {turn}";
             }
         }
 
@@ -64,14 +64,13 @@ namespace GlobalConqueror.Controllers
         {
             if (nationText != null)
             {
-                nationText.text = $"当前: {nation.nationName}";
-                nationText.color = nation.nationColor;
+                nationText.text = $"{nation.nationName}";
             }
 
-            if (endTurnButton != null)
-            {
-                endTurnButton.interactable = nation.isPlayer;
-            }
+            //if (endTurnButton != null)
+            //{
+            //    endTurnButton.interactable = nation.isPlayer;
+            //}
 
             UpdateResourceUI(nation);
         }
@@ -80,25 +79,25 @@ namespace GlobalConqueror.Controllers
         {
             if (goldText != null)
             {
-                goldText.text = $"金币: {nation.gold}";
+                goldText.text = $"金钱 {nation.gold}";
             }
 
             if (industryText != null)
             {
-                industryText.text = $"工业: {nation.industry}";
+                industryText.text = $"工业 {nation.industry}";
             }
 
             if (scienceText != null)
             {
-                scienceText.text = $"科技: {nation.science}";
+                scienceText.text = $"科技 {nation.science}";
             }
         }
 
         private void OnEndTurnClicked()
         {
-            if (TurnManager.instance != null)
+            if (NationManager.instance != null)
             {
-                TurnManager.instance.EndTurn();
+                NationManager.instance.EndTurn();
             }
         }
     }
