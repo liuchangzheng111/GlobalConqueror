@@ -51,27 +51,28 @@ namespace GlobalConqueror.Managers
 
         private void Start()
         {
+            // 等待 CityManager 初始化城市后再初始化国家和开始回合
+            StartCoroutine(InitializeWhenReady());
+        }
+
+        /// <summary>
+        /// 等待城市初始化完成后再初始化国家与回合逻辑，避免脚本执行顺序问题
+        /// </summary>
+        private System.Collections.IEnumerator InitializeWhenReady()
+        {
+            // 等待 CityManager 与城市 Tilemap 初始化完成
+            while (CityManager.instance == null || !CityManager.instance.IsCityTilemapInitialized)
+            {
+                yield return null;
+            }
+
+            if (!isNationsInitialized)
+            {
+                InitializeNations();
+                isNationsInitialized = true;
+            }
+
             StartTurn();
-        }
-
-        private void OnEnable()
-        {
-            if (CityManager.instance != null)
-            {
-                CityManager.instance.OnCitiesTilemapInitialized += InitializeNations;
-            }
-            else
-            {
-                Debug.LogError("NationManager: CityManager实例为空，无法订阅城市初始化事件！");
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (CityManager.instance != null)
-            {
-                CityManager.instance.OnCitiesTilemapInitialized -= InitializeNations;
-            }
         }
 
         /// <summary>
@@ -90,13 +91,32 @@ namespace GlobalConqueror.Managers
                 return;
             }
 
-            // 绑定其所拥有的城市，并赋予国家颜色
+            // 绑定其所拥有的城市，并赋予国家颜色，同时将该城市 Tilemap 上所有有瓦片的格子的地块归属设为该国
             foreach (var nation in nations)
             {
                 foreach (var city in nation.ownedCitiesNames)
                 {
-                    CityManager.instance.CitiesDic[city].ownerNationId = nation.nationId;
-                    CityManager.instance.CitiesDic[city].cityTiles.color = nation.nationColor;
+                    CityData cityData = CityManager.instance.CitiesDic[city];
+                    cityData.ownerNationId = nation.nationId;
+                    cityData.cityTiles.color = nation.nationColor;
+
+                    if (cityData.cityTiles != null)
+                    {
+                        BoundsInt bounds = cityData.cityTiles.cellBounds;
+                        foreach (Vector3Int pos in bounds.allPositionsWithin)
+                        {
+                            if (cityData.cityTiles.GetTile(pos) == null)
+                                continue;
+
+                            Vector3 worldPos = cityData.cityTiles.CellToWorld(pos);
+                            Vector3Int mapCell = MapManager.instance.Tilemap.WorldToCell(worldPos);
+
+                            if (!MapManager.instance.IsCoordinateValid(mapCell))
+                                continue;
+
+                            MapManager.instance.SetTileOwner(mapCell, nation.nationId);
+                        }
+                    }
                 }
 
                 // 初始化nationsDic

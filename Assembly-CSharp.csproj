@@ -61,17 +61,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Debug\TileCoordinateDebugger.cs" />
+    <Compile Include="Assets\Scripts\Utils\PriorityQueue.cs" />
+    <Compile Include="Assets\Scripts\Models\InitialUnitSpawn.cs" />
     <Compile Include="Assets\Scripts\Controllers\TurnUIController.cs" />
     <Compile Include="Assets\Scripts\Models\NationData.cs" />
     <Compile Include="Assets\Scripts\Managers\NationManager.cs" />
     <Compile Include="Assets\Scripts\Managers\MapManager.cs" />
+    <Compile Include="Assets\Scripts\Controllers\UnitController.cs" />
+    <Compile Include="Assets\Scripts\Models\UnitTypeConfig.cs" />
     <Compile Include="Assets\Scripts\Models\TileTypeMapping.cs" />
+    <Compile Include="Assets\Scripts\Controllers\UnitPurchaseUI.cs" />
     <Compile Include="Assets\Scripts\Controllers\MapCameraController.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListPanelController.cs" />
     <Compile Include="Assets\Scripts\Models\TileData.cs" />
+    <Compile Include="Assets\Scripts\Utils\HexGridUtils.cs" />
     <Compile Include="Assets\Scripts\Managers\CityManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\TileSelector.cs" />
+    <Compile Include="Assets\Scripts\Managers\UnitManager.cs" />
+    <Compile Include="Assets\Scripts\Models\UnitData.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListItemView.cs" />
+    <Compile Include="Assets\Scripts\Controllers\UnitView.cs" />
     <Compile Include="Assets\Scripts\Models\CityData.cs" />
   </ItemGroup>
   <ItemGroup>

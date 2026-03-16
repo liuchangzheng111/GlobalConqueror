@@ -21,18 +21,29 @@ namespace GlobalConqueror.Controllers
 
         private void Start()
         {
-            if (NationManager.instance != null)
+            StartCoroutine(BindWhenNationManagerReady());
+        }
+
+        /// <summary>
+        /// 等待 NationManager 初始化完成后再绑定事件，避免脚本执行顺序问题
+        /// </summary>
+        private System.Collections.IEnumerator BindWhenNationManagerReady()
+        {
+            while (NationManager.instance == null)
             {
-                NationManager.instance.OnTurnStart += UpdateUI;
-                NationManager.instance.OnNationTurnStart += UpdateNationUI;
+                yield return null;
             }
+
+            NationManager.instance.OnTurnStart += UpdateUI;
+            NationManager.instance.OnNationTurnStart += UpdateNationUI;
 
             if (endTurnButton != null)
             {
                 endTurnButton.onClick.AddListener(OnEndTurnClicked);
             }
 
-            UpdateUI(1);
+            // 初始化 UI（若此时已经在某个回合中，可根据实际需要读取当前 turn）
+            UpdateUI(NationManager.instance.CurrentTurn > 0 ? NationManager.instance.CurrentTurn : 1);
         }
 
         private void OnDestroy()

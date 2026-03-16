@@ -56,8 +56,6 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-
-
         private void OnDestroy()
         {
             if (toggleButton != null)

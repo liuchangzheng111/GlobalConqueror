@@ -2,6 +2,7 @@ using UnityEngine;
 using GlobalConqueror.Models;
 using GlobalConqueror.Managers;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 namespace GlobalConqueror.Controllers
 {
@@ -15,17 +16,14 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Color highlightColor = new Color(1f, 1f, 0f, 0.5f); // 高亮颜色
         [SerializeField] private float highlightHeight = 0.1f; // 高亮高度偏移
 
-        [Header("调试显示")]
-        [SerializeField] private bool showDebugInfo = true;
-        [SerializeField] private float debugTextHeight = 2f;
-
         private Camera mainCamera;
         private GameObject currentHighlight;
         private Vector3Int? lastSelectedCoordinate = null;
+        private Vector3 startMousePosition;
 
         // 用于存储每个地块的高亮对象（如果使用预制体）
         private System.Collections.Generic.Dictionary<Vector3Int, GameObject> highlightObjects = 
-            new System.Collections.Generic.Dictionary<Vector3Int, GameObject>();
+            new System.Collections.Generic.Dictionary<Vector3Int, GameObject>();    
 
         private void Awake()
         {          
@@ -48,6 +46,24 @@ namespace GlobalConqueror.Controllers
         {
             if (Input.GetMouseButtonDown(0))
             {
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                {
+                    startMousePosition = Vector3.zero;
+                    return;
+                }
+
+                startMousePosition = Input.mousePosition;
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (startMousePosition == Vector3.zero)
+                    return;
+
+                float moveDistance = Vector3.Distance(Input.mousePosition, startMousePosition);
+
+                if (moveDistance > 5f)
+                    return;
+
                 Vector3 worldPos = Input.mousePosition;
                 worldPos = Camera.main.ScreenToWorldPoint(worldPos);
                 worldPos.z = 0;

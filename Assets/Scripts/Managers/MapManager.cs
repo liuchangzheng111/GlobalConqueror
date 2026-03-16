@@ -201,6 +201,17 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
+        /// 设置地块所属国家（用于自动识别单位归属、领土等）
+        /// </summary>
+        public void SetTileOwner(Vector3Int coordinate, int ownerId)
+        {
+            if (tileDataMap.TryGetValue(coordinate, out MapTileData data))
+            {
+                data.ownerId = ownerId;
+            }
+        }
+
+        /// <summary>
         /// 检查坐标是否在地图范围内
         /// </summary>
         public bool IsCoordinateValid(Vector3Int coordinate)

@@ -41,10 +41,21 @@ namespace GlobalConqueror.Managers
 
         private void Start()
         {
-            if (MapManager.instance.InitializeMapCompleted)
+            StartCoroutine(InitializeWhenMapReady());
+        }
+
+        /// <summary>
+        /// 等待地图初始化完成后再初始化城市，避免脚本执行顺序导致的空引用
+        /// </summary>
+        private System.Collections.IEnumerator InitializeWhenMapReady()
+        {
+            // 等待 MapManager 单例与地图初始化完成
+            while (MapManager.instance == null || !MapManager.instance.InitializeMapCompleted)
             {
-                InitializeCityMaps();
-            }         
+                yield return null;
+            }
+
+            InitializeCityMaps();
         }
 
         /// <summary>
@@ -110,6 +121,20 @@ namespace GlobalConqueror.Managers
                 result.Add(citiesDic[city]);
             }
             return result;
+        }
+
+        /// <summary>
+        /// 根据坐标获取该位置的城市（若有）
+        /// </summary>
+        public CityData GetCityAtPosition(Vector3Int position)
+        {
+            if (allCities == null) return null;
+            foreach (var city in allCities)
+            {
+                if (city.cityLocation == position)
+                    return city;
+            }
+            return null;
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ namespace GlobalConqueror.Models
     {
         public int nationId;
         public string nationName;
+        public Sprite nationFlag;
         public Color nationColor;
         
         public int gold = 500;
@@ -30,6 +31,7 @@ namespace GlobalConqueror.Models
         public NationData(
             int id, 
             string name, 
+            Sprite flag,
             Color color, 
             List<string> cities,
             int _gold = 1000,
@@ -40,6 +42,7 @@ namespace GlobalConqueror.Models
         {
             nationId = id;
             nationName = name;
+            nationFlag = flag;
             nationColor = color;
             ownedCitiesNames = cities;           
             
