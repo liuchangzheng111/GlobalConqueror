@@ -13,6 +13,14 @@ namespace GlobalConqueror.Controllers
     /// </summary>
     public class UnitController : MonoBehaviour
     {
+        public static UnitController instance;
+
+        /// <summary>
+        /// 当前是否处于“单位操作中”（正在播放移动动画）。
+        /// 用于屏蔽城市购买面板等 UI 的误触发。
+        /// </summary>
+        public static bool IsUnitCommandActive => instance != null && instance.isAnimating;
+
         [Header("高亮显示")]
         [SerializeField] private GameObject moveRangeHighlightPrefab;
         [SerializeField] private GameObject attackRangeHighlightPrefab;
@@ -27,6 +35,18 @@ namespace GlobalConqueror.Controllers
         private HashSet<Vector3Int> attackable = new HashSet<Vector3Int>();
 
         private bool isAnimating = false;
+
+        private void Awake()
+        {
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else if (instance != this)
+            {
+                Destroy(gameObject);
+            }
+        }
 
         private void OnEnable()
         {
@@ -53,6 +73,7 @@ namespace GlobalConqueror.Controllers
 
             UnitManager.instance.OnUnitSpawned += OnUnitSpawned;
             UnitManager.instance.OnUnitDestroyed += OnUnitDestroyed;
+            UnitManager.instance.OnUnitAttacked += OnUnitAttack;
         }
 
         private void OnDisable()
@@ -61,6 +82,7 @@ namespace GlobalConqueror.Controllers
             {
                 UnitManager.instance.OnUnitSpawned -= OnUnitSpawned;
                 UnitManager.instance.OnUnitDestroyed -= OnUnitDestroyed;
+                UnitManager.instance.OnUnitAttacked -= OnUnitAttack;
             }
 
             if (MapManager.instance != null)
@@ -103,6 +125,21 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
+        /// 单位攻击时的回调
+        /// </summary>
+        private void OnUnitAttack(UnitData attacker, UnitData defender)
+        {
+            if (unitVisuals.TryGetValue(attacker, out GameObject attackerGo) && attackerGo != null)
+            {
+                attackerGo.GetComponent<UnitView>().RefreshHealthBar();
+            }
+            if (unitVisuals.TryGetValue(defender, out GameObject defenderGo) && defenderGo != null)
+            {
+                defenderGo.GetComponent<UnitView>().RefreshHealthBar();
+            }
+        }
+
+        /// <summary>
         /// 绑定单位视觉
         /// </summary>
         private void BindUnitVisual(UnitData unit, GameObject gameObject)
@@ -115,7 +152,6 @@ namespace GlobalConqueror.Controllers
             unitVisuals[unit] = gameObject;
         }
         
-
         /// <summary>
         /// 地块被选中时的回调
         /// </summary>
@@ -129,17 +165,16 @@ namespace GlobalConqueror.Controllers
 
             // 若点击的是己方未行动单位，选中它
             if (unitAtTile != null &&
-                unitAtTile.ownerNationId == NationManager.instance.CurrentNation.nationId && !unitAtTile.hasAttackedThisTurn &&
-                !unitAtTile.hasMovedThisTurn)
+                unitAtTile.ownerNationId == NationManager.instance.CurrentNation.nationId)
             {
-                SelectUnit(unitAtTile);
+                SelectUnit(unitAtTile, unitAtTile.hasAttackedThisTurn, unitAtTile.hasMovedThisTurn);
                 return;
             }
 
             // 若已有选中单位，尝试移动或攻击
             if (selectedUnit != null)
             {
-                if (reachable.Contains(coordinate))
+                if (reachable.Contains(coordinate) && !selectedUnit.hasMovedThisTurn)
                 {
                     UnitData targetUnit = UnitManager.instance.GetUnitAtPosition(coordinate);
                     if (targetUnit == null)
@@ -149,7 +184,7 @@ namespace GlobalConqueror.Controllers
                     }
                 }
 
-                if (attackable.Contains(coordinate))
+                if (attackable.Contains(coordinate) && !selectedUnit.hasAttackedThisTurn)
                 {
                     UnitManager.instance.TryAttack(selectedUnit, coordinate);
                     ClearSelection();
@@ -164,16 +199,22 @@ namespace GlobalConqueror.Controllers
         /// <summary>
         /// 选中单位
         /// </summary>
-        private void SelectUnit(UnitData unit)
+        private void SelectUnit(UnitData unit, bool hasAttacked, bool hasMoved)
         {
             ClearSelection();
             selectedUnit = unit;
 
-            reachable = UnitManager.instance.GetReachablePositions(unit);
+            if (hasAttacked)
+                return;
+       
             attackable = UnitManager.instance.GetAttackablePositions(unit);
+            ShowRangeHighlights(attackable, attackHighlightObjects, attackRangeHighlightPrefab, attackHighlightColor);
 
-            ShowRangeHighlights(reachable, moveHighlightObjects, moveRangeHighlightPrefab, moveHighlightColor);
-            ShowRangeHighlights(attackable, attackHighlightObjects, attackRangeHighlightPrefab ?? moveRangeHighlightPrefab, attackHighlightColor);
+            if (!hasMoved)
+            {
+                reachable = UnitManager.instance.GetReachablePositions(unit);
+                ShowRangeHighlights(reachable, moveHighlightObjects, moveRangeHighlightPrefab, moveHighlightColor);
+            }
         }
 
         /// <summary>
@@ -182,6 +223,8 @@ namespace GlobalConqueror.Controllers
         private void ClearSelection()
         {
             selectedUnit = null;
+            attackable.Clear();
+            reachable.Clear();
             ClearHighlightObjects(moveHighlightObjects);
             ClearHighlightObjects(attackHighlightObjects);
         }
@@ -208,6 +251,7 @@ namespace GlobalConqueror.Controllers
                 yield break;
             }
 
+            ClearSelection();
             isAnimating = true;
 
             // 简单匀速：每格固定时间
@@ -225,9 +269,8 @@ namespace GlobalConqueror.Controllers
             UnitManager.instance.TryMoveUnit(unit, targetCell);
 
             isAnimating = false;
-            ClearSelection();
+            SelectUnit(unit, unit.hasAttackedThisTurn, unit.hasMovedThisTurn);
         }
-
 
         /// <summary>
         /// 显示范围高亮

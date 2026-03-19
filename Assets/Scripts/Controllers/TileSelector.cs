@@ -14,7 +14,6 @@ namespace GlobalConqueror.Controllers
         [Header("高亮设置")]
         [SerializeField] private GameObject highlightPrefab; // 高亮预制体（可选）
         [SerializeField] private Color highlightColor = new Color(1f, 1f, 0f, 0.5f); // 高亮颜色
-        [SerializeField] private float highlightHeight = 0.1f; // 高亮高度偏移
 
         private Camera mainCamera;
         private GameObject currentHighlight;

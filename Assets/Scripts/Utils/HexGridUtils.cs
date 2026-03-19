@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,8 +11,6 @@ namespace GlobalConqueror.Utils
     {
         /// <summary>
         /// 获取尖顶六边形的 6 个邻格（Offset 坐标）
-        /// 偶数列 (x % 2 == 0): 右上、右、右下、左下、左、左上
-        /// 奇数列 (x % 2 != 0): 右上、右、右下、左下、左、左上（y 偏移与偶数列不同）
         /// </summary>
         public static List<Vector3Int> GetPointyTopNeighbors(Vector3Int cell)
         {
@@ -42,20 +41,47 @@ namespace GlobalConqueror.Utils
         }
 
         /// <summary>
-        /// 尖顶六边形下两格之间的步数（六边形距离）
+        /// 六边形下两格之间的步数（六边形距离）
         /// </summary>
+        /// <param name="a">第一个六边形格子坐标</param>
+        /// <param name="b">第二个六边形格子坐标</param>
+        /// <returns>两个格子之间的最小步数（六边形距离）</returns>
         public static int GetHexDistance(Vector3Int a, Vector3Int b)
         {
-            int q1 = a.x;
-            int r1 = a.y - (a.x - (a.x & 1)) / 2;
+            var cubeA = ConvertOffsetToCube(a);
+            var cubeB = ConvertOffsetToCube(b);
 
-            int q2 = b.x;
-            int r2 = b.y - (b.x - (b.x & 1)) / 2;
+            int dx = Mathf.Abs(cubeA.x - cubeB.x);
+            int dy = Mathf.Abs(cubeA.y - cubeB.y);
+            int dz = Mathf.Abs(cubeA.z - cubeB.z);
 
-            int s1 = -q1 - r1;
-            int s2 = -q2 - r2;
+            int distance = (dx + dy + dz) / 2;
 
-            return (Mathf.Abs(q1 - q2) + Mathf.Abs(r1 - r2) + Mathf.Abs(s1 - s2)) / 2;
+            return distance;
+        }
+
+        /// <summary>
+        /// 辅助函数：将尖顶六边形的偏移坐标（Offset）转换为立方体坐标（Cube）
+        /// </summary>
+        /// <param name="cell">偏移坐标（x=行，y=列，z=0）</param>
+        /// <returns>立方体坐标 (x, y, z)，满足 x+y+z=0</returns>
+        private static (int x, int y, int z) ConvertOffsetToCube(Vector3Int cell)
+        {  
+            int cubeX = cell.x - (cell.y - (cell.y & 1)) / 2;
+            int cubeY = cell.y; 
+            int cubeZ = -cubeX - cubeY;
+
+            return (cubeX, cubeY, cubeZ);
+        }
+
+        /// <summary>
+        /// 辅助函数：立方体坐标转偏移坐标（适配偶数列尖顶六边形）
+        /// </summary>
+        private static Vector3Int ConvertCubeToOffset((int x, int y, int z) cube)
+        {
+            int x = cube.x + (cube.y - (cube.y & 1)) / 2;
+            int y = cube.y;
+            return new Vector3Int(x, y, 0);
         }
 
         /// <summary>
@@ -63,18 +89,26 @@ namespace GlobalConqueror.Utils
         /// </summary>
         public static HashSet<Vector3Int> GetCellsWithinHexDistance(Vector3Int center, int maxDistance)
         {
-            var set = new HashSet<Vector3Int>();
-            int x0 = center.x, y0 = center.y;
-            for (int dx = -maxDistance; dx <= maxDistance; dx++)
+            if (maxDistance < 0)
             {
-                for (int dy = -maxDistance; dy <= maxDistance; dy++)
+                throw new ArgumentOutOfRangeException(nameof(maxDistance), "最大距离不能为负数");
+            }
+
+            var result = new HashSet<Vector3Int>();
+            var centerCube = ConvertOffsetToCube(center);
+
+            // 遍历立方体坐标的六边形范围
+            for (int x = -maxDistance; x <= maxDistance; x++)
+            {
+                for (int y = Math.Max(-maxDistance, -x - maxDistance); y <= Math.Min(maxDistance, -x + maxDistance); y++)
                 {
-                    var cell = new Vector3Int(x0 + dx, y0 + dy, 0);
-                    if (GetHexDistance(center, cell) <= maxDistance)
-                        set.Add(cell);
+                    int z = -x - y;
+                    var offsetCell = ConvertCubeToOffset((centerCube.x + x, centerCube.y + y, centerCube.z + z));
+                    result.Add(offsetCell);
                 }
             }
-            return set;
+
+            return result;
         }
     }
 }

@@ -17,6 +17,8 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI industryText;
         [SerializeField] private TextMeshProUGUI scienceText;
+        [SerializeField] private TextMeshProUGUI DetailText;
+        [SerializeField] private Image FlagImage;
         [SerializeField] private Button endTurnButton;
 
         private void Start()
@@ -35,7 +37,15 @@ namespace GlobalConqueror.Controllers
             }
 
             NationManager.instance.OnTurnStart += UpdateUI;
-            NationManager.instance.OnNationTurnStart += UpdateNationUI;
+            NationManager.instance.OnNationTurnStart += (nationData) => UpdateNationUI(nationData.nationId);
+
+            if (UnitManager.instance != null)
+            {
+                yield return null;
+            }
+            
+            UnitManager.instance.OnCityCaptured += (unitData, cityData) => UpdateDetailUI(unitData.ownerNationId);
+            UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => UpdateNationUI(unitData.ownerNationId);
 
             if (endTurnButton != null)
             {
@@ -51,16 +61,18 @@ namespace GlobalConqueror.Controllers
             if (NationManager.instance != null)
             {
                 NationManager.instance.OnTurnStart -= UpdateUI;
-                NationManager.instance.OnNationTurnStart -= UpdateNationUI;
+                NationManager.instance.OnNationTurnStart -= (nationData) => UpdateNationUI(nationData.nationId);
+            }
+
+            if (UnitManager.instance != null)
+            {
+                UnitManager.instance.OnCityCaptured -= (unitData, cityData) => UpdateDetailUI(unitData.ownerNationId);
+                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => UpdateNationUI(unitData.ownerNationId);
             }
         }
 
         private void Update()
         {
-            if (NationManager.instance != null && NationManager.instance.CurrentNation != null)
-            {
-                UpdateResourceUI(NationManager.instance.CurrentNation);
-            }
         }
 
         private void UpdateUI(int turn)
@@ -71,8 +83,14 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-        private void UpdateNationUI(NationData nation)
+        private void UpdateNationUI(int nationId)
         {
+            NationData nation = null;
+            if (NationManager.instance != null)
+            {
+                nation = NationManager.instance.GetNation(nationId);
+            }
+
             if (nationText != null)
             {
                 nationText.text = $"{nation.nationName}";
@@ -83,7 +101,13 @@ namespace GlobalConqueror.Controllers
             //    endTurnButton.interactable = nation.isPlayer;
             //}
 
+            if (FlagImage != null && nation.nationFlag != null)
+            {
+                FlagImage.sprite = nation.nationFlag;
+            }
+
             UpdateResourceUI(nation);
+            UpdateDetailUI(nation.nationId);
         }
 
         private void UpdateResourceUI(NationData nation)
@@ -101,6 +125,20 @@ namespace GlobalConqueror.Controllers
             if (scienceText != null)
             {
                 scienceText.text = $"科技 {nation.science}";
+            }
+        }
+
+        private void UpdateDetailUI(int nationId)
+        {
+            NationData nationData = null;
+            if (NationManager.instance != null)
+            {
+                nationData = NationManager.instance.GetNation(nationId);
+            }
+            if (nationData != null && DetailText != null && UnitManager.instance != null)
+            {
+                string capitalName = string.IsNullOrEmpty(nationData.capital) ? "无" : nationData.capital;
+                DetailText.text = $"首都 {capitalName}\n" + $"城市数 {nationData.ownedCitiesNames.Count}\n" + $"部队数 {UnitManager.instance.GetUnitsByNation(nationData.nationId).Count}";
             }
         }
 

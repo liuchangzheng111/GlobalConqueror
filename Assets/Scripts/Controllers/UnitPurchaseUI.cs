@@ -28,12 +28,14 @@ namespace GlobalConqueror.Controllers
 
         private System.Collections.IEnumerator BindWhenMapManagerReady()
         {
-            while (MapManager.instance == null)
+            while (UnitController.instance == null || NationManager.instance == null || UnitManager.instance == null)
             {
                 yield return null;
             }
 
             MapManager.instance.OnTileSelected += OnTileSelected;
+            NationManager.instance.OnNationTurnEnd += (nationData) => Hide();
+            UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => Hide();
         }
 
         private void OnDisable()
@@ -42,10 +44,25 @@ namespace GlobalConqueror.Controllers
             {
                 MapManager.instance.OnTileSelected -= OnTileSelected;
             }
+            if (NationManager.instance != null)
+            {
+                NationManager.instance.OnNationTurnEnd -= (nationData) => Hide();
+            }
+            if (UnitManager.instance != null)
+            {
+                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => Hide();
+            }
         }
 
         private void OnTileSelected(Vector3Int coordinate)
         {
+            // 若玩家正在对单位下达移动/攻击指令（或单位正在移动动画中），不弹出购买面板
+            if (UnitController.IsUnitCommandActive)
+            {
+                Hide();
+                return;
+            }
+
             if (CityManager.instance == null || NationManager.instance?.CurrentNation == null)
             {
                 Hide();
@@ -79,12 +96,18 @@ namespace GlobalConqueror.Controllers
             RefreshButtons();
         }
 
+        /// <summary>
+        /// 隐藏面板
+        /// </summary>
         public void Hide()
         {
             currentCity = null;
             if (panelRoot != null) panelRoot.SetActive(false);
         }
 
+        /// <summary>
+        /// 刷新按钮
+        /// </summary>
         private void RefreshButtons()
         {
             if (buttonContainer == null || unitPurchaseButtonPrefab == null || UnitManager.instance == null)
@@ -102,16 +125,16 @@ namespace GlobalConqueror.Controllers
             {
                 if (unit == null) continue;
 
-                var unitType = unit.GetComponent<UnitTypeConfig>();
+                var unitType = unit.GetComponent<InitialUnitSpawn>().unitType;
                 if (unitType == null) continue;
 
                 var go = Instantiate(unitPurchaseButtonPrefab, buttonContainer);
                 var btn = go.GetComponent<Button>();
-                var text = go.GetComponentInChildren<TextMeshProUGUI>();
-                if (text != null)
+                var unitPurchaseItemView = go.GetComponent<UnitPurchaseItemView>();
+
+                if (unitPurchaseItemView != null) 
                 {
-                    text.text = $"{unitType.unitTypeName}\n" +
-                        $"金{unitType.goldCost} 工{unitType.industryCost} 科{unitType.scienceCost}";
+                    unitPurchaseItemView.Setup(unitType);
                 }
 
                 bool canAfford = nation.gold >= unitType.goldCost &&
@@ -121,17 +144,20 @@ namespace GlobalConqueror.Controllers
                 if (btn != null)
                 {
                     btn.interactable = canAfford;
-                    UnitTypeConfig captured = unitType;
-                    btn.onClick.AddListener(() => OnPurchaseClicked(captured));
+                    btn.onClick.AddListener(() => OnPurchaseClicked(unit));
                 }
             }
         }
 
-        private void OnPurchaseClicked(UnitTypeConfig unitType)
+        /// <summary>
+        /// 点击购买
+        /// </summary>
+        /// <param name="unitType"></param>
+        private void OnPurchaseClicked(GameObject unit)
         {
-            if (currentCity == null || unitType == null) return;
+            if (currentCity == null || unit == null) return;
 
-            if (UnitManager.instance.TryPurchaseUnit(currentCity, unitType))
+            if (UnitManager.instance.TryPurchaseUnit(currentCity, unit))
             {
                 RefreshButtons();
             }

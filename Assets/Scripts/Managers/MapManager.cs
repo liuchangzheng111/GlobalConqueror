@@ -14,8 +14,6 @@ namespace GlobalConqueror.Managers
 
         [Header("地图设置（用于随机生成）")]
         [SerializeField] private float hexSize = 1f; // 六边形大小
-        [SerializeField] private int mapWidth = 20;  // 地图宽度（六边形数量，仅用于随机生成）
-        [SerializeField] private int mapHeight = 20; // 地图高度（六边形数量，仅用于随机生成）
 
         [Header("Tilemap设置")]
         [SerializeField] private Tilemap sourceTilemap; // 源Tilemap（如果为空则使用随机生成）

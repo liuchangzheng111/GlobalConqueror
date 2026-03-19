@@ -109,6 +109,12 @@ namespace GlobalConqueror.Controllers
         {
             if (flagImage != null)
             {
+                if (_boundUnit == null)
+                {
+                    healthSlider.gameObject.SetActive(false);
+                    return;
+                }
+
                 if (_boundUnit.ownerNationId < 0)
                 {
                     Debug.LogError("UnitView: 未绑定国家！");

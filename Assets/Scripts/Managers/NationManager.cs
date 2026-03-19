@@ -53,6 +53,7 @@ namespace GlobalConqueror.Managers
         {
             // 等待 CityManager 初始化城市后再初始化国家和开始回合
             StartCoroutine(InitializeWhenReady());
+            StartCoroutine(StartWhenReady());
         }
 
         /// <summary>
@@ -70,6 +71,18 @@ namespace GlobalConqueror.Managers
             {
                 InitializeNations();
                 isNationsInitialized = true;
+            }
+        }
+
+        /// <summary>
+        /// 所有初始完后开始第一回合
+        /// </summary>
+        /// <returns></returns>
+        private System.Collections.IEnumerator StartWhenReady()
+        {
+            while (UnitManager.instance == null || !UnitManager.instance.initialUnitsSpawned)
+            {
+                yield return null;
             }
 
             StartTurn();

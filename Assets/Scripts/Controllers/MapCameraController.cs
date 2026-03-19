@@ -30,7 +30,6 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private float smoothTime = 0.2f;
         
         [Header("自动初始化")]
-        [SerializeField] private bool autoInitializeFromMap = true; // 是否从地图自动初始化
         [SerializeField] private float initialZoomRatio = 0.8f; // 初始缩放比例（0.8表示显示80%的地图）
         [SerializeField] private float minZoomRatio = 1f; // 最小缩放比例（能看到100%的地图）
         [SerializeField] private float maxZoomRatio = 0.1f; // 最大缩放比例（能看到10%的地图，即放大10倍）

@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\Controllers\UnitPurchaseUI.cs" />
     <Compile Include="Assets\Scripts\Controllers\MapCameraController.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListPanelController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\UnitPurchaseItemView.cs" />
     <Compile Include="Assets\Scripts\Models\TileData.cs" />
     <Compile Include="Assets\Scripts\Utils\HexGridUtils.cs" />
     <Compile Include="Assets\Scripts\Managers\CityManager.cs" />

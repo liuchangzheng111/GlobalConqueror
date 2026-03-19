@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using GlobalConqueror.Models;
 using GlobalConqueror.Utils;
+using DG.Tweening;
 
 namespace GlobalConqueror.Managers
 {
@@ -23,7 +24,9 @@ namespace GlobalConqueror.Managers
 
         private List<UnitData> allUnits = new List<UnitData>();
         private int nextUnitId = 1;
-        private bool initialUnitsSpawned = false;
+
+        [HideInInspector]
+        public bool initialUnitsSpawned = false;
 
         public List<UnitData> AllUnits => allUnits;
         public List<GameObject> AvailableUnitTypes => availableUnitTypes;
@@ -131,7 +134,7 @@ namespace GlobalConqueror.Managers
                     continue;
                 }
 
-                SpawnUnit(cell, spawn.unitType, ownerId, spawn.gameObject);
+                SpawnUnit(cell, spawn.unitType, ownerId, spawn.gameObject, false);
 
                 Debug.Log($"UnitManager: 初始化开局单位 {spawn.unitType.unitTypeName} 于 {cell}，国家 {ownerId}");
             }
@@ -200,8 +203,9 @@ namespace GlobalConqueror.Managers
         /// 在指定城市购买单位（消耗资源）
         /// </summary>
         /// <returns>是否购买成功</returns>
-        public bool TryPurchaseUnit(CityData city, UnitTypeConfig unitType)
+        public bool TryPurchaseUnit(CityData city, GameObject unit)
         {
+            var unitType = unit.GetComponent<InitialUnitSpawn>().unitType;
             if (city == null || unitType == null) return false;
             if (CityManager.instance == null || NationManager.instance == null) return false;
 
@@ -227,7 +231,12 @@ namespace GlobalConqueror.Managers
             nation.industry -= unitType.industryCost;
             nation.science -= unitType.scienceCost;
 
-            //SpawnUnit(city.cityLocation, unitType, city.ownerNationId, ); //TODO:
+            Vector3 targetWorldPos = MapManager.instance.Tilemap.GetCellCenterWorld(city.cityLocation);
+            Vector3 spawnStartPos = targetWorldPos + new Vector3(0, 0.5f, 0);
+            GameObject spawnedUnit = Instantiate(unit, spawnStartPos, Quaternion.identity, unitsContainer.transform);
+
+            StartCoroutine(AnimateSpawnUnit(spawnedUnit, targetWorldPos));
+            SpawnUnit(city.cityLocation, unitType, city.ownerNationId, spawnedUnit, true);
             Debug.Log($"{nation.nationName} 在 {city.cityName} 购买了 {unitType.unitTypeName}");
             return true;
         }
@@ -235,7 +244,7 @@ namespace GlobalConqueror.Managers
         /// <summary>
         /// 在指定位置生成单位
         /// </summary>
-        public UnitData SpawnUnit(Vector3Int position, UnitTypeConfig unitType, int ownerNationId, GameObject unitObject)
+        public UnitData SpawnUnit(Vector3Int position, UnitTypeConfig unitType, int ownerNationId, GameObject unitObject, bool isNewUnit)
         {
             if (unitType == null) return null;
             if (!MapManager.instance.IsCoordinateValid(position))
@@ -250,11 +259,43 @@ namespace GlobalConqueror.Managers
             }
 
             UnitData unit = new UnitData(nextUnitId++, unitType, position, ownerNationId);
+
+            // 判断是否为新生成的单位
+            if (isNewUnit)
+            {
+                unit.hasAttackedThisTurn = true;
+                unit.hasMovedThisTurn = true;
+            }
+            else
+            {
+                unit.hasAttackedThisTurn = false;
+                unit.hasMovedThisTurn = true;
+            }
             allUnits.Add(unit);
 
             // 告诉UnitController绑定游戏对象
             OnUnitSpawned?.Invoke(unit, unitObject);
             return unit;
+        }
+
+        /// <summary>
+        /// 生成部队的动画
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="targetCell"></param>
+        /// <returns></returns>
+        private IEnumerator AnimateSpawnUnit(GameObject unit, Vector3 targetPosition)
+        {
+            if (unit == null)
+            {
+                yield break;
+            }         
+
+            float spawnDuration = 0.3f; 
+
+            Tween spawnTween = unit.transform.DOMove(targetPosition, spawnDuration).SetUpdate(true);
+
+            yield return spawnTween.WaitForCompletion();
         }
 
         /// <summary>
@@ -348,6 +389,7 @@ namespace GlobalConqueror.Managers
                 }
             }
 
+            reachable.Remove(startPos);
             return reachable;
         }
 
@@ -539,11 +581,12 @@ namespace GlobalConqueror.Managers
                 return false;
             }
 
-            // 简易战斗：攻击力 vs 防御力，高者胜
-            int atk = attacker.unitType.attackStrength;
-            int def = defender.unitType.health;
+            int attackerStrength = (int)(attacker.unitType.attackStrength * Random.Range(0.8f, 1.2f));
+            int defenderStrength = (int)(defender.unitType.attackStrength * Random.Range(0.8f, 1.2f));  
+            defender.currentHealth = Mathf.Max(0, defender.currentHealth - attackerStrength);
+            attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
 
-            if (atk >= def)
+            if (defender.currentHealth == 0)
             {
                 allUnits.Remove(defender);
                 OnUnitDestroyed?.Invoke(defender);
@@ -551,12 +594,19 @@ namespace GlobalConqueror.Managers
                 attacker.hasAttackedThisTurn = true;
                 Debug.Log($"{attacker.unitType.unitTypeName} 击败了 {defender.unitType.unitTypeName}");
             }
-            else
+            else if (attacker.currentHealth == 0)
             {
                 allUnits.Remove(attacker);
                 OnUnitDestroyed?.Invoke(attacker);
                 OnUnitAttacked?.Invoke(attacker, defender);
                 Debug.Log($"{attacker.unitType.unitTypeName} 被 {defender.unitType.unitTypeName} 击败");
+            }
+            else
+            {
+                OnUnitAttacked?.Invoke(attacker, defender);
+                attacker.hasAttackedThisTurn = true;
+                Debug.Log($"{attacker.unitType.unitTypeName} 对 {defender.unitType.unitTypeName} 造成 {attackerStrength}伤害\n" +
+                    $"{defender.unitType.unitTypeName} 对 {defender.unitType.unitTypeName} 造成 {defenderStrength}伤害\n");
             }
             return true;
         }

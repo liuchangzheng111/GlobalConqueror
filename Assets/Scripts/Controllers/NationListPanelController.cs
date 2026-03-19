@@ -52,7 +52,13 @@ namespace GlobalConqueror.Controllers
         {
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnStart += RefreshList;
+                NationManager.instance.OnNationTurnStart += (unitData) => RefreshList();
+                NationManager.instance.OnNationDefeated += (unitData) => RefreshList();
+            }
+            if (UnitManager.instance != null)
+            {
+                UnitManager.instance.OnCityCaptured += (unitData, cityData) => RefreshList();
+                UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => RefreshList();
             }
         }
 
@@ -65,7 +71,14 @@ namespace GlobalConqueror.Controllers
 
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnStart -= RefreshList;
+                NationManager.instance.OnNationTurnStart -= (unitData) => RefreshList();
+                NationManager.instance.OnNationDefeated -= (unitData) => RefreshList();
+            }
+
+            if (UnitManager.instance != null)
+            {
+                UnitManager.instance.OnCityCaptured -= (unitData, cityData) => RefreshList();
+                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => RefreshList();
             }
         }
 
@@ -167,7 +180,7 @@ namespace GlobalConqueror.Controllers
         /// <summary>
         /// 根据当前国家列表刷新 UI
         /// </summary>
-        private void RefreshList(NationData nationIfUse = null)
+        private void RefreshList()
         {
             if (contentRoot == null || itemPrefab == null)
             {
@@ -184,7 +197,14 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            List<NationData> nations = NationManager.instance.Nations;
+            List<NationData> nations = new List<NationData>(NationManager.instance.Nations);
+            nations.Sort((a, b) => {
+                int defeatCompare = a.isDefeated.CompareTo(b.isDefeated);
+                if (defeatCompare != 0)
+                    return defeatCompare;
+
+                return -a.gold.CompareTo(b.gold); 
+            });
 
             for (int i = 0; i < nations.Count; i++)
             {

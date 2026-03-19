@@ -14,6 +14,7 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private TextMeshProUGUI nationNameText;
         [SerializeField] private TextMeshProUGUI detailText;
         [SerializeField] private TextMeshProUGUI statusText;
+        [SerializeField] private Image NationFlag;
         [SerializeField] private Image nationColorStrip;
         [SerializeField] private Color defeatedColor;
 
@@ -36,10 +37,17 @@ namespace GlobalConqueror.Controllers
 
             if (detailText != null)
             {
-                string capitalName = string.IsNullOrEmpty(nation.capital) ? "无" : nation.capital;
-                detailText.text =
-                    $"城市数 {cityCount}  首都 {capitalName}\n" +
-                    $"金钱 {nation.gold}  工业 {nation.industry}  科技 {nation.science}\n";
+                if (!nation.isDefeated)
+                {
+                    string capitalName = string.IsNullOrEmpty(nation.capital) ? "无" : nation.capital;
+                    detailText.text =
+                        $"城市数 {cityCount}  首都 {capitalName}\n" +
+                        $"金钱 {nation.gold}  工业 {nation.industry}  科技 {nation.science}\n";
+                }
+                else
+                {
+                    detailText.text = "";
+                }
             }
 
             if (statusText != null)
@@ -50,12 +58,27 @@ namespace GlobalConqueror.Controllers
                     statusText.color = Color.black;
                     nationColorStrip.color = defeatedColor;
                 }
-                statusText.text = "存续中";
+                else
+                {
+                    statusText.text = "存续中";
+                }
             }
 
             if (nationColorStrip != null)
             {
-                nationColorStrip.color = new Color(nation.nationColor.r, nation.nationColor.g, nation.nationColor.b, 0.2f);
+                if (nation.isDefeated)
+                {
+                    nationColorStrip.color = new Color(0, 0, 0, 0.2f);
+                }
+                else
+                {
+                    nationColorStrip.color = new Color(nation.nationColor.r, nation.nationColor.g, nation.nationColor.b, 0.2f);
+                }
+            }
+
+            if (NationFlag != null)
+            {
+                NationFlag.sprite = nation.nationFlag;
             }
         }
     }
