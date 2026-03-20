@@ -66,7 +66,9 @@
     <Compile Include="Assets\Scripts\Controllers\TurnUIController.cs" />
     <Compile Include="Assets\Scripts\Models\NationData.cs" />
     <Compile Include="Assets\Scripts\Managers\NationManager.cs" />
+    <Compile Include="Assets\Scripts\Controllers\FloatingDamageManager.cs" />
     <Compile Include="Assets\Scripts\Managers\MapManager.cs" />
+    <Compile Include="Assets\Scripts\Controllers\FloatingDamageText.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitController.cs" />
     <Compile Include="Assets\Scripts\Models\UnitTypeConfig.cs" />
     <Compile Include="Assets\Scripts\Models\TileTypeMapping.cs" />
@@ -78,6 +80,7 @@
     <Compile Include="Assets\Scripts\Utils\HexGridUtils.cs" />
     <Compile Include="Assets\Scripts\Managers\CityManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\TileSelector.cs" />
+    <Compile Include="Assets\Scripts\Controllers\UnitDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\Managers\UnitManager.cs" />
     <Compile Include="Assets\Scripts\Models\UnitData.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListItemView.cs" />

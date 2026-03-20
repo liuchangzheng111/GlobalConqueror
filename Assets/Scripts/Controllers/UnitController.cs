@@ -5,6 +5,7 @@ using GlobalConqueror.Models;
 using GlobalConqueror.Managers;
 using System.Collections;
 using DG.Tweening;
+using UnityEngine.EventSystems;
 
 namespace GlobalConqueror.Controllers
 {
@@ -27,7 +28,11 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Color moveHighlightColor = new Color(0, 1, 0, 0.4f);
         [SerializeField] private Color attackHighlightColor = new Color(1, 0, 0, 0.4f);
 
+        [Header("单位详情面板")]
+        [SerializeField] private UnitDetailsPanelController unitDetailsPanel;
+
         private UnitData selectedUnit;
+        private UnitData currentUnit;
         private List<GameObject> moveHighlightObjects = new List<GameObject>();
         private List<GameObject> attackHighlightObjects = new List<GameObject>();
         private Dictionary<UnitData, GameObject> unitVisuals = new Dictionary<UnitData, GameObject>();
@@ -35,9 +40,11 @@ namespace GlobalConqueror.Controllers
         private HashSet<Vector3Int> attackable = new HashSet<Vector3Int>();
 
         private bool isAnimating = false;
+        private Camera mainCamera;
 
         private void Awake()
         {
+            mainCamera = Camera.main != null ? Camera.main : FindObjectOfType<Camera>();
             if (instance == null)
             {
                 instance = this;
@@ -98,6 +105,37 @@ namespace GlobalConqueror.Controllers
 
         private void Start()
         {
+        }
+
+        private void Update()
+        {
+            HandleRightClickForDetails();
+        }
+
+        /// <summary>
+        /// 右键点击获取单位详情
+        /// </summary>
+        private void HandleRightClickForDetails()
+        {
+            if (isAnimating) return;
+            if (!Input.GetMouseButtonDown(1)) return;
+
+            // 点击到 UI 上不触发
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            if (MapManager.instance.Tilemap == null || mainCamera == null)
+                return;
+
+            Vector3 world = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            world.z = 0f;
+            Vector3Int cell = MapManager.instance.Tilemap.WorldToCell(world);
+
+            UnitData unitUnderCursor = UnitManager.instance != null ? UnitManager.instance.GetUnitAtPosition(cell) : null;
+            if (unitUnderCursor == null) return;
+
+            if (unitDetailsPanel != null && unitUnderCursor == currentUnit)
+                unitDetailsPanel.Show(unitUnderCursor);
         }
 
         /// <summary>
@@ -163,12 +201,17 @@ namespace GlobalConqueror.Controllers
 
             UnitData unitAtTile = UnitManager.instance?.GetUnitAtPosition(coordinate);
 
-            // 若点击的是己方未行动单位，选中它
-            if (unitAtTile != null &&
-                unitAtTile.ownerNationId == NationManager.instance.CurrentNation.nationId)
+            // 移动/攻击仍仅对己方（CurrentNation）且未行动单位生效
+            if (unitAtTile != null)
             {
-                SelectUnit(unitAtTile, unitAtTile.hasAttackedThisTurn, unitAtTile.hasMovedThisTurn);
-                return;
+                currentUnit = unitAtTile;
+                bool isOwnUnit = unitAtTile.ownerNationId == NationManager.instance.CurrentNation.nationId;
+
+                if (isOwnUnit)
+                {
+                    SelectUnit(unitAtTile, unitAtTile.hasAttackedThisTurn, unitAtTile.hasMovedThisTurn);
+                    return;
+                }
             }
 
             // 若已有选中单位，尝试移动或攻击
@@ -227,6 +270,9 @@ namespace GlobalConqueror.Controllers
             reachable.Clear();
             ClearHighlightObjects(moveHighlightObjects);
             ClearHighlightObjects(attackHighlightObjects);
+
+            if (unitDetailsPanel != null)
+                unitDetailsPanel.Hide();
         }
 
         /// <summary>

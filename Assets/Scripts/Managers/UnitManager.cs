@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using GlobalConqueror.Models;
 using GlobalConqueror.Utils;
+using GlobalConqueror.Controllers;
 using DG.Tweening;
 
 namespace GlobalConqueror.Managers
@@ -581,25 +582,36 @@ namespace GlobalConqueror.Managers
                 return false;
             }
 
-            int attackerStrength = (int)(attacker.unitType.attackStrength * Random.Range(0.8f, 1.2f));
-            int defenderStrength = (int)(defender.unitType.attackStrength * Random.Range(0.8f, 1.2f));  
-            defender.currentHealth = Mathf.Max(0, defender.currentHealth - attackerStrength);
-            attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
+            int attackerStrength = Mathf.CeilToInt(attacker.unitType.attackStrength * Random.Range(0.8f, 1.2f) * attacker.HealthRate);
+            float defenderHealthRate = defender.HealthRate;        
+            defender.currentHealth = Mathf.Max(0, defender.currentHealth - attackerStrength);        
 
-            if (defender.currentHealth == 0)
+            if (FloatingDamageManager.instance != null && attackerStrength > 0)
+                FloatingDamageManager.instance.ShowDefenderDamage(defender.position, attackerStrength);
+
+            if (defender.currentHealth <= 0)
             {
                 allUnits.Remove(defender);
                 OnUnitDestroyed?.Invoke(defender);
                 OnUnitAttacked?.Invoke(attacker, defender);
                 attacker.hasAttackedThisTurn = true;
                 Debug.Log($"{attacker.unitType.unitTypeName} 击败了 {defender.unitType.unitTypeName}");
+                return true;
             }
-            else if (attacker.currentHealth == 0)
+
+            int defenderStrength = Mathf.CeilToInt(defender.unitType.attackStrength * Random.Range(0.8f, 1.2f) * defenderHealthRate); 
+            attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
+
+            if (FloatingDamageManager.instance != null && defenderStrength > 0)
+                FloatingDamageManager.instance.ShowAttackerCounterDamage(attacker.position, defenderStrength);
+
+            if (attacker.currentHealth <= 0)
             {
                 allUnits.Remove(attacker);
                 OnUnitDestroyed?.Invoke(attacker);
                 OnUnitAttacked?.Invoke(attacker, defender);
                 Debug.Log($"{attacker.unitType.unitTypeName} 被 {defender.unitType.unitTypeName} 击败");
+                return true;
             }
             else
             {
@@ -607,8 +619,8 @@ namespace GlobalConqueror.Managers
                 attacker.hasAttackedThisTurn = true;
                 Debug.Log($"{attacker.unitType.unitTypeName} 对 {defender.unitType.unitTypeName} 造成 {attackerStrength}伤害\n" +
                     $"{defender.unitType.unitTypeName} 对 {defender.unitType.unitTypeName} 造成 {defenderStrength}伤害\n");
+                return true;
             }
-            return true;
         }
 
         /// <summary>

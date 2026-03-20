@@ -29,6 +29,9 @@ namespace GlobalConqueror.Models
         /// <summary>最大生命值（来自兵种配置）</summary>
         public int MaxHealth => unitType != null ? unitType.health : 1;
 
+        /// <summary>当前生命值比例</summary>
+        public float HealthRate => (float)currentHealth / (float)MaxHealth;
+
         public UnitData(int id, UnitTypeConfig type, Vector3Int pos, int ownerId)
         {
             unitId = id;
