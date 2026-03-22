@@ -16,11 +16,16 @@ MonoBehaviour:
   unitIcon: {fileID: 21300000, guid: 87813f364416b99459f1e1238752759e, type: 3}
   movementRange: 2
   attackRange: 1
-  attackStrength: 25
+  attackStrength_Armor: 15
+  attackStrength_Soldier: 25
+  attackStrength_Fort: 10
+  attackStrength_Warship: 5
+  attackStrength_Battleship: 5
   health: 100
   goldCost: 80
   industryCost: 0
   scienceCost: 0
+  unitProperty: 0
   plainAndCityMoveCost: 1
   mountainMoveCost: 2
   forestMoveCost: 1

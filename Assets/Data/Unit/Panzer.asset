@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
-  m_Name: Sniper
+  m_Name: Panzer
   m_EditorClassIdentifier: 
-  unitTypeName: "\u72D9\u51FB\u5175"
-  unitIcon: {fileID: 21300000, guid: 7e479f98e39ac28449a005e6bc570b21, type: 3}
-  movementRange: 2
+  unitTypeName: "\u88C5\u7532\u8F66"
+  unitIcon: {fileID: 21300000, guid: 2669b470ff6e98340875b6406623c370, type: 3}
+  movementRange: 4.5
   attackRange: 1
-  attackStrength_Armor: 15
-  attackStrength_Soldier: 50
-  attackStrength_Fort: 25
-  attackStrength_Warship: 5
-  attackStrength_Battleship: 5
-  health: 80
-  goldCost: 100
-  industryCost: 10
+  attackStrength_Armor: 20
+  attackStrength_Soldier: 40
+  attackStrength_Fort: 20
+  attackStrength_Warship: 10
+  attackStrength_Battleship: 10
+  health: 120
+  goldCost: 120
+  industryCost: 15
   scienceCost: 0
-  unitProperty: 0
+  unitProperty: 1
   plainAndCityMoveCost: 1
   mountainMoveCost: 2
-  forestMoveCost: 1
+  forestMoveCost: 1.5
   waterMoveCost: 1

@@ -33,17 +33,12 @@ namespace GlobalConqueror.Controllers
                 yield return null;
             }
 
-            MapManager.instance.OnTileSelected += OnTileSelected;
             NationManager.instance.OnNationTurnEnd += (nationData) => Hide();
             UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => Hide();
         }
 
         private void OnDisable()
         {
-            if (MapManager.instance != null)
-            {
-                MapManager.instance.OnTileSelected -= OnTileSelected;
-            }
             if (NationManager.instance != null)
             {
                 NationManager.instance.OnNationTurnEnd -= (nationData) => Hide();
@@ -54,7 +49,7 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-        private void OnTileSelected(Vector3Int coordinate)
+        public void OnPurchaseBottomClick(CityData city)
         {
             // 若玩家正在对单位下达移动/攻击指令（或单位正在移动动画中），不弹出购买面板
             if (UnitController.IsUnitCommandActive)
@@ -69,15 +64,14 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            // 若该格有单位，不显示购买面板（由 UnitController 处理单位选中）
-            if (UnitManager.instance != null && UnitManager.instance.GetUnitAtPosition(coordinate) != null)
+            if (city == null || city.ownerNationId != NationManager.instance.CurrentNation.nationId)
             {
                 Hide();
                 return;
-            }
-
-            CityData city = CityManager.instance.GetCityAtPosition(coordinate);
-            if (city == null || city.ownerNationId != NationManager.instance.CurrentNation.nationId)
+            }            
+            
+            // 若该格有单位，不显示购买面板（由 UnitController 处理单位选中）
+            if (UnitManager.instance != null && UnitManager.instance.GetUnitAtPosition(city.cityLocation) != null)
             {
                 Hide();
                 return;

@@ -134,12 +134,20 @@ namespace GlobalConqueror.Controllers
 
             if (statsText != null)
             {
-                int atk = type != null ? type.attackStrength : 0;
-                int move = unit.MovementRange;
+                int atk_soldier = type != null ? type.attackStrength_Soldier : 0;
+                int atk_armor = type != null ? type.attackStrength_Armor : 0;
+                int atk_fort = type != null ? type.attackStrength_Fort : 0;
+                int atk_warship = type != null ? type.attackStrength_Warship : 0;
+                int atk_battleship = type != null ? type.attackStrength_Battleship : 0;
+                float move = unit.MovementRange;
                 int range = unit.AttackRange;
 
                 statsText.text =
-                    $"攻击力：{atk}\n" +
+                    $"对步兵单位攻击力：{atk_soldier}\n" +
+                    $"对装甲单位攻击力：{atk_armor}\n" +
+                    $"对堡垒单位攻击力：{atk_fort}\n" +
+                    $"对轻型舰艇攻击力：{atk_warship}\n" +
+                    $"对重型舰艇攻击力：{atk_battleship}\n" +
                     $"移动范围：{move}\n" +
                     $"攻击范围：{range}\n" +
                     $"本回合：{(unit.hasMovedThisTurn ? "已移动" : "未移动")} / {(unit.hasAttackedThisTurn ? "已攻击" : "未攻击")}\n" +

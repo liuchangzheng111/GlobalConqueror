@@ -60,6 +60,7 @@
     <Analyzer Include="D:\Unity\2022.3.53f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Controllers\CityDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\Debug\TileCoordinateDebugger.cs" />
     <Compile Include="Assets\Scripts\Utils\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\Models\InitialUnitSpawn.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Assets\Scripts\Models\TileTypeMapping.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitPurchaseUI.cs" />
     <Compile Include="Assets\Scripts\Controllers\MapCameraController.cs" />
+    <Compile Include="Assets\Scripts\Models\CityLevelMapping.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListPanelController.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitPurchaseItemView.cs" />
     <Compile Include="Assets\Scripts\Models\TileData.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="Assets\Scripts\Controllers\UnitDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\Managers\UnitManager.cs" />
     <Compile Include="Assets\Scripts\Models\UnitData.cs" />
+    <Compile Include="Assets\Scripts\Controllers\CityView.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListItemView.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitView.cs" />
     <Compile Include="Assets\Scripts\Models\CityData.cs" />

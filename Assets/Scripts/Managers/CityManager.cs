@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using GlobalConqueror.Models;
 using System.Linq;
+using GlobalConqueror.Controllers;
 
 namespace GlobalConqueror.Managers
 {
@@ -15,6 +16,15 @@ namespace GlobalConqueror.Managers
 
         [Header("城市地块簇")]
         public GameObject cities;
+
+        [Header("城市详情图标预制体")]
+        public GameObject cityView;
+
+        [Header("城市各类等级列表图标(按从低到高顺序)")]
+        public List<Sprite> industry;
+        public List<Sprite> airport;
+        public List<Sprite> science;
+        public List<Sprite> supply;
 
         private Dictionary<string, CityData> citiesDic = new Dictionary<string, CityData>();
 
@@ -72,17 +82,28 @@ namespace GlobalConqueror.Managers
                 return;
             }
 
-            // 初始化城市地块
+            // 初始化城市地块和等级
             Dictionary<string, Tilemap> cityTilemap = new Dictionary<string, Tilemap>();
+            Dictionary<string, CityLevelMapping> cityLevels = new Dictionary<string, CityLevelMapping>();
+
             Tilemap[] childTilemaps = cities.GetComponentsInChildren<Tilemap>(includeInactive: false);
+
             foreach (Tilemap tilemap in childTilemaps)
             {
                 if (!cityTilemap.ContainsKey(tilemap.name))
                 {
                     cityTilemap.Add(tilemap.name, tilemap);
-                    Debug.Log($"CityManager: 加载城市Tilemap - {tilemap.name}");
+                    Debug.Log($"CityManager: 加载城市地块 - {tilemap.name}");
+                }
+
+                CityLevelMapping levelMapping = tilemap.GetComponent<CityLevelMapping>();
+                if (!cityLevels.ContainsKey(tilemap.name) && levelMapping != null)
+                {
+                    cityLevels.Add(tilemap.name, levelMapping);
+                    Debug.Log($"CityManager: 加载城市等级 - {tilemap.name}");
                 }
             }
+
 
             // 初始化城市（在编辑器中已绑定，确保每一个城市都有国家归属且不要有不存在的城市，否则会出现问题）
             int countIndex = 0;
@@ -90,20 +111,37 @@ namespace GlobalConqueror.Managers
             {
                 foreach (var keyValuePair in cityTilemap)
                 {
-                    if (keyValuePair.Value.GetTile(item))
+                    if (keyValuePair.Value.GetTile(item) && cityLevels.TryGetValue(keyValuePair.Key, out CityLevelMapping cityLevel))
                     {
                         citiesDic.Add(keyValuePair.Key, new CityData(
                             countIndex,
                             keyValuePair.Key,
                             keyValuePair.Value,
                             item,
-                            -1
+                            -1,
+                            cityLevel.CreateCityLevel()
                             ));
                         break;
                     }
                 }
             }
             allCities = citiesDic.Values.ToList();
+
+            // 初始化CityView
+            foreach (var city in allCities)
+            {
+                Vector3 location = MapManager.instance.Tilemap.CellToWorld(city.cityLocation);
+                GameObject cityGo = Instantiate(cityView, location, Quaternion.identity, this.transform);
+                CityView view = cityGo.GetComponent<CityView>();
+                if (view != null)
+                {
+                    view.Setup(city);
+                }
+                else
+                {
+                    Debug.LogWarning("CityManager: 城市详情预制体无CityView组件！");
+                }
+            }
 
             IsCityTilemapInitialized = true;
             OnCitiesTilemapInitialized?.Invoke();

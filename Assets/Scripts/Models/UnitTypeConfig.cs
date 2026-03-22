@@ -13,26 +13,39 @@ namespace GlobalConqueror.Models
         public Sprite unitIcon;
 
         [Header("行动力与范围")]
-        public int movementRange = 2;
+        public float movementRange = 2;
         public int attackRange = 1;
 
         [Header("战斗属性")]
-        public int attackStrength = 10;
-        public int health = 10;
+        [Tooltip("对装甲单位")]
+        public int attackStrength_Armor = 20;
+        [Tooltip("对步兵单位")]
+        public int attackStrength_Soldier = 20;
+        [Tooltip("对堡垒单位")]
+        public int attackStrength_Fort = 20;
+        [Tooltip("对小型舰船单位")]
+        public int attackStrength_Warship = 20;
+        [Tooltip("对重型舰船单位")]
+        public int attackStrength_Battleship = 20;
+
+        public int health = 100;
 
         [Header("购买消耗")]
         public int goldCost = 100;
         public int industryCost = 50;
         public int scienceCost = 0;
 
+        [Header("单位类别")]
+        public UnitProperty unitProperty = UnitProperty.Armor;
+
         [Header("地形通行")]
         [Tooltip("平原与城市移动消耗")]
-        public int plainAndCityMoveCost = 1; 
+        public float plainAndCityMoveCost = 1; 
         [Tooltip("山地移动消耗")]
-        public int mountainMoveCost = 2;
+        public float mountainMoveCost = 2;
         [Tooltip("森林移动消耗")]
-        public int forestMoveCost = 1;
+        public float forestMoveCost = 1;
         [Tooltip("水域移动消耗")]
-        public int waterMoveCost = 2;
+        public float waterMoveCost = 2;
     }
 }

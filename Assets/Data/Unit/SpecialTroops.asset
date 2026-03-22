@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
-  m_Name: Sniper
+  m_Name: SpecialTroops
   m_EditorClassIdentifier: 
-  unitTypeName: "\u72D9\u51FB\u5175"
-  unitIcon: {fileID: 21300000, guid: 7e479f98e39ac28449a005e6bc570b21, type: 3}
+  unitTypeName: "\u7279\u79CD\u5175"
+  unitIcon: {fileID: 21300000, guid: e7018b0a4adb6d548a38eedd333b83d4, type: 3}
   movementRange: 2
   attackRange: 1
-  attackStrength_Armor: 15
+  attackStrength_Armor: 40
   attackStrength_Soldier: 50
-  attackStrength_Fort: 25
-  attackStrength_Warship: 5
-  attackStrength_Battleship: 5
-  health: 80
-  goldCost: 100
-  industryCost: 10
-  scienceCost: 0
+  attackStrength_Fort: 35
+  attackStrength_Warship: 15
+  attackStrength_Battleship: 15
+  health: 180
+  goldCost: 200
+  industryCost: 45
+  scienceCost: 10
   unitProperty: 0
   plainAndCityMoveCost: 1
-  mountainMoveCost: 2
+  mountainMoveCost: 1
   forestMoveCost: 1
   waterMoveCost: 1

@@ -43,7 +43,7 @@ namespace GlobalConqueror.Models
             hasAttackedThisTurn = false;
         }
 
-        public int MovementRange => unitType != null ? unitType.movementRange : 0;
+        public float MovementRange => unitType != null ? unitType.movementRange : 0;
         public int AttackRange => unitType != null ? unitType.attackRange : 0;
 
         public override string ToString()
@@ -51,5 +51,13 @@ namespace GlobalConqueror.Models
             string typeName = unitType != null ? unitType.unitTypeName : "未知";
             return $"单位ID:{unitId} | {typeName} | 位置:{position} | 所属:{ownerNationId}";
         }
+    }
+
+    public enum UnitProperty { 
+        Soldier,
+        Armor,
+        Fort,
+        Warship,
+        Battleship
     }
 }

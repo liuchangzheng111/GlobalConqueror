@@ -71,8 +71,8 @@ namespace GlobalConqueror.Managers
             {
                 yield return null;
             }
-            
-            NationManager.instance.OnNationTurnStart += OnNationTurnStart;  
+
+            NationManager.instance.OnNationTurnStart += OnNationTurnStart;
             NationManager.instance.OnNationDefeated += OnNationDefeated;
 
             if (!initialUnitsSpawned)
@@ -290,9 +290,9 @@ namespace GlobalConqueror.Managers
             if (unit == null)
             {
                 yield break;
-            }         
+            }
 
-            float spawnDuration = 0.3f; 
+            float spawnDuration = 0.3f;
 
             Tween spawnTween = unit.transform.DOMove(targetPosition, spawnDuration).SetUpdate(true);
 
@@ -335,10 +335,10 @@ namespace GlobalConqueror.Managers
 
             if (unit == null || unit.unitType == null) return reachable;
 
-            int maxCost = unit.MovementRange;
+            float maxCost = unit.MovementRange;
 
-            PriorityQueue<Vector3Int, int> priorityQueue = new PriorityQueue<Vector3Int, int>();
-            Dictionary<Vector3Int, int> _minCostToReach = new Dictionary<Vector3Int, int>();
+            PriorityQueue<Vector3Int, float> priorityQueue = new PriorityQueue<Vector3Int, float>();
+            Dictionary<Vector3Int, float> _minCostToReach = new Dictionary<Vector3Int, float>();
 
             // 初始化：当前位置成本为0
             Vector3Int startPos = unit.position;
@@ -361,10 +361,10 @@ namespace GlobalConqueror.Managers
 
                     MapTileData tile = MapManager.instance.GetTileData(nextPos);
                     if (tile == null) continue;
-                    int moveCost = GetMoveCost(unit, tile.tileType);
+                    float moveCost = GetMoveCost(unit, tile.tileType);
                     if (moveCost <= 0) continue;
 
-                    int newCost = currentCost + moveCost;
+                    float newCost = currentCost + moveCost;
                     if (newCost > maxCost) continue;
 
                     UnitData blockingUnit = GetUnitAtPosition(nextPos);
@@ -375,7 +375,7 @@ namespace GlobalConqueror.Managers
                     }
 
                     // 检查是否有更优路径
-                    if (_minCostToReach.TryGetValue(nextPos, out int existingCost))
+                    if (_minCostToReach.TryGetValue(nextPos, out float existingCost))
                     {
                         if (existingCost <= newCost) continue;
                     }
@@ -386,7 +386,7 @@ namespace GlobalConqueror.Managers
                     if (blockingUnit == null)
                     {
                         reachable.Add(nextPos);
-                    }         
+                    }
                 }
             }
 
@@ -403,10 +403,10 @@ namespace GlobalConqueror.Managers
             if (unit == null || unit.unitType == null) return null;
             if (!MapManager.instance.IsCoordinateValid(targetPosition)) return null;
 
-            int maxCost = unit.MovementRange;
+            float maxCost = unit.MovementRange;
 
-            PriorityQueue<Vector3Int, int> priorityQueue = new PriorityQueue<Vector3Int, int>();
-            Dictionary<Vector3Int, int> _minCostToReach = new Dictionary<Vector3Int, int>();
+            PriorityQueue<Vector3Int, float> priorityQueue = new PriorityQueue<Vector3Int, float>();
+            Dictionary<Vector3Int, float> _minCostToReach = new Dictionary<Vector3Int, float>();
             Dictionary<Vector3Int, Vector3Int> cameFrom = new Dictionary<Vector3Int, Vector3Int>();
 
             Vector3Int startPos = unit.position;
@@ -435,10 +435,10 @@ namespace GlobalConqueror.Managers
 
                     MapTileData tile = MapManager.instance.GetTileData(nextPos);
                     if (tile == null) continue;
-                    int moveCost = GetMoveCost(unit, tile.tileType);
+                    float moveCost = GetMoveCost(unit, tile.tileType);
                     if (moveCost <= 0) continue;
 
-                    int newCost = currentCost + moveCost;
+                    float newCost = currentCost + moveCost;
                     if (newCost > maxCost) continue;
 
                     UnitData blockingUnit = GetUnitAtPosition(nextPos);
@@ -448,7 +448,7 @@ namespace GlobalConqueror.Managers
                         continue;
                     }
 
-                    if (_minCostToReach.TryGetValue(nextPos, out int existingCost) && existingCost <= newCost)
+                    if (_minCostToReach.TryGetValue(nextPos, out float existingCost) && existingCost <= newCost)
                     {
                         continue;
                     }
@@ -511,7 +511,7 @@ namespace GlobalConqueror.Managers
         /// <summary>
         /// 获取单位进入某地形的移动消耗，-1 表示不可通行
         /// </summary>
-        private int GetMoveCost(UnitData unit, TileType tileType)
+        private float GetMoveCost(UnitData unit, TileType tileType)
         {
             if (unit?.unitType == null) return 1;
 
@@ -582,9 +582,13 @@ namespace GlobalConqueror.Managers
                 return false;
             }
 
-            int attackerStrength = Mathf.CeilToInt(attacker.unitType.attackStrength * Random.Range(0.8f, 1.2f) * attacker.HealthRate);
-            float defenderHealthRate = defender.HealthRate;        
-            defender.currentHealth = Mathf.Max(0, defender.currentHealth - attackerStrength);        
+            // 获取单位的特攻
+            int attackerStr = GetSpecialAttack(attacker, defender);
+            int defenderStr = GetSpecialAttack(defender, attacker);
+
+            int attackerStrength = Mathf.CeilToInt(attackerStr * Random.Range(0.8f, 1.2f) * attacker.HealthRate);
+            float defenderHealthRate = defender.HealthRate;
+            defender.currentHealth = Mathf.Max(0, defender.currentHealth - attackerStrength);
 
             if (FloatingDamageManager.instance != null && attackerStrength > 0)
                 FloatingDamageManager.instance.ShowDefenderDamage(defender.position, attackerStrength);
@@ -599,7 +603,7 @@ namespace GlobalConqueror.Managers
                 return true;
             }
 
-            int defenderStrength = Mathf.CeilToInt(defender.unitType.attackStrength * Random.Range(0.8f, 1.2f) * defenderHealthRate); 
+            int defenderStrength = Mathf.CeilToInt(defenderStr * Random.Range(0.8f, 1.2f) * defenderHealthRate);
             attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
 
             if (FloatingDamageManager.instance != null && defenderStrength > 0)
@@ -645,6 +649,30 @@ namespace GlobalConqueror.Managers
                 oldOwner.isDefeated = true;
                 NationManager.instance.OnNationDefeated?.Invoke(oldOwner);
             }
+        }
+
+        private int GetSpecialAttack(UnitData Attacker, UnitData target)
+        {
+            int strength = 0;
+            switch (target.unitType.unitProperty)
+            {
+                case UnitProperty.Soldier:
+                    strength = Attacker.unitType.attackStrength_Soldier;
+                    break;
+                case UnitProperty.Armor:
+                    strength = Attacker.unitType.attackStrength_Armor;
+                    break;
+                case UnitProperty.Fort:
+                    strength = Attacker.unitType.attackStrength_Fort;
+                    break;
+                case UnitProperty.Warship:
+                    strength = Attacker.unitType.attackStrength_Warship;
+                    break;
+                case UnitProperty.Battleship:
+                    strength = Attacker.unitType.attackStrength_Battleship;
+                    break;
+            }
+            return strength;
         }
     }
 }

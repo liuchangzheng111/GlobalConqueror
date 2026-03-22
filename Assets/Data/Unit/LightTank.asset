@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
-  m_Name: Sniper
+  m_Name: LightTank
   m_EditorClassIdentifier: 
-  unitTypeName: "\u72D9\u51FB\u5175"
-  unitIcon: {fileID: 21300000, guid: 7e479f98e39ac28449a005e6bc570b21, type: 3}
-  movementRange: 2
+  unitTypeName: "\u8F7B\u578B\u5766\u514B"
+  unitIcon: {fileID: 21300000, guid: c5966a5fba6a9914d8794ea300299077, type: 3}
+  movementRange: 3
   attackRange: 1
-  attackStrength_Armor: 15
-  attackStrength_Soldier: 50
+  attackStrength_Armor: 25
+  attackStrength_Soldier: 30
   attackStrength_Fort: 25
-  attackStrength_Warship: 5
-  attackStrength_Battleship: 5
-  health: 80
-  goldCost: 100
-  industryCost: 10
+  attackStrength_Warship: 10
+  attackStrength_Battleship: 10
+  health: 150
+  goldCost: 140
+  industryCost: 20
   scienceCost: 0
-  unitProperty: 0
+  unitProperty: 1
   plainAndCityMoveCost: 1
   mountainMoveCost: 2
-  forestMoveCost: 1
+  forestMoveCost: 1.5
   waterMoveCost: 1
