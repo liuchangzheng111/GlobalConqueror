@@ -13,9 +13,9 @@ namespace GlobalConqueror.Models
         public int cityId;
         public string cityName;
 
-        public int cityGoldProduced = 50;
-        public int cityIndustryProduced = 10;
-        public int cityScienceProduced = 2;
+        public int cityGoldProduced => (cityKindsLevel.cityLevel + 1) * 10;
+        public int cityIndustryProduced => (cityKindsLevel.industryLevel) * 5;
+        public int cityScienceProduced => (cityKindsLevel.scienceLevel) * 2;
 
         public Tilemap cityTiles;
         public Vector3Int cityLocation;

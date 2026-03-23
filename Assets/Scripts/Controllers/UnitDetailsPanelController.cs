@@ -143,6 +143,7 @@ namespace GlobalConqueror.Controllers
                 int range = unit.AttackRange;
 
                 statsText.text =
+
                     $"对步兵单位攻击力：{atk_soldier}\n" +
                     $"对装甲单位攻击力：{atk_armor}\n" +
                     $"对堡垒单位攻击力：{atk_fort}\n" +

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitTypeName: "\u706B\u7BAD\u7B52\u5175"
   unitIcon: {fileID: 21300000, guid: d3695981d122d4f4397cb2392d6ff6f2, type: 3}
+  description: "\u9762\u5BF9\u88C5\u7532\u90E8\u961F\u671B\u800C\u751F\u754F\uFF1F\u4E13\u95E8\u6253\u51FB\u7684\u706B\u7BAD\u7B52\u5175\u4E3A\u60A8\u670D\u52A1\n\u4F46\u522B\u62B1\u592A\u5927\u5E0C\u671B\uFF0C\u8FD9\u6BD5\u7ADF\u662F\u8089\u8EAB\u4E4B\u8EAF\uFF0C\u53EA\u80FD\u51CF\u7F13\u94A2\u94C1\u6D2A\u6D41\u7684\u811A\u6B65\n\u4EF7\u683C\u9002\u4E2D\uFF0C\u662F\u586B\u5145\u548C\u4E30\u5BCC\u6B65\u5175\u56E2\u7684\u4F18\u79C0\u9009\u9879"
   movementRange: 2
   attackRange: 1
   attackStrength_Armor: 40
@@ -26,6 +27,7 @@ MonoBehaviour:
   industryCost: 15
   scienceCost: 0
   unitProperty: 0
+  produceCondition: 3
   plainAndCityMoveCost: 1
   mountainMoveCost: 2
   forestMoveCost: 1

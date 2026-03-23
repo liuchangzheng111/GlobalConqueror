@@ -102,7 +102,7 @@ namespace GlobalConqueror.Controllers
             Vector3 worldPos = MapManager.instance.Tilemap.CellToWorld(selectedCoord);
             if (currentHighlight == null)
             {
-                currentHighlight = Instantiate(highlightPrefab, worldPos, Quaternion.identity);
+                currentHighlight = Instantiate(highlightPrefab, worldPos, Quaternion.identity, this.transform);
             }
             else
                 currentHighlight.transform.position = worldPos;

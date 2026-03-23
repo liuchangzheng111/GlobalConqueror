@@ -1,3 +1,4 @@
+using GlobalConqueror.Managers;
 using GlobalConqueror.Models;
 using TMPro;
 using UnityEngine;
@@ -15,6 +16,9 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private TextMeshProUGUI GoldText;
         [SerializeField] private TextMeshProUGUI IndustryText;
         [SerializeField] private TextMeshProUGUI ScienceText;
+        [SerializeField] private TextMeshProUGUI HealthText;
+        [SerializeField] private TextMeshProUGUI DescriptionText;
+        [SerializeField] private Image ProduceConditionImage;
         [SerializeField] private Image UnitImage;
         [SerializeField] private Color BackgroundColor;
 
@@ -46,6 +50,21 @@ namespace GlobalConqueror.Controllers
             if (ScienceText != null)
             {
                 ScienceText.text = $"科技 {unitType.scienceCost}";
+            }
+
+            if (HealthText != null)
+            {
+                HealthText.text = $"生命值 {unitType.health}";
+            }
+
+            if (DescriptionText != null)
+            {
+                DescriptionText.text = $"{unitType.description}";
+            }
+
+            if (ProduceConditionImage != null && UnitManager.instance != null)
+            {
+                ProduceConditionImage.sprite = UnitManager.instance.GetUnitProduceConditionSprite(unitType);
             }
 
             if (UnitImage != null)

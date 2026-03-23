@@ -19,7 +19,27 @@ namespace GlobalConqueror.Controllers
         [Header("预制体")]
         [SerializeField] private GameObject unitPurchaseButtonPrefab;
 
+        [Header("页面按钮")]
+        [SerializeField] private Button soldierButton;
+        [SerializeField] private Button armorButton;
+        [SerializeField] private Button artilleryButton;
+        [SerializeField] private Button planeButton;
+        [SerializeField] private Button antiaircraftButton;
+
         private CityData currentCity;
+        private List<GameObject> currentAvailable;
+        private Canvas _canvas;
+        private Camera _uiCamera;
+
+        private void Awake()
+        {
+            _canvas = GetComponentInParent<Canvas>();
+            if (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            {
+                _uiCamera = _canvas.worldCamera;
+            }
+            Hide();
+        }
 
         private void OnEnable()
         {
@@ -35,6 +55,27 @@ namespace GlobalConqueror.Controllers
 
             NationManager.instance.OnNationTurnEnd += (nationData) => Hide();
             UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => Hide();
+
+            if (soldierButton != null)
+            {
+                soldierButton.onClick.AddListener(() => RefreshButtons(UnitManager.instance.AvailableSoldier));
+            }
+            if (armorButton != null)
+            {
+                armorButton.onClick.AddListener(() => RefreshButtons(UnitManager.instance.AvailableArmor));
+            }
+            if (artilleryButton != null)
+            {
+                artilleryButton.onClick.AddListener(() => RefreshButtons(UnitManager.instance.AvailableArtillery));
+            }
+            if (planeButton != null)
+            {
+
+            }
+            if (antiaircraftButton != null)
+            {
+
+            }
         }
 
         private void OnDisable()
@@ -46,6 +87,29 @@ namespace GlobalConqueror.Controllers
             if (UnitManager.instance != null)
             {
                 UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => Hide();
+            }
+        }
+        private void OnDestroy()
+        {
+            if (soldierButton != null)
+            {
+                soldierButton.onClick.RemoveListener(() => RefreshButtons(UnitManager.instance.AvailableSoldier));
+            }
+            if (armorButton != null)
+            {
+                armorButton.onClick.RemoveListener(() => RefreshButtons(UnitManager.instance.AvailableArmor));
+            }
+            if (artilleryButton != null)
+            {
+                artilleryButton.onClick.RemoveListener(() => RefreshButtons(UnitManager.instance.AvailableArtillery));
+            }
+            if (planeButton != null)
+            {
+
+            }
+            if (antiaircraftButton != null)
+            {
+
             }
         }
 
@@ -85,9 +149,12 @@ namespace GlobalConqueror.Controllers
         /// </summary>
         public void ShowForCity(CityData city)
         {
-            currentCity = city;
-            if (panelRoot != null) panelRoot.SetActive(true);
-            RefreshButtons();
+            if (UnitManager.instance != null)
+            {
+                currentCity = city;
+                if (panelRoot != null) panelRoot.SetActive(true);
+                RefreshButtons(UnitManager.instance.AvailableSoldier);
+            }
         }
 
         /// <summary>
@@ -96,15 +163,16 @@ namespace GlobalConqueror.Controllers
         public void Hide()
         {
             currentCity = null;
+            currentAvailable = null;
             if (panelRoot != null) panelRoot.SetActive(false);
         }
 
         /// <summary>
         /// 刷新按钮
         /// </summary>
-        private void RefreshButtons()
+        private void RefreshButtons(List<GameObject> AvailableUnits)
         {
-            if (buttonContainer == null || unitPurchaseButtonPrefab == null || UnitManager.instance == null)
+            if (buttonContainer == null || unitPurchaseButtonPrefab == null || AvailableUnits == null || UnitManager.instance == null)
                 return;
 
             foreach (Transform child in buttonContainer)
@@ -115,7 +183,8 @@ namespace GlobalConqueror.Controllers
             var nation = NationManager.instance?.CurrentNation;
             if (nation == null || currentCity == null) return;
 
-            foreach (var unit in UnitManager.instance.AvailableUnitTypes)
+            currentAvailable = AvailableUnits;
+            foreach (var unit in AvailableUnits)
             {
                 if (unit == null) continue;
 
@@ -126,18 +195,14 @@ namespace GlobalConqueror.Controllers
                 var btn = go.GetComponent<Button>();
                 var unitPurchaseItemView = go.GetComponent<UnitPurchaseItemView>();
 
-                if (unitPurchaseItemView != null) 
+                if (unitPurchaseItemView != null)
                 {
                     unitPurchaseItemView.Setup(unitType);
                 }
 
-                bool canAfford = nation.gold >= unitType.goldCost &&
-                    nation.industry >= unitType.industryCost &&
-                    nation.science >= unitType.scienceCost;
-
                 if (btn != null)
                 {
-                    btn.interactable = canAfford;
+                    btn.interactable = UnitManager.instance.CanSatisfyProduceCondition(currentCity, unitType);
                     btn.onClick.AddListener(() => OnPurchaseClicked(unit));
                 }
             }
@@ -153,7 +218,7 @@ namespace GlobalConqueror.Controllers
 
             if (UnitManager.instance.TryPurchaseUnit(currentCity, unit))
             {
-                RefreshButtons();
+                RefreshButtons(currentAvailable);
             }
         }
     }

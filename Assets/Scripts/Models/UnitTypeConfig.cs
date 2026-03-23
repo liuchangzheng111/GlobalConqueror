@@ -11,6 +11,8 @@ namespace GlobalConqueror.Models
         [Header("基础信息")]
         public string unitTypeName = "步兵";
         public Sprite unitIcon;
+        [Multiline(5)]
+        public string description;
 
         [Header("行动力与范围")]
         public float movementRange = 2;
@@ -37,6 +39,9 @@ namespace GlobalConqueror.Models
 
         [Header("单位类别")]
         public UnitProperty unitProperty = UnitProperty.Armor;
+
+        [Header("生产条件")]
+        public int produceCondition;
 
         [Header("地形通行")]
         [Tooltip("平原与城市移动消耗")]

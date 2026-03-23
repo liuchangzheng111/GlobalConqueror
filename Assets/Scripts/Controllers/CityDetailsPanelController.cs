@@ -224,8 +224,8 @@ namespace GlobalConqueror.Controllers
                 industry.enabled = true;
                 science.enabled = true;
                 gold.text = $"每回合金钱产出 {city.cityGoldProduced}";
-                industry.text = $"每回合工业产出 {city.cityGoldProduced}";
-                science.text = $"每回合科学产出 {city.cityGoldProduced}";
+                industry.text = $"每回合工业产出 {city.cityIndustryProduced}";
+                science.text = $"每回合科学产出 {city.cityScienceProduced}";
             }
 
             if (PurchaseButton != null && city.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)

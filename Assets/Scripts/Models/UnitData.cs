@@ -51,6 +51,33 @@ namespace GlobalConqueror.Models
             string typeName = unitType != null ? unitType.unitTypeName : "未知";
             return $"单位ID:{unitId} | {typeName} | 位置:{position} | 所属:{ownerNationId}";
         }
+
+        public string GetUnitPropertyString()
+        {
+            string result = "";
+            switch (unitType.unitProperty)
+            {
+                case UnitProperty.Soldier:
+                    result = "步兵单位";
+                    break;
+                case UnitProperty.Armor:
+                    result = "装甲单位";
+                    break;
+                case UnitProperty.Fort:
+                    result = "堡垒单位";
+                    break;
+                case UnitProperty.Warship:
+                    result = "轻型舰艇单位";
+                    break;
+                case UnitProperty.Battleship:
+                    result = "重型舰艇单位";
+                    break;
+                default:
+                    result = "";
+                    break;
+            }
+            return result;
+        }
     }
 
     public enum UnitProperty { 

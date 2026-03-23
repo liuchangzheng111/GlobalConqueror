@@ -21,6 +21,7 @@ namespace GlobalConqueror.Managers
         public GameObject cityView;
 
         [Header("城市各类等级列表图标(按从低到高顺序)")]
+        public List<Sprite> cityLevels;
         public List<Sprite> industry;
         public List<Sprite> airport;
         public List<Sprite> science;

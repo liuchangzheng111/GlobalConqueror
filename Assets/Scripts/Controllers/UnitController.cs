@@ -6,6 +6,9 @@ using GlobalConqueror.Managers;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
+using static UnityEditor.PlayerSettings;
+using System.Linq;
 
 namespace GlobalConqueror.Controllers
 {
@@ -25,8 +28,10 @@ namespace GlobalConqueror.Controllers
         [Header("高亮显示")]
         [SerializeField] private GameObject moveRangeHighlightPrefab;
         [SerializeField] private GameObject attackRangeHighlightPrefab;
+        [SerializeField] private GameObject actionableHighlightPrefab;
         [SerializeField] private Color moveHighlightColor = new Color(0, 1, 0, 0.4f);
         [SerializeField] private Color attackHighlightColor = new Color(1, 0, 0, 0.4f);
+        [SerializeField] private Color actionableHighlightColor = new Color(0, 0, 0, 0.4f);
 
         [Header("单位详情面板")]
         [SerializeField] private UnitDetailsPanelController unitDetailsPanel;
@@ -35,6 +40,8 @@ namespace GlobalConqueror.Controllers
         private UnitData currentUnit;
         private List<GameObject> moveHighlightObjects = new List<GameObject>();
         private List<GameObject> attackHighlightObjects = new List<GameObject>();
+        private Dictionary<Vector3Int,GameObject> actionableHighlightObjects = new Dictionary<Vector3Int,GameObject>();
+
         private Dictionary<UnitData, GameObject> unitVisuals = new Dictionary<UnitData, GameObject>();
         private HashSet<Vector3Int> reachable = new HashSet<Vector3Int>();
         private HashSet<Vector3Int> attackable = new HashSet<Vector3Int>();
@@ -77,6 +84,7 @@ namespace GlobalConqueror.Controllers
             }
 
             NationManager.instance.OnNationTurnEnd += (nationData) => ClearSelection();
+            NationManager.instance.OnNationTurnStart += ResetActionableHighlightObjects;
 
             UnitManager.instance.OnUnitSpawned += OnUnitSpawned;
             UnitManager.instance.OnUnitDestroyed += OnUnitDestroyed;
@@ -100,6 +108,7 @@ namespace GlobalConqueror.Controllers
             if (NationManager.instance != null)
             {
                 NationManager.instance.OnNationTurnEnd -= (nationData) => ClearSelection();
+                NationManager.instance.OnNationTurnStart -= ResetActionableHighlightObjects;
             }
         }
 
@@ -229,6 +238,7 @@ namespace GlobalConqueror.Controllers
 
                 if (attackable.Contains(coordinate) && !selectedUnit.hasAttackedThisTurn)
                 {
+                    ClearActionableSelection(selectedUnit.position);
                     UnitManager.instance.TryAttack(selectedUnit, coordinate);
                     ClearSelection();
                     return;
@@ -297,6 +307,8 @@ namespace GlobalConqueror.Controllers
                 yield break;
             }
 
+            ClearActionableSelection(unit.position);
+
             ClearSelection();
             isAnimating = true;
 
@@ -315,7 +327,14 @@ namespace GlobalConqueror.Controllers
             UnitManager.instance.TryMoveUnit(unit, targetCell);
 
             isAnimating = false;
+       
             SelectUnit(unit, unit.hasAttackedThisTurn, unit.hasMovedThisTurn);
+            
+            // 如果移动后攻击范围内还有敌人且本回合未攻击则显示可行动高亮
+            if (attackable.Count > 0 && !selectedUnit.hasAttackedThisTurn)
+            {
+                ShowActionableSelection(targetCell);
+            }
         }
 
         /// <summary>
@@ -329,7 +348,7 @@ namespace GlobalConqueror.Controllers
             foreach (var pos in positions)
             {
                 Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
-                var go = Instantiate(prefab, worldPos, Quaternion.identity);
+                var go = Instantiate(prefab, worldPos, Quaternion.identity, this.transform);
                 if (go != null)
                 {
                     var sr = go.GetComponentInChildren<SpriteRenderer>();
@@ -349,6 +368,63 @@ namespace GlobalConqueror.Controllers
                 if (go != null) Destroy(go);
             }
             list.Clear();
+        }
+
+        /// <summary>
+        /// 重置可行动高亮显示
+        /// </summary>
+        /// <param name="nationData"></param>
+        private void ResetActionableHighlightObjects(NationData nationData)
+        {
+            List<GameObject> Objects = actionableHighlightObjects.Values.ToList();
+            ClearHighlightObjects(Objects);
+            actionableHighlightObjects.Clear();
+
+            if (nationData == null || UnitManager.instance == null || actionableHighlightPrefab == null) return;
+
+            HashSet<Vector3Int> positions = new HashSet<Vector3Int>();
+
+            foreach(var unit in UnitManager.instance.GetUnitsByNation(nationData.nationId))
+            {
+                Vector3Int pos = unit.position;
+                Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
+                var go = Instantiate(actionableHighlightPrefab, worldPos, Quaternion.identity, this.transform);
+                if (go != null)
+                {
+                    var sr = go.GetComponentInChildren<SpriteRenderer>();
+                    if (sr != null) sr.color = actionableHighlightColor;
+                    actionableHighlightObjects.Add(pos, go);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 指定位置生成可行动高亮显示
+        /// </summary>
+        /// <param name="position"></param>
+        private void ShowActionableSelection(Vector3Int position)
+        {
+            Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(position);
+            var go = Instantiate(actionableHighlightPrefab, worldPos, Quaternion.identity, this.transform);
+            if (go != null)
+            {
+                var sr = go.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null) sr.color = actionableHighlightColor;
+                actionableHighlightObjects.Add(position, go);
+            }
+        }
+
+        /// <summary>
+        /// 指定位置删除可行动高亮显示
+        /// </summary>
+        /// <param name="vector3Int"></param>
+        private void ClearActionableSelection(Vector3Int position)
+        {
+            if (actionableHighlightObjects.TryGetValue(position,out GameObject Highlight))
+            {
+                Destroy(Highlight);
+            }
+            actionableHighlightObjects.Remove(position);
         }
     }
 }

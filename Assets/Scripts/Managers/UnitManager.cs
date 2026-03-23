@@ -17,7 +17,10 @@ namespace GlobalConqueror.Managers
         public static UnitManager instance;
 
         [Header("兵种预制体列表")]
-        [SerializeField] private List<GameObject> availableUnitTypes = new List<GameObject>();
+        [SerializeField] private List<GameObject> availableSoldier = new List<GameObject>();
+        [SerializeField] private List<GameObject> availableArmor = new List<GameObject>();
+        [SerializeField] private List<GameObject> availableArtillery = new List<GameObject>();
+        [SerializeField] private List<GameObject> availableShip = new List<GameObject>();
 
         [Header("初始地图上兵的父容器")]
         [Tooltip("其子物体需挂 InitialUnitSpawn，世界坐标会转为格子坐标作为出生点")]
@@ -30,7 +33,11 @@ namespace GlobalConqueror.Managers
         public bool initialUnitsSpawned = false;
 
         public List<UnitData> AllUnits => allUnits;
-        public List<GameObject> AvailableUnitTypes => availableUnitTypes;
+        public List<GameObject> AvailableSoldier => availableSoldier;
+        public List<GameObject> AvailableArmor => availableArmor;
+        public List<GameObject> AvailableArtillery => availableArtillery;
+        public List<GameObject> AvailableShip => availableShip;
+
 
         public System.Action<UnitData, GameObject> OnUnitSpawned;
         public System.Action<UnitData, UnitData> OnUnitAttacked;
@@ -212,21 +219,6 @@ namespace GlobalConqueror.Managers
 
             NationData nation = NationManager.instance.GetNation(city.ownerNationId);
             if (nation == null) return false;
-
-            if (nation.gold < unitType.goldCost ||
-                nation.industry < unitType.industryCost ||
-                nation.science < unitType.scienceCost)
-            {
-                Debug.Log($"资源不足：需要 金币{unitType.goldCost} 工业{unitType.industryCost} 科技{unitType.scienceCost}");
-                return false;
-            }
-
-            // 城市格子上不能已有己方单位
-            if (GetUnitAtPosition(city.cityLocation) != null)
-            {
-                Debug.Log("城市格子上已有单位，无法在此购买");
-                return false;
-            }
 
             nation.gold -= unitType.goldCost;
             nation.industry -= unitType.industryCost;
@@ -651,6 +643,12 @@ namespace GlobalConqueror.Managers
             }
         }
 
+        /// <summary>
+        /// 获取对不同敌方单位种类的对应攻击数值
+        /// </summary>
+        /// <param name="Attacker"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
         private int GetSpecialAttack(UnitData Attacker, UnitData target)
         {
             int strength = 0;
@@ -673,6 +671,84 @@ namespace GlobalConqueror.Managers
                     break;
             }
             return strength;
+        }
+
+        /// <summary>
+        /// 查看是否符合满足生产条件
+        /// </summary>
+        /// <param name="city"></param>
+        /// <param name="unitType"></param>
+        /// <returns></returns>
+        public bool CanSatisfyProduceCondition(CityData city, UnitTypeConfig unitType)
+        {
+            // 查看单位生产条件
+            switch (unitType.unitProperty)
+            {
+                case UnitProperty.Soldier:
+                    if (unitType.produceCondition > city.cityKindsLevel.cityLevel)
+                    {
+                        return false;
+                    }
+                    break;
+                case UnitProperty.Armor:
+                    if (unitType.produceCondition > city.cityKindsLevel.industryLevel)
+                    {
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+            }
+
+            NationData nation = NationManager.instance.GetNation(city.ownerNationId);
+            if (nation.gold < unitType.goldCost ||
+                nation.industry < unitType.industryCost ||
+                nation.science < unitType.scienceCost)
+            {
+                Debug.Log($"资源不足：需要 金币{unitType.goldCost} 工业{unitType.industryCost} 科技{unitType.scienceCost}");
+                return false;
+            }
+
+            // 城市格子上不能已有己方单位
+            if (GetUnitAtPosition(city.cityLocation) != null)
+            {
+                Debug.Log("城市格子上已有单位，无法在此生产");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 获取购买条件的各类城市图标
+        /// </summary>
+        /// <param name="unitTypeConfig"></param>
+        /// <returns></returns>
+        public Sprite GetUnitProduceConditionSprite(UnitTypeConfig unitTypeConfig)
+        {
+            if (unitTypeConfig == null || unitTypeConfig.produceCondition <= 0) return null;
+            switch (unitTypeConfig.unitProperty)
+            {
+                case UnitProperty.Soldier:
+                    if (unitTypeConfig.produceCondition > CityManager.instance.cityLevels.Count)
+                        return null;
+                    return CityManager.instance.cityLevels[unitTypeConfig.produceCondition - 1];
+
+                case UnitProperty.Armor:
+                    if (unitTypeConfig.produceCondition > CityManager.instance.industry.Count)
+                        return null;
+                    return CityManager.instance.industry[unitTypeConfig.produceCondition - 1];
+
+                case UnitProperty.Warship:
+
+
+                case UnitProperty.Battleship:
+                // TODO:
+
+                default:
+                    return null;
+            }
+
         }
     }
 }
