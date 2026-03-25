@@ -22,8 +22,8 @@ MonoBehaviour:
   attackStrength_Fort: 30
   attackStrength_Warship: 10
   attackStrength_Battleship: 10
-  health: 100
-  goldCost: 90
+  health: 120
+  goldCost: 110
   industryCost: 15
   scienceCost: 0
   unitProperty: 0
@@ -31,4 +31,4 @@ MonoBehaviour:
   plainAndCityMoveCost: 1
   mountainMoveCost: 2
   forestMoveCost: 1
-  waterMoveCost: 1
+  waterMoveCost: 2

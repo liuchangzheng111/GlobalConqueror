@@ -10469,7 +10469,11 @@ MonoBehaviour:
   - {fileID: 2022572202436202458, guid: 8b13112d915d8c345b06c9db966aaec6, type: 3}
   - {fileID: 2022572202436202458, guid: 7b4402abb893de34084e086979312813, type: 3}
   - {fileID: 2022572202436202458, guid: d68d279ef8ff0d94ebd3266923dcb9d4, type: 3}
-  availableArtillery: []
+  - {fileID: 2022572202436202458, guid: 89505f57c56ed4241a6ba60fafe14c9c, type: 3}
+  availableArtillery:
+  - {fileID: 2022572202436202458, guid: 29391015570e6fe41988f3ec46cc1bb2, type: 3}
+  - {fileID: 2022572202436202458, guid: e799683068331174293d1d9d2cba8e99, type: 3}
+  - {fileID: 2022572202436202458, guid: 65ac174957d70c44e9856842995ff568, type: 3}
   availableShip: []
   unitsContainer: {fileID: 884106123}
   initialUnitsSpawned: 0
@@ -14277,7 +14281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cityLevel: 4
-  industryLevel: 2
+  industryLevel: 3
   airportLevel: 2
   scienceLevel: 2
   supplyLevel: 3

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Self-propelled Gun
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u81EA\u884C\u706B\u70AE"
+  unitIcon: {fileID: 21300000, guid: 6af32705b325e0142b4f393da3fdb34e, type: 3}
+  description: "\u706B\u70AE\u90E8\u961F\u7684\u673A\u52A8\u5316\u5347\u7EA7\u6B3E\uFF0C\u517C\u987E\u706B\u529B\u4E0E\u673A\u52A8\u6027\u7684\u8FDC\u7A0B\u6253\u51FB\u5355\u4F4D\n\u76F8\u6BD4\u57FA\u7840\u706B\u70AE\uFF0C\u673A\u52A8\u6027\u3001\u4F24\u5BB3\u66F4\u9AD8\uFF0C\u5E76\u4E14\u53EF\u4EE5\u8DDF\u968F\u5927\u90E8\u961F\u8FDB\u884C\u5FEB\u901F\u8F6C\u79FB\n\u4F46\u81EA\u8EAB\u88C5\u7532\u8584\u5F31\uFF0C\u751F\u547D\u503C\u4F4E\uFF0C\u6700\u597D\u5728\u6B65\u5175\u6216\u88C5\u7532\u90E8\u961F\u63A9\u62A4\u4E0B\u4F5C\u6218\n\u4EF7\u683C\u9AD8\u4E8E\u57FA\u7840\u706B\u70AE\uFF0C\u751F\u4EA7\u6761\u4EF6\u9AD8\uFF0C\u662F\u70AE\u5175\u56E2\u7684\u5F3A\u5927\u8F93\u51FA\u529B\u91CF\uFF0C\u5EFA\u8BAE\u7ECF\u6D4E\u5145\u8DB3\u65F6\u642D\u914D\u63A9\u62A4\u90E8\u961F\u6279\u91CF\u751F\u4EA7"
+  movementRange: 3
+  attackRange: 2
+  attackStrength_Armor: 50
+  attackStrength_Soldier: 35
+  attackStrength_Fort: 65
+  attackStrength_Warship: 30
+  attackStrength_Battleship: 30
+  health: 110
+  goldCost: 280
+  industryCost: 75
+  scienceCost: 10
+  unitProperty: 1
+  produceCondition: 3
+  plainAndCityMoveCost: 1
+  mountainMoveCost: 2
+  forestMoveCost: 1.5
+  waterMoveCost: 3

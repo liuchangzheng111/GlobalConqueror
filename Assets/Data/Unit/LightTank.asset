@@ -31,4 +31,4 @@ MonoBehaviour:
   plainAndCityMoveCost: 1
   mountainMoveCost: 2
   forestMoveCost: 1.5
-  waterMoveCost: 1
+  waterMoveCost: 3

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Howitzer
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u69B4\u5F39\u70AE"
+  unitIcon: {fileID: 21300000, guid: b11f9e8a114c7c44f97bbd14b5f2b564, type: 3}
+  description: "\u6807\u51C6\u70AE\u5175\u5355\u4F4D\uFF0C\u653B\u51FB\u8DDD\u79BB\u4E24\u683C\uFF0C\u5BF9\u88C5\u7532\u548C\u5821\u5792\u4F24\u5BB3\u9AD8\n\u673A\u52A8\u6027\u5DEE\uFF0C\u5EFA\u8BAE\u5360\u636E\u6709\u5229\u4F4D\u7F6E\u8FDB\u884C\u8F93\u51FA\n\u5F53\u4E3B\u529B\u5728\u524D\u7EBF\u4F5C\u6218\u65F6\uFF0C\u8D1F\u8D23\u5728\u540E\u65B9\u8FDB\u884C\u706B\u529B\u8986\u76D6\n\u751F\u547D\u503C\u4F4E\uFF0C\u6240\u4EE5\u5EFA\u8BAE\u4E0D\u8981\u8BA9\u654C\u4EBA\u8FD1\u8EAB\uFF0C\u5C24\u5176\u662F\u6B65\u5175\u90E8\u961F"
+  movementRange: 2
+  attackRange: 2
+  attackStrength_Armor: 45
+  attackStrength_Soldier: 30
+  attackStrength_Fort: 55
+  attackStrength_Warship: 25
+  attackStrength_Battleship: 25
+  health: 90
+  goldCost: 200
+  industryCost: 30
+  scienceCost: 0
+  unitProperty: 1
+  produceCondition: 2
+  plainAndCityMoveCost: 1
+  mountainMoveCost: 2
+  forestMoveCost: 1.5
+  waterMoveCost: 2

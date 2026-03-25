@@ -596,10 +596,15 @@ namespace GlobalConqueror.Managers
             }
 
             int defenderStrength = Mathf.CeilToInt(defenderStr * Random.Range(0.8f, 1.2f) * defenderHealthRate);
-            attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
 
-            if (FloatingDamageManager.instance != null && defenderStrength > 0)
-                FloatingDamageManager.instance.ShowAttackerCounterDamage(attacker.position, defenderStrength);
+            // 如果攻击者为火炮单位则无法反击
+            if (!isUnitInAvailableList(attacker, availableArtillery))
+            {
+                attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
+
+                if (FloatingDamageManager.instance != null && defenderStrength > 0)
+                    FloatingDamageManager.instance.ShowAttackerCounterDamage(attacker.position, defenderStrength);
+            }
 
             if (attacker.currentHealth <= 0)
             {
@@ -749,6 +754,28 @@ namespace GlobalConqueror.Managers
                     return null;
             }
 
+        }
+
+        /// <summary>
+        /// 目标单位是否是列表中的
+        /// </summary>
+        /// <returns></returns>
+        public bool isUnitInAvailableList(UnitData unit,List<GameObject> availabeList)
+        {
+            if (unit == null || availabeList == null || unit.unitType == null)
+            {
+                return false;
+            }
+
+            foreach (var unitItem in availabeList)
+            {
+                var unitItemType = unitItem.GetComponent<InitialUnitSpawn>();
+                if (unitItemType != null && unitItemType.unitType == unit.unitType)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

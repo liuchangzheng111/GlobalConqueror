@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 7854204740531793977}
   - component: {fileID: 3390518458989197720}
   m_Layer: 0
-  m_Name: MiddleTank
+  m_Name: Howitzer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -151,7 +151,7 @@ SpriteRenderer:
   m_SortingLayerID: -950771403
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 29f46b03bcffc8f45ac4c2e047088c87, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b11f9e8a114c7c44f97bbd14b5f2b564, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37f72c44075fe064fbb77ce9eb3ed1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitType: {fileID: 11400000, guid: d7e8ff7797c57354d8fcccdc0605795c, type: 2}
+  unitType: {fileID: 11400000, guid: 1de43859643c80a42b1edcd3f07b8f43, type: 2}
   ownerNationId: -1
 --- !u!114 &3390518458989197720
 MonoBehaviour:

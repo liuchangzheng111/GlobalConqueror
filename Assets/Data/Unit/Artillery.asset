@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Artillery
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u706B\u70AE"
+  unitIcon: {fileID: 21300000, guid: 48c053a1c2d5b814eb831042c8672c16, type: 3}
+  description: "\u70AE\u7684\u57FA\u672C\u5355\u4F4D\uFF0C\u6570\u503C\u8F83\u4F4E\uFF0C\u6253\u51FB\u8303\u56F4\u4E5F\u6CA1\u6709\u5176\u4ED6\u9AD8\u7EA7\u706B\u70AE\u9AD8\n\u4F46\u8D77\u7801\u8FD8\u6709\u653B\u51FB\u65E0\u6CD5\u53CD\u51FB\u7684\u4F18\u52BF\uFF0C\u4E14\u5BF9\u4ED8\u88C5\u7532\u5355\u4F4D\u548C\u5821\u5792\u7684\u5355\u4F4D\u4F24\u5BB3\u4E0D\u4FD7\n\u751F\u547D\u503C\u4F4E\uFF0C\u6240\u4EE5\u53EA\u80FD\u7528\u505A\u9A9A\u6270\uFF0C\u5BF9\u6218\u5C40\u7684\u4F5C\u7528\u4E0D\u5927\n\u4EF7\u683C\u4F4E\u5EC9\uFF0C\u53EF\u4F5C\u4E3A\u70AE\u5175\u56E2\u7684\u8F85\u52A9"
+  movementRange: 2
+  attackRange: 1
+  attackStrength_Armor: 35
+  attackStrength_Soldier: 25
+  attackStrength_Fort: 45
+  attackStrength_Warship: 15
+  attackStrength_Battleship: 15
+  health: 70
+  goldCost: 120
+  industryCost: 10
+  scienceCost: 0
+  unitProperty: 1
+  produceCondition: 1
+  plainAndCityMoveCost: 1
+  mountainMoveCost: 2
+  forestMoveCost: 1
+  waterMoveCost: 2
