@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Cruiser
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u5DE1\u6D0B\u8230"
+  unitIcon: {fileID: 21300000, guid: 4f58cf07dc5d6bc42a8c9fa94f669873, type: 3}
+  description: "\u6D77\u519B\u7684\u4E2D\u575A\u6218\u529B\uFF0C\u5C5E\u4E8E\u5168\u80FD\u578B\u4E2D\u578B\u8230\u8239\uFF0C\u5404\u9879\u5C5E\u6027\u5747\u8861\uFF0C\u751F\u4EA7\u6761\u4EF6\u4E2D\u7B49\n\u706B\u529B\u3001\u88C5\u7532\u90FD\u4F18\u4E8E\u9A71\u9010\u8230\uFF0C\u9002\u5408\u914D\u5408\u6216\u5145\u5F53\u4E3B\u529B\u8230\u63A8\u8FDB\uFF0C\u517C\u987E\u8F93\u51FA\u4E0E\u6297\u538B\n\u9762\u5BF9\u91CD\u578B\u8230\u8239\u7565\u663E\u5403\u529B\uFF0C\u5355\u72EC\u884C\u52A8\u5BB9\u6613\u88AB\u96C6\u706B\u56F4\u527F\uFF0C\u5EFA\u8BAE\u62B1\u56E2\u5F62\u6210\u89C4\u6A21\n\u662F\u8FDC\u6D0B\u5DE1\u822A\u3001\u6D77\u57DF\u538B\u5236\u4EFB\u52A1\u7684\u597D\u624B\uFF0C\u80FD\u653B\u80FD\u5B88\uFF0C\u9002\u914D\u591A\u79CD\u6D77\u6218\u573A\u666F"
+  movementRange: 3
+  attackRange: 1
+  attackStrength_Armor: 25
+  attackStrength_Soldier: 25
+  attackStrength_Fort: 60
+  attackStrength_Warship: 45
+  attackStrength_Battleship: 40
+  health: 270
+  goldCost: 350
+  industryCost: 70
+  scienceCost: 5
+  unitProperty: 3
+  produceCondition: 2
+  plainAndCityMoveCost: 999
+  mountainMoveCost: 999
+  forestMoveCost: 999
+  waterMoveCost: 1

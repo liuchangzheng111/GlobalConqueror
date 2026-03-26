@@ -11,7 +11,7 @@ public class InitialUnitSpawn : MonoBehaviour
     [Tooltip("兵种类型")]
     public UnitTypeConfig unitType;
 
-    [Tooltip("所属国家 ID（与 NationData.nationId 一致）。填 -1 时根据所在地块的所属国家自动识别（MapTileData.ownerId；城市格在国家初始化时已设好）")]
-    public int ownerNationId = -1;
+    [Tooltip("所属国家名称（与 NationData.nationName 一致）。空字符串时根据所在地块的所属国家自动识别（MapTileData.ownerId；城市格在国家初始化时已设好）")]
+    public string ownerNationName = "";
 
 }

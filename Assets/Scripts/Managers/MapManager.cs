@@ -30,6 +30,9 @@ namespace GlobalConqueror.Managers
         // 城市地块列表
         private List<Vector3Int> citiesTile = new List<Vector3Int>();
 
+        // 港口地块列表
+        private List<Vector3Int> portsTile = new List<Vector3Int>();
+
         // 当前选中的地块
         private Vector3Int? selectedTileCoordinate = null;
 
@@ -53,6 +56,8 @@ namespace GlobalConqueror.Managers
         public Dictionary<Vector3Int, MapTileData> TileDataMap => tileDataMap;
 
         public List<Vector3Int> CitiesTile => citiesTile;
+
+        public List<Vector3Int> PortsTile => portsTile;
 
         private void Awake()
         {
@@ -152,6 +157,10 @@ namespace GlobalConqueror.Managers
                     if(tileType == TileType.City)
                     {
                         citiesTile.Add(pos);
+                    }
+                    else if (tileType == TileType.Port)
+                    {
+                        portsTile.Add(pos);
                     }
                     tileCount++;
                 }

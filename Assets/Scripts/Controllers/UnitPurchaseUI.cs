@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using GlobalConqueror.Models;
 using GlobalConqueror.Managers;
+using UnityEditor.Experimental.GraphView;
 
 namespace GlobalConqueror.Controllers
 {
@@ -27,6 +28,7 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Button antiaircraftButton;
 
         private CityData currentCity;
+        private PortData currentPort;
         private List<GameObject> currentAvailable;
         private Canvas _canvas;
         private Camera _uiCamera;
@@ -113,7 +115,7 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-        public void OnPurchaseBottomClick(CityData city)
+        public void OnPurchaseBottomClick(CityData city, PortData port)
         {
             // 若玩家正在对单位下达移动/攻击指令（或单位正在移动动画中），不弹出购买面板
             if (UnitController.IsUnitCommandActive)
@@ -128,18 +130,26 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            if (city == null || city.ownerNationId != NationManager.instance.CurrentNation.nationId)
-            {
-                Hide();
-                return;
-            }            
-            
+            Vector3Int vector3Int = city != null ? city.cityLocation : (port != null ? port.portLocation : Vector3Int.zero);
+                       
             // 若该格有单位，不显示购买面板（由 UnitController 处理单位选中）
-            if (UnitManager.instance != null && UnitManager.instance.GetUnitAtPosition(city.cityLocation) != null)
+            if (UnitManager.instance != null && UnitManager.instance.GetUnitAtPosition(vector3Int) != null)
             {
                 Hide();
                 return;
             }
+            
+            if (city == null || city.ownerNationId != NationManager.instance.CurrentNation.nationId)
+            {
+                if (port != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId)
+                {
+                    ShowForPort(port);
+                    return;
+                }
+
+                Hide();
+                return;
+            } 
 
             ShowForCity(city);
         }
@@ -153,7 +163,34 @@ namespace GlobalConqueror.Controllers
             {
                 currentCity = city;
                 if (panelRoot != null) panelRoot.SetActive(true);
+
+                soldierButton.gameObject.SetActive(true);
+                armorButton.gameObject.SetActive(true);
+                artilleryButton.gameObject.SetActive(true);
+                planeButton.gameObject.SetActive(true);
+                antiaircraftButton.gameObject.SetActive(true);
+
                 RefreshButtons(UnitManager.instance.AvailableSoldier);
+            }
+        }
+
+        /// <summary>
+        /// 为指定港口显示购买面板
+        /// </summary>
+        public void ShowForPort(PortData port)
+        {
+            if (UnitManager.instance != null)
+            {
+                currentPort = port;
+                if (panelRoot != null) panelRoot.SetActive(true);
+
+                soldierButton.gameObject.SetActive(false);
+                armorButton.gameObject.SetActive(false);
+                artilleryButton.gameObject.SetActive(false);
+                planeButton.gameObject.SetActive(false);
+                antiaircraftButton.gameObject.SetActive(false);
+
+                RefreshButtons(UnitManager.instance.AvailableShip);
             }
         }
 
@@ -163,6 +200,7 @@ namespace GlobalConqueror.Controllers
         public void Hide()
         {
             currentCity = null;
+            currentPort = null;
             currentAvailable = null;
             if (panelRoot != null) panelRoot.SetActive(false);
         }
@@ -181,7 +219,7 @@ namespace GlobalConqueror.Controllers
             }
 
             var nation = NationManager.instance?.CurrentNation;
-            if (nation == null || currentCity == null) return;
+            if (nation == null || (currentCity == null && currentPort == null)) return;
 
             currentAvailable = AvailableUnits;
             foreach (var unit in AvailableUnits)
@@ -202,7 +240,14 @@ namespace GlobalConqueror.Controllers
 
                 if (btn != null)
                 {
-                    btn.interactable = UnitManager.instance.CanSatisfyProduceCondition(currentCity, unitType);
+                    if (currentCity != null)
+                    {
+                        btn.interactable = UnitManager.instance.CanSatisfyProduceCondition(currentCity, unitType);                       
+                    }
+                    else
+                    {
+                        btn.interactable = UnitManager.instance.CanSatisfyProduceCondition(currentPort, unitType); 
+                    }
                     btn.onClick.AddListener(() => OnPurchaseClicked(unit));
                 }
             }
@@ -214,11 +259,21 @@ namespace GlobalConqueror.Controllers
         /// <param name="unitType"></param>
         private void OnPurchaseClicked(GameObject unit)
         {
-            if (currentCity == null || unit == null) return;
+            if ((currentCity == null && currentPort == null) || unit == null) return;
 
-            if (UnitManager.instance.TryPurchaseUnit(currentCity, unit))
+            if (currentCity != null)
             {
-                RefreshButtons(currentAvailable);
+                if (UnitManager.instance.TryPurchaseUnit(currentCity, unit))
+                {
+                    RefreshButtons(currentAvailable);
+                }
+            }
+            else
+            {
+                if (UnitManager.instance.TryPurchaseUnit(currentPort, unit))
+                {
+                    RefreshButtons(currentAvailable);
+                }
             }
         }
     }

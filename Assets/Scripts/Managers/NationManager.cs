@@ -248,6 +248,15 @@ namespace GlobalConqueror.Managers
                 }
             }
 
+            if (PortManager.instance != null && PortManager.instance.NationOwnPorts.TryGetValue(nation.nationName,out List<PortData> ports))
+            {
+                foreach (var port in ports)
+                {
+                    goldProduction += port.PortGoldProduced;
+                    industryProduction += port.PortIndustryProduced;
+                }
+            }
+
             nation.gold += goldProduction;
             nation.industry += industryProduction;
             nation.science += scienceProduction;

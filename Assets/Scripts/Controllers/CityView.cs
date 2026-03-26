@@ -63,7 +63,7 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
-        /// 重置所有UI（隐藏国旗、血条）
+        /// 重置所有UI
         /// </summary>
         private void ResetUI()
         {
@@ -100,7 +100,7 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
-        /// 刷新血条
+        /// 刷新UI
         /// </summary>
         public void Refresh()
         {

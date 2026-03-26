@@ -9,8 +9,7 @@ using UnityEngine.EventSystems;
 namespace GlobalConqueror.Controllers
 {
     /// <summary>
-    /// 单位详情面板控制器
-    /// 将该脚本挂到 UI 面板根物体上，并在 Inspector 绑定各 UI 引用。
+    /// 城市/港口详情面板控制器
     /// </summary>
     public class CityDetailsPanelController : MonoBehaviour
     {
@@ -50,6 +49,7 @@ namespace GlobalConqueror.Controllers
 
 
         private CityData currentCity;
+        private PortData currentPort;
 
         public bool IsVisible => panelRoot != null ? panelRoot.activeSelf : gameObject.activeSelf;
 
@@ -71,7 +71,7 @@ namespace GlobalConqueror.Controllers
             }
             if (PurchaseButton != null)
             {
-                PurchaseButton.onClick.AddListener(() => unitPurchaseUI.OnPurchaseBottomClick(currentCity));
+                PurchaseButton.onClick.AddListener(() => unitPurchaseUI.OnPurchaseBottomClick(currentCity, currentPort));
             }
         }
         private void OnEnable()
@@ -115,7 +115,7 @@ namespace GlobalConqueror.Controllers
             }
             if (PurchaseButton != null)
             {
-                PurchaseButton.onClick.RemoveListener(() => unitPurchaseUI.OnPurchaseBottomClick(currentCity));
+                PurchaseButton.onClick.RemoveListener(() => unitPurchaseUI.OnPurchaseBottomClick(currentCity, currentPort));
             }
         }
 
@@ -135,16 +135,25 @@ namespace GlobalConqueror.Controllers
             }
 
             CityData city = CityManager.instance.GetCityAtPosition(coordinate);
-            if (city == null)
+            PortData port = PortManager.instance.GetPortAtPosition(coordinate);
+            if (city == null && port == null)
             {
                 Hide();
                 return;
             }
-
-            Show(city);
+            else if (city != null)
+            {
+                ShowCity(city);
+                return;
+            }
+            else  if(port != null)
+            {
+                ShowPort(port);
+                return;
+            }
         }
 
-        public void Show(CityData city)
+        public void ShowCity(CityData city)
         {
             if (city == null)
             {
@@ -233,9 +242,70 @@ namespace GlobalConqueror.Controllers
                 PurchaseButton.gameObject.SetActive(true);
             }
         }
+        public void ShowPort(PortData port)
+        {
+            if (port == null)
+            {
+                Hide();
+                return;
+            }
 
+            currentPort = port;
+            ResetUI();
+
+            if (panelRoot != null) panelRoot.SetActive(true);
+            else gameObject.SetActive(true);
+
+            NationData nation = NationManager.instance != null ? NationManager.instance.GetNation(port.ownerNationId) : null;
+
+            if (cityNameText != null)
+            {
+                cityNameText.enabled = port.portName != null;
+                cityNameText.text = port.portName != null ? port.portName : "未知港口";
+            }
+
+            if (nationNameText != null)
+            {
+                nationNameText.enabled = nation != null;
+                nationNameText.text = nation != null ? $"所属 {nation.nationName}" : "未知国家";
+            }
+
+            if (nationFlagImage != null)
+            {
+                nationFlagImage.enabled = nation != null;
+                nationFlagImage.sprite = nation != null ? nation.nationFlag : null;
+                nationFlagImage.preserveAspect = true;
+            }
+
+            if (levelText != null)
+            {
+                string text = port.GetPortLevelString();
+                levelText.enabled = text != "";
+                levelText.text = text;
+            }
+
+            if (gold != null && industry != null)
+            {
+                gold.enabled = true;
+                industry.enabled = true;
+                gold.text = $"每回合金钱产出 {port.PortGoldProduced}";
+                industry.text = $"每回合工业产出 {port.PortIndustryProduced}";
+            }
+
+            if (PurchaseButton != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(port.portLocation) == null)
+            {
+                PurchaseButton.gameObject.SetActive(true);
+            }
+        }
         private void ResetUI()
         {
+            if (cityNameText != null && levelText != null)
+            {
+                cityNameText.enabled = false;
+                cityNameText.text = "";
+                levelText.enabled = false;
+                levelText.text = "";
+            }
             if (industryImage != null && industryText != null)
             {
                 industryImage.enabled = false;
@@ -251,19 +321,28 @@ namespace GlobalConqueror.Controllers
                 airportText.text = "";
 
             }
-            if (scienceImage != null && scienceText!=null)
+            if (scienceImage != null && scienceText != null)
             {
                 scienceImage.enabled = false;
                 scienceImage.sprite = null;
                 scienceText.enabled = false;
                 scienceText.text = "";
             }
-            if (supplyImage != null && supplyText!=null)
+            if (supplyImage != null && supplyText != null)
             {
                 supplyImage.enabled = false;
                 supplyImage.sprite = null;
                 supplyText.enabled = false;
                 supplyText.text = "";
+            }
+            if (gold != null && industry != null && science != null)
+            {
+                gold.enabled = false;
+                gold.text = "";
+                industry.enabled = false;
+                industry.text = "";
+                science.enabled = false;
+                science.text = "";
             }
             if (PurchaseButton != null)
             {
@@ -275,6 +354,7 @@ namespace GlobalConqueror.Controllers
         public void Hide()
         {
             currentCity = null;
+            currentPort = null;
             if (panelRoot != null) panelRoot.SetActive(false);
             else gameObject.SetActive(false);
             unitPurchaseUI.Hide();

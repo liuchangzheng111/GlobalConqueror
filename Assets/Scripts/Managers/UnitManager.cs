@@ -135,7 +135,7 @@ namespace GlobalConqueror.Managers
                     continue;
                 }
 
-                int ownerId = ResolveOwnerNationId(cell, spawn.ownerNationId);
+                int ownerId = ResolveOwnerNationId(cell, spawn.ownerNationName);
                 if (ownerId < 0)
                 {
                     Debug.LogWarning($"UnitManager: 无法为 {spawn.gameObject.name} 判定所属国家（位置 {cell}，请设置 ownerNationId 或确保附近有城市），已跳过");
@@ -149,18 +149,19 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
-        /// 解析单位所属国家：若 ownerNationId >= 0 直接返回；为 -1 时根据所在地块的所属国家（MapTileData.ownerId）自动识别。
-        /// 城市格在国家初始化时已设好地块归属；非城市格需由地图或领土逻辑设置 ownerId 后才会被识别。
+        /// 解析单位所属国家：若 ownerNationName 属实直接返回；为空字符串时根据所在地块的所属国家（MapTileData.ownerId）自动识别。
         /// </summary>
         /// <returns>国家 ID，无法识别时返回 -1</returns>
-        private int ResolveOwnerNationId(Vector3Int cell, int ownerNationId)
+        private int ResolveOwnerNationId(Vector3Int cell, string ownerNationName)
         {
-            if (ownerNationId >= 0)
-                return ownerNationId;
-
-            MapTileData tile = MapManager.instance?.GetTileData(cell);
-            if (tile != null && tile.ownerId >= 0)
-                return tile.ownerId;
+            if (ownerNationName == "")
+            {
+                MapTileData tile = MapManager.instance?.GetTileData(cell);
+                if (tile != null && tile.ownerId >= 0)
+                    return tile.ownerId;
+            }
+            if (NationManager.instance != null && NationManager.instance.NationsDic.ContainsKey(ownerNationName))
+                return NationManager.instance.NationsDic[ownerNationName].nationId;
 
             return -1;
         }
@@ -231,6 +232,33 @@ namespace GlobalConqueror.Managers
             StartCoroutine(AnimateSpawnUnit(spawnedUnit, targetWorldPos));
             SpawnUnit(city.cityLocation, unitType, city.ownerNationId, spawnedUnit, true);
             Debug.Log($"{nation.nationName} 在 {city.cityName} 购买了 {unitType.unitTypeName}");
+            return true;
+        }
+
+        /// <summary>
+        /// 在指定港口购买单位（消耗资源）
+        /// </summary>
+        /// <returns>是否购买成功</returns>
+        public bool TryPurchaseUnit(PortData port, GameObject unit)
+        {
+            var unitType = unit.GetComponent<InitialUnitSpawn>().unitType;
+            if (port == null || unitType == null) return false;
+            if (PortManager.instance == null || NationManager.instance == null) return false;
+
+            NationData nation = NationManager.instance.GetNation(port.ownerNationId);
+            if (nation == null) return false;
+
+            nation.gold -= unitType.goldCost;
+            nation.industry -= unitType.industryCost;
+            nation.science -= unitType.scienceCost;
+
+            Vector3 targetWorldPos = MapManager.instance.Tilemap.GetCellCenterWorld(port.portLocation);
+            Vector3 spawnStartPos = targetWorldPos + new Vector3(0, 0.5f, 0);
+            GameObject spawnedUnit = Instantiate(unit, spawnStartPos, Quaternion.identity, unitsContainer.transform);
+
+            StartCoroutine(AnimateSpawnUnit(spawnedUnit, targetWorldPos));
+            SpawnUnit(port.portLocation, unitType, port.ownerNationId, spawnedUnit, true);
+            Debug.Log($"{nation.nationName} 在 {port.portName} 购买了 {unitType.unitTypeName}");
             return true;
         }
 
@@ -597,8 +625,10 @@ namespace GlobalConqueror.Managers
 
             int defenderStrength = Mathf.CeilToInt(defenderStr * Random.Range(0.8f, 1.2f) * defenderHealthRate);
 
-            // 如果攻击者为火炮单位则无法反击
-            if (!isUnitInAvailableList(attacker, availableArtillery))
+            // 如果攻击者为火炮单位、潜艇或者防守单位攻击距离不够则无法反击
+            if (!isUnitInAvailableList(attacker, availableArtillery) &&
+                attacker.unitType.unitTypeName != "潜艇" &&
+                defender.AttackRange >= HexGridUtils.GetHexDistance(attacker.position, targetPosition))
             {
                 attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
 
@@ -679,7 +709,7 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
-        /// 查看是否符合满足生产条件
+        /// 查看是否符合满足生产条件（城市）
         /// </summary>
         /// <param name="city"></param>
         /// <param name="unitType"></param>
@@ -725,6 +755,40 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
+        /// 查看是否符合满足生产条件（港口）
+        /// </summary>
+        /// <param name="city"></param>
+        /// <param name="unitType"></param>
+        /// <returns></returns>
+        public bool CanSatisfyProduceCondition(PortData port, UnitTypeConfig unitType)
+        {
+            // 查看单位生产条件
+
+            if (unitType.produceCondition > port.portLevel)
+            {
+                return false;
+            }
+
+            NationData nation = NationManager.instance.GetNation(port.ownerNationId);
+            if (nation.gold < unitType.goldCost ||
+                nation.industry < unitType.industryCost ||
+                nation.science < unitType.scienceCost)
+            {
+                Debug.Log($"资源不足：需要 金币{unitType.goldCost} 工业{unitType.industryCost} 科技{unitType.scienceCost}");
+                return false;
+            }
+
+            // 城市格子上不能已有己方单位
+            if (GetUnitAtPosition(port.portLocation) != null)
+            {
+                Debug.Log("港口格子上已有单位，无法在此生产");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// 获取购买条件的各类城市图标
         /// </summary>
         /// <param name="unitTypeConfig"></param>
@@ -732,6 +796,7 @@ namespace GlobalConqueror.Managers
         public Sprite GetUnitProduceConditionSprite(UnitTypeConfig unitTypeConfig)
         {
             if (unitTypeConfig == null || unitTypeConfig.produceCondition <= 0) return null;
+            if (CityManager.instance == null || PortManager.instance == null) return null;
             switch (unitTypeConfig.unitProperty)
             {
                 case UnitProperty.Soldier:
@@ -745,11 +810,10 @@ namespace GlobalConqueror.Managers
                     return CityManager.instance.industry[unitTypeConfig.produceCondition - 1];
 
                 case UnitProperty.Warship:
-
-
                 case UnitProperty.Battleship:
-                // TODO:
-
+                    if (unitTypeConfig.produceCondition > PortManager.instance.portLevels.Count)
+                        return null;
+                    return PortManager.instance.portLevels[unitTypeConfig.produceCondition - 1];
                 default:
                     return null;
             }

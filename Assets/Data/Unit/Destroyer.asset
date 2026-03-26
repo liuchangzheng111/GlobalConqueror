@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Destroyer
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u9A71\u9010\u8230"
+  unitIcon: {fileID: 21300000, guid: 191abaae14b7d614bba09dd902f0c993, type: 3}
+  description: "\u6D77\u519B\u7684\u57FA\u7840\u673A\u52A8\u5355\u4F4D\uFF0C\u529F\u80FD\u5168\u9762\uFF0C\u751F\u4EA7\u6761\u4EF6\u4F4E\u3001\u4EF7\u683C\u4EB2\u6C11\n\u517C\u987E\u53CD\u6F5C\u3001\u62A4\u822A\u80FD\u529B\uFF0C\u65E2\u80FD\u730E\u6740\u6F5C\u8247\u3001\u62E6\u622A\u5C0F\u578B\u8230\u8239\uFF0C\u4E5F\u80FD\u4E3A\u5927\u578B\u4E3B\u529B\u8230\u4FDD\u9A7E\u62A4\u822A\n\u81EA\u8EAB\u88C5\u7532\u8F7B\u8584\uFF0C\u625B\u4E0D\u4F4F\u91CD\u578B\u70AE\u706B\uFF0C\u65E0\u6CD5\u5BF9\u6297\u91CD\u578B\u8230\u8239\n\u9002\u5408\u524D\u7EBF\u63A2\u8DEF\u3001\u63A9\u62A4\u4E3B\u529B\u8230\uFF0C\u7F3A\u7F16\u65F6\u53EF\u5FEB\u901F\u8865\u5145\uFF0C\u6491\u8D77\u8230\u961F\u57FA\u7840\u6218\u529B"
+  movementRange: 4
+  attackRange: 1
+  attackStrength_Armor: 20
+  attackStrength_Soldier: 20
+  attackStrength_Fort: 50
+  attackStrength_Warship: 55
+  attackStrength_Battleship: 30
+  health: 210
+  goldCost: 270
+  industryCost: 55
+  scienceCost: 0
+  unitProperty: 3
+  produceCondition: 1
+  plainAndCityMoveCost: 999
+  mountainMoveCost: 999
+  forestMoveCost: 999
+  waterMoveCost: 1
