@@ -29,22 +29,22 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private GameObject moveRangeHighlightPrefab;
         [SerializeField] private GameObject attackRangeHighlightPrefab;
         [SerializeField] private GameObject actionableHighlightPrefab;
-        [SerializeField] private Color moveHighlightColor = new Color(0, 1, 0, 0.4f);
-        [SerializeField] private Color attackHighlightColor = new Color(1, 0, 0, 0.4f);
-        [SerializeField] private Color actionableHighlightColor = new Color(0, 0, 0, 0.4f);
+        [SerializeField] private Color moveHighlightColor = new(0, 1, 0, 0.4f);
+        [SerializeField] private Color attackHighlightColor = new(1, 0, 0, 0.4f);
+        [SerializeField] private Color actionableHighlightColor = new(0, 0, 0, 0.4f);
 
         [Header("单位详情面板")]
         [SerializeField] private UnitDetailsPanelController unitDetailsPanel;
 
         private UnitData selectedUnit;
         private UnitData currentUnit;
-        private List<GameObject> moveHighlightObjects = new List<GameObject>();
-        private List<GameObject> attackHighlightObjects = new List<GameObject>();
-        private Dictionary<Vector3Int,GameObject> actionableHighlightObjects = new Dictionary<Vector3Int,GameObject>();
+        private readonly List<GameObject> moveHighlightObjects = new();
+        private readonly List<GameObject> attackHighlightObjects = new();
+        private readonly Dictionary<Vector3Int, GameObject> actionableHighlightObjects = new();
 
-        private Dictionary<UnitData, GameObject> unitVisuals = new Dictionary<UnitData, GameObject>();
-        private HashSet<Vector3Int> reachable = new HashSet<Vector3Int>();
-        private HashSet<Vector3Int> attackable = new HashSet<Vector3Int>();
+        private readonly Dictionary<UnitData, GameObject> unitVisuals = new();
+        private HashSet<Vector3Int> reachable = new();
+        private HashSet<Vector3Int> attackable = new();
 
         private bool isAnimating = false;
         private Camera mainCamera;
@@ -89,6 +89,8 @@ namespace GlobalConqueror.Controllers
             UnitManager.instance.OnUnitSpawned += OnUnitSpawned;
             UnitManager.instance.OnUnitDestroyed += OnUnitDestroyed;
             UnitManager.instance.OnUnitAttacked += OnUnitAttack;
+            UnitManager.instance.OnUnitBarged += ChangeUnitVisual;
+            UnitManager.instance.OnUnitLanded += ChangeUnitVisual;
         }
 
         private void OnDisable()
@@ -98,6 +100,8 @@ namespace GlobalConqueror.Controllers
                 UnitManager.instance.OnUnitSpawned -= OnUnitSpawned;
                 UnitManager.instance.OnUnitDestroyed -= OnUnitDestroyed;
                 UnitManager.instance.OnUnitAttacked -= OnUnitAttack;
+                UnitManager.instance.OnUnitBarged -= ChangeUnitVisual;
+                UnitManager.instance.OnUnitLanded -= ChangeUnitVisual;
             }
 
             if (MapManager.instance != null)
@@ -110,10 +114,6 @@ namespace GlobalConqueror.Controllers
                 NationManager.instance.OnNationTurnEnd -= (nationData) => ClearSelection();
                 NationManager.instance.OnNationTurnStart -= ResetActionableHighlightObjects;
             }
-        }
-
-        private void Start()
-        {
         }
 
         private void Update()
@@ -144,7 +144,16 @@ namespace GlobalConqueror.Controllers
             if (unitUnderCursor == null) return;
 
             if (unitDetailsPanel != null && unitUnderCursor == currentUnit)
-                unitDetailsPanel.Show(unitUnderCursor);
+            {
+                if (unitVisuals[unitUnderCursor].TryGetComponent<BargeUnitMapping>(out var bargeUnit))
+                {
+                    unitDetailsPanel.Show(unitUnderCursor, bargeUnit.landUnitType);
+                }
+                else
+                {
+                    unitDetailsPanel.Show(unitUnderCursor);
+                }
+            }
         }
 
         /// <summary>
@@ -193,12 +202,11 @@ namespace GlobalConqueror.Controllers
         {
             if (unit == null || gameObject == null) return;
 
-            var unitView = gameObject.GetComponent<UnitView>();
-            if (unitView != null)
+            if (gameObject.TryGetComponent<UnitView>(out var unitView))
                 unitView.Setup(unit);
             unitVisuals[unit] = gameObject;
         }
-        
+
         /// <summary>
         /// 地块被选中时的回调
         /// </summary>
@@ -206,9 +214,9 @@ namespace GlobalConqueror.Controllers
         {
             if (isAnimating) return;
 
-            if (NationManager.instance?.CurrentNation == null) return;
+            if (NationManager.instance == null || NationManager.instance.CurrentNation == null || UnitManager.instance == null) return;
 
-            UnitData unitAtTile = UnitManager.instance?.GetUnitAtPosition(coordinate);
+            UnitData unitAtTile = UnitManager.instance.GetUnitAtPosition(coordinate);
 
             // 移动/攻击仍仅对己方（CurrentNation）且未行动单位生效
             if (unitAtTile != null)
@@ -259,7 +267,7 @@ namespace GlobalConqueror.Controllers
 
             if (hasAttacked)
                 return;
-       
+
             attackable = UnitManager.instance.GetAttackablePositions(unit);
             ShowRangeHighlights(attackable, attackHighlightObjects, attackRangeHighlightPrefab, attackHighlightColor);
 
@@ -327,9 +335,9 @@ namespace GlobalConqueror.Controllers
             UnitManager.instance.TryMoveUnit(unit, targetCell);
 
             isAnimating = false;
-       
+
             SelectUnit(unit, unit.hasAttackedThisTurn, unit.hasMovedThisTurn);
-            
+
             // 如果移动后攻击范围内还有敌人且本回合未攻击则显示可行动高亮
             if (attackable.Count > 0 && !selectedUnit.hasAttackedThisTurn)
             {
@@ -357,7 +365,7 @@ namespace GlobalConqueror.Controllers
                 }
             }
         }
-        
+
         /// <summary>
         /// 清除范围高亮
         /// </summary>
@@ -382,9 +390,7 @@ namespace GlobalConqueror.Controllers
 
             if (nationData == null || UnitManager.instance == null || actionableHighlightPrefab == null) return;
 
-            HashSet<Vector3Int> positions = new HashSet<Vector3Int>();
-
-            foreach(var unit in UnitManager.instance.GetUnitsByNation(nationData.nationId))
+            foreach (var unit in UnitManager.instance.GetUnitsByNation(nationData.nationId))
             {
                 Vector3Int pos = unit.position;
                 Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
@@ -420,11 +426,43 @@ namespace GlobalConqueror.Controllers
         /// <param name="vector3Int"></param>
         private void ClearActionableSelection(Vector3Int position)
         {
-            if (actionableHighlightObjects.TryGetValue(position,out GameObject Highlight))
+            if (actionableHighlightObjects.TryGetValue(position, out GameObject Highlight))
             {
                 Destroy(Highlight);
             }
             actionableHighlightObjects.Remove(position);
+        }
+
+        /// <summary>
+        /// 根据单位数据获取单位模型
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public GameObject GetUnitGameObject(UnitData unit)
+        {
+            if (unitVisuals.TryGetValue(unit, out GameObject unitGo))
+            {
+                return unitGo;
+            }
+            return null;
+        }
+
+        /// <summary>
+        ///  改变单位视觉模型（返回旧模型）
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="gameObject"></param>
+        public void ChangeUnitVisual(UnitData unit, GameObject newGo)
+        {
+            if (unit == null || newGo == null) return;
+
+            if (newGo.TryGetComponent<UnitView>(out var unitView))
+                unitView.Setup(unit);
+            unitVisuals.Remove(unit, out GameObject oldGo);
+            Destroy(oldGo);
+
+            unitVisuals.Add(unit, newGo);
+            return;
         }
     }
 }

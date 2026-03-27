@@ -27,10 +27,10 @@ namespace GlobalConqueror.Models
         public bool hasAttackedThisTurn;
 
         /// <summary>最大生命值（来自兵种配置）</summary>
-        public int MaxHealth => unitType != null ? unitType.health : 1;
+        public int maxHealth;
 
         /// <summary>当前生命值比例</summary>
-        public float HealthRate => (float)currentHealth / (float)MaxHealth;
+        public float HealthRate => (float)currentHealth / (float)maxHealth;
 
         public UnitData(int id, UnitTypeConfig type, Vector3Int pos, int ownerId)
         {
@@ -41,6 +41,8 @@ namespace GlobalConqueror.Models
             currentHealth = type != null ? type.health : 1;
             hasMovedThisTurn = false;
             hasAttackedThisTurn = false;
+
+            maxHealth = type.health;
         }
 
         public float MovementRange => unitType != null ? unitType.movementRange : 0;
@@ -54,28 +56,15 @@ namespace GlobalConqueror.Models
 
         public string GetUnitPropertyString()
         {
-            string result = "";
-            switch (unitType.unitProperty)
+            string result = unitType.unitProperty switch
             {
-                case UnitProperty.Soldier:
-                    result = "步兵单位";
-                    break;
-                case UnitProperty.Armor:
-                    result = "装甲单位";
-                    break;
-                case UnitProperty.Fort:
-                    result = "堡垒单位";
-                    break;
-                case UnitProperty.Warship:
-                    result = "轻型舰艇单位";
-                    break;
-                case UnitProperty.Battleship:
-                    result = "重型舰艇单位";
-                    break;
-                default:
-                    result = "";
-                    break;
-            }
+                UnitProperty.Soldier => "步兵单位",
+                UnitProperty.Armor => "装甲单位",
+                UnitProperty.Fort => "堡垒单位",
+                UnitProperty.Warship => "轻型舰艇单位",
+                UnitProperty.Battleship => "重型舰艇单位",
+                _ => "",
+            };
             return result;
         }
     }

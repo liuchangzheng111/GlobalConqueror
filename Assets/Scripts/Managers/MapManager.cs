@@ -22,16 +22,16 @@ namespace GlobalConqueror.Managers
         [SerializeField] private bool autoFindTilemap = true; // 自动查找场景中的Tilemap
 
         // 自定义Tile类型映射（可选）
-        [SerializeField] private List<TileTypeMapping> customTileMappings = new List<TileTypeMapping>();
+        [SerializeField] private List<TileTypeMapping> customTileMappings = new();
 
         // 地块数据字典：坐标 -> 地块数据
-        private Dictionary<Vector3Int, MapTileData> tileDataMap = new Dictionary<Vector3Int, MapTileData>();
+        private readonly Dictionary<Vector3Int, MapTileData> tileDataMap = new();
 
         // 城市地块列表
-        private List<Vector3Int> citiesTile = new List<Vector3Int>();
+        private readonly List<Vector3Int> citiesTile = new();
 
         // 港口地块列表
-        private List<Vector3Int> portsTile = new List<Vector3Int>();
+        private readonly List<Vector3Int> portsTile = new();
 
         // 当前选中的地块
         private Vector3Int? selectedTileCoordinate = null;
@@ -130,7 +130,7 @@ namespace GlobalConqueror.Managers
             hexSize = Mathf.Max(cellSize.x, cellSize.y) * 0.5f; // 六边形大小估算
 
             // 创建自定义映射字典
-            Dictionary<TileBase, TileType> customMapping = new Dictionary<TileBase, TileType>();
+            Dictionary<TileBase, TileType> customMapping = new();
             foreach (var mapping in customTileMappings)
             {
                 if (mapping.tile != null)
@@ -152,7 +152,7 @@ namespace GlobalConqueror.Managers
                     TileType tileType = TileTypeMapping.GetTileTypeFromCustomMapping(tile, customMapping);
 
                     // 创建地块数据
-                    MapTileData tileData = new MapTileData(tile, tileType);
+                    MapTileData tileData = new(tile, tileType);
                     tileDataMap[pos] = tileData;
                     if(tileType == TileType.City)
                     {

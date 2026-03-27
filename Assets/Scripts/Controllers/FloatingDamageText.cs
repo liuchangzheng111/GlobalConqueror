@@ -17,7 +17,7 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private float duration = 0.35f;
         [SerializeField] private Ease moveEase = Ease.OutQuad;
 
-        private Tween _tween;
+        private readonly Tween _tween;
 
         private void OnDestroy()
         {
@@ -35,13 +35,13 @@ namespace GlobalConqueror.Controllers
             {
                 textMeshWorld.text = display;
                 textMeshWorld.color = color;
-                AnimateRoot(color);
+                AnimateRoot();
             }
             else if (textMeshUI != null)
             {
                 textMeshUI.text = display;
                 textMeshUI.color = color;
-                AnimateRoot(color);
+                AnimateRoot();
             }
             else
             {
@@ -50,7 +50,7 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-        private void AnimateRoot(Color startColor)
+        private void AnimateRoot()
         {
             Vector3 endPos = transform.position + Vector3.up * riseDistance;
             _tween?.Kill();

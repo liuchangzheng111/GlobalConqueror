@@ -6,6 +6,8 @@ using GlobalConqueror.Models;
 using GlobalConqueror.Utils;
 using GlobalConqueror.Controllers;
 using DG.Tweening;
+using UnityEngine.UIElements;
+using JetBrains.Annotations;
 
 namespace GlobalConqueror.Managers
 {
@@ -17,16 +19,19 @@ namespace GlobalConqueror.Managers
         public static UnitManager instance;
 
         [Header("兵种预制体列表")]
-        [SerializeField] private List<GameObject> availableSoldier = new List<GameObject>();
-        [SerializeField] private List<GameObject> availableArmor = new List<GameObject>();
-        [SerializeField] private List<GameObject> availableArtillery = new List<GameObject>();
-        [SerializeField] private List<GameObject> availableShip = new List<GameObject>();
+        [SerializeField] private List<GameObject> availableSoldier = new();
+        [SerializeField] private List<GameObject> availableArmor = new();
+        [SerializeField] private List<GameObject> availableArtillery = new();
+        [SerializeField] private List<GameObject> availableShip = new();
+
+        [Header("驳船预制体")]
+        [SerializeField] private GameObject barge;
 
         [Header("初始地图上兵的父容器")]
         [Tooltip("其子物体需挂 InitialUnitSpawn，世界坐标会转为格子坐标作为出生点")]
         [SerializeField] private GameObject unitsContainer;
 
-        private List<UnitData> allUnits = new List<UnitData>();
+        private readonly List<UnitData> allUnits = new();
         private int nextUnitId = 1;
 
         [HideInInspector]
@@ -42,7 +47,10 @@ namespace GlobalConqueror.Managers
         public System.Action<UnitData, GameObject> OnUnitSpawned;
         public System.Action<UnitData, UnitData> OnUnitAttacked;
         public System.Action<UnitData, CityData> OnCityCaptured;
+        public System.Action<UnitData, PortData> OnPortCaptured;
         public System.Action<UnitData> OnUnitDestroyed;
+        public System.Action<UnitData, GameObject> OnUnitBarged;
+        public System.Action<UnitData, GameObject> OnUnitLanded;
 
         private void Awake()
         {
@@ -74,7 +82,7 @@ namespace GlobalConqueror.Managers
             {
                 yield return null;
             }
-            while (NationManager.instance == null || !NationManager.instance.isNationsInitialized)
+            while (NationManager.instance == null || !NationManager.instance.IsNationsInitialized)
             {
                 yield return null;
             }
@@ -104,7 +112,7 @@ namespace GlobalConqueror.Managers
         /// </summary>
         private void InitializeUnitsFromContainer()
         {
-            if (unitsContainer == null || MapManager.instance?.Tilemap == null)
+            if (unitsContainer == null || MapManager.instance == null || MapManager.instance.Tilemap == null)
             {
                 return;
             }
@@ -156,7 +164,7 @@ namespace GlobalConqueror.Managers
         {
             if (ownerNationName == "")
             {
-                MapTileData tile = MapManager.instance?.GetTileData(cell);
+                MapTileData tile = MapManager.instance.GetTileData(cell);
                 if (tile != null && tile.ownerId >= 0)
                     return tile.ownerId;
             }
@@ -279,7 +287,13 @@ namespace GlobalConqueror.Managers
                 return null;
             }
 
-            UnitData unit = new UnitData(nextUnitId++, unitType, position, ownerNationId);
+            UnitData unit = new(nextUnitId++, unitType, position, ownerNationId);
+
+            // 判断是否为驳船
+            if (unitObject.TryGetComponent<BargeUnitMapping>(out BargeUnitMapping bargeUnitMapping))
+            {
+                unit.unitType = bargeUnitMapping.bargeUnitType;
+            }
 
             // 判断是否为新生成的单位
             if (isNewUnit)
@@ -337,7 +351,7 @@ namespace GlobalConqueror.Managers
         /// </summary>
         public List<UnitData> GetUnitsByNation(int nationId)
         {
-            List<UnitData> result = new List<UnitData>();
+            List<UnitData> result = new();
             foreach (var unit in allUnits)
             {
                 if (unit.ownerNationId == nationId)
@@ -351,14 +365,14 @@ namespace GlobalConqueror.Managers
         /// </summary>
         public HashSet<Vector3Int> GetReachablePositions(UnitData unit)
         {
-            HashSet<Vector3Int> reachable = new HashSet<Vector3Int>();
+            HashSet<Vector3Int> reachable = new();
 
             if (unit == null || unit.unitType == null) return reachable;
 
             float maxCost = unit.MovementRange;
 
-            PriorityQueue<Vector3Int, float> priorityQueue = new PriorityQueue<Vector3Int, float>();
-            Dictionary<Vector3Int, float> _minCostToReach = new Dictionary<Vector3Int, float>();
+            PriorityQueue<Vector3Int, float> priorityQueue = new();
+            Dictionary<Vector3Int, float> _minCostToReach = new();
 
             // 初始化：当前位置成本为0
             Vector3Int startPos = unit.position;
@@ -425,9 +439,9 @@ namespace GlobalConqueror.Managers
 
             float maxCost = unit.MovementRange;
 
-            PriorityQueue<Vector3Int, float> priorityQueue = new PriorityQueue<Vector3Int, float>();
-            Dictionary<Vector3Int, float> _minCostToReach = new Dictionary<Vector3Int, float>();
-            Dictionary<Vector3Int, Vector3Int> cameFrom = new Dictionary<Vector3Int, Vector3Int>();
+            PriorityQueue<Vector3Int, float> priorityQueue = new();
+            Dictionary<Vector3Int, float> _minCostToReach = new();
+            Dictionary<Vector3Int, Vector3Int> cameFrom = new();
 
             Vector3Int startPos = unit.position;
             priorityQueue.Enqueue(startPos, 0);
@@ -485,7 +499,7 @@ namespace GlobalConqueror.Managers
             }
 
             // 回溯路径：target -> start
-            List<Vector3Int> path = new List<Vector3Int>();
+            List<Vector3Int> path = new();
             Vector3Int current = targetPosition;
             path.Add(current);
             while (current != startPos)
@@ -508,7 +522,7 @@ namespace GlobalConqueror.Managers
         /// </summary>
         public HashSet<Vector3Int> GetAttackablePositions(UnitData unit)
         {
-            HashSet<Vector3Int> attackable = new HashSet<Vector3Int>();
+            HashSet<Vector3Int> attackable = new();
             if (unit == null || unit.unitType == null) return attackable;
 
             int range = unit.AttackRange;
@@ -522,6 +536,15 @@ namespace GlobalConqueror.Managers
                 UnitData targetUnit = GetUnitAtPosition(target);
                 if (targetUnit != null && targetUnit.ownerNationId != unit.ownerNationId)
                 {
+                    // 陆地单位和潜艇无法相互攻击，
+                    if (((unit.unitType.unitProperty == UnitProperty.Soldier || unit.unitType.unitProperty == UnitProperty.Armor) &&
+                        targetUnit.unitType.unitTypeName == "潜艇") ||
+                        ((targetUnit.unitType.unitProperty == UnitProperty.Soldier || targetUnit.unitType.unitProperty == UnitProperty.Armor) &&
+                        unit.unitType.unitTypeName == "潜艇"))
+                    {
+                        continue;
+                    }
+
                     attackable.Add(target);
                 }
             }
@@ -535,21 +558,14 @@ namespace GlobalConqueror.Managers
         {
             if (unit?.unitType == null) return 1;
 
-            switch (tileType)
+            return tileType switch
             {
-                case TileType.Water:
-                    return unit.unitType.waterMoveCost <= 0 ? -1 : unit.unitType.waterMoveCost;
-                case TileType.Plain:
-                case TileType.City:
-                case TileType.Port:
-                    return unit.unitType.plainAndCityMoveCost <= 0 ? -1 : unit.unitType.plainAndCityMoveCost;
-                case TileType.Forest:
-                    return unit.unitType.forestMoveCost <= 0 ? -1 : unit.unitType.forestMoveCost;
-                case TileType.Mountain:
-                    return unit.unitType.mountainMoveCost <= 0 ? -1 : unit.unitType.mountainMoveCost;
-                default:
-                    return 1;
-            }
+                TileType.Port or TileType.Water => unit.unitType.waterMoveCost <= 0 ? -1 : unit.unitType.waterMoveCost,
+                TileType.Plain or TileType.City => unit.unitType.plainAndCityMoveCost <= 0 ? -1 : unit.unitType.plainAndCityMoveCost,
+                TileType.Forest => unit.unitType.forestMoveCost <= 0 ? -1 : unit.unitType.forestMoveCost,
+                TileType.Mountain => unit.unitType.mountainMoveCost <= 0 ? -1 : unit.unitType.mountainMoveCost,
+                _ => 1,
+            };
         }
 
         /// <summary>
@@ -558,7 +574,7 @@ namespace GlobalConqueror.Managers
         /// <returns>是否移动成功（含占领城市）</returns>
         public bool TryMoveUnit(UnitData unit, Vector3Int targetPosition)
         {
-            if (unit == null || unit.hasAttackedThisTurn || unit.hasMovedThisTurn) return false;
+            if (unit == null || unit.hasAttackedThisTurn || unit.hasMovedThisTurn || CityManager.instance == null || PortManager.instance == null) return false;
 
             UnitData targetUnit = GetUnitAtPosition(targetPosition);
             if (targetUnit != null)
@@ -567,14 +583,42 @@ namespace GlobalConqueror.Managers
                 return false;
             }
 
+            if (!MapManager.instance.TileDataMap.TryGetValue(unit.position, out MapTileData oldTileData))
+            {
+                Debug.LogWarning("UnitManager: 当前格的地形无法识别！");
+                return false;
+            }
+
             unit.position = targetPosition;
             unit.hasMovedThisTurn = true;
 
             // 检查是否占领城市
-            CityData city = CityManager.instance?.GetCityAtPosition(targetPosition);
+            CityData city = CityManager.instance.GetCityAtPosition(targetPosition);
             if (city != null && city.ownerNationId != unit.ownerNationId)
             {
                 CaptureCity(unit, city);
+            }
+            // 检查是否占领港口
+            PortData port = PortManager.instance.GetPortAtPosition(targetPosition);
+            if (port != null && port.ownerNationId != unit.ownerNationId)
+            {
+                CapturePort(unit, port);
+            }
+
+            // 检查是否入水
+            if ((oldTileData.tileType != TileType.Water && oldTileData.tileType != TileType.Port) &&
+                MapManager.instance.TileDataMap.TryGetValue(targetPosition, out MapTileData newTileData) &&
+                (newTileData.tileType == TileType.Water || newTileData.tileType == TileType.Port))
+            {
+                ChangeLandUnitToBarge(unit);
+            }
+
+            // 检查是否上岸
+            if ((oldTileData.tileType == TileType.Water || oldTileData.tileType == TileType.Port) &&
+                MapManager.instance.TileDataMap.TryGetValue(targetPosition, out newTileData) &&
+                (newTileData.tileType != TileType.Water && newTileData.tileType != TileType.Port))
+            {
+                ChangeBargeUnitToLand(unit);
             }
 
             return true;
@@ -626,7 +670,7 @@ namespace GlobalConqueror.Managers
             int defenderStrength = Mathf.CeilToInt(defenderStr * Random.Range(0.8f, 1.2f) * defenderHealthRate);
 
             // 如果攻击者为火炮单位、潜艇或者防守单位攻击距离不够则无法反击
-            if (!isUnitInAvailableList(attacker, availableArtillery) &&
+            if (!IsUnitInAvailableList(attacker, availableArtillery) &&
                 attacker.unitType.unitTypeName != "潜艇" &&
                 defender.AttackRange >= HexGridUtils.GetHexDistance(attacker.position, targetPosition))
             {
@@ -676,6 +720,23 @@ namespace GlobalConqueror.Managers
                 oldOwner.isDefeated = true;
                 NationManager.instance.OnNationDefeated?.Invoke(oldOwner);
             }
+        }
+
+        /// <summary>
+        /// 占领港口
+        /// </summary>
+        private void CapturePort(UnitData unit, PortData port)
+        {
+            if (port == null || unit == null) return;
+            if (PortManager.instance == null || NationManager.instance == null) return;
+
+            NationData oldOwner = NationManager.instance.GetNation(port.ownerNationId);
+            NationData newOwner = NationManager.instance.GetNation(unit.ownerNationId);
+            if (oldOwner == null || newOwner == null) return;
+
+            PortManager.instance.TransferPortOwnership(port, newOwner);
+            OnPortCaptured?.Invoke(unit, port);
+            Debug.Log($"{newOwner.nationName} 的 {unit.unitType.unitTypeName} 占领了 {port.portName}！");
         }
 
         /// <summary>
@@ -824,14 +885,14 @@ namespace GlobalConqueror.Managers
         /// 目标单位是否是列表中的
         /// </summary>
         /// <returns></returns>
-        public bool isUnitInAvailableList(UnitData unit,List<GameObject> availabeList)
+        public bool IsUnitInAvailableList(UnitData unit, List<GameObject> availableList)
         {
-            if (unit == null || availabeList == null || unit.unitType == null)
+            if (unit == null || availableList == null || unit.unitType == null)
             {
                 return false;
             }
 
-            foreach (var unitItem in availabeList)
+            foreach (var unitItem in availableList)
             {
                 var unitItemType = unitItem.GetComponent<InitialUnitSpawn>();
                 if (unitItemType != null && unitItemType.unitType == unit.unitType)
@@ -840,6 +901,76 @@ namespace GlobalConqueror.Managers
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// 将陆地单位变为驳船单位
+        /// </summary>
+        /// <param name="unit"></param>
+        private void ChangeLandUnitToBarge(UnitData unit)
+        {
+            if (unit == null || barge == null) return;
+
+            Vector3 position = MapManager.instance.Tilemap.CellToWorld(unit.position);
+            GameObject bargeGo = Instantiate(barge, position, Quaternion.identity, unitsContainer.transform);
+
+            if (bargeGo.TryGetComponent<BargeUnitMapping>(out var bargeUnitMapping) && UnitController.instance != null)
+            {
+                bargeUnitMapping.landUnitType = unit.unitType;
+                bargeUnitMapping.landUnitSprite.sprite = unit.unitType.unitIcon;
+                unit.unitType = bargeUnitMapping.bargeUnitType;
+                OnUnitBarged?.Invoke(unit, bargeGo);
+                return;
+            }
+            else
+            {
+                Debug.LogWarning("UnitManager: 将陆地单位变为驳船单位失败！");
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 将驳船单位变为陆地单位
+        /// </summary>
+        /// <param name="unit"></param>
+        private void ChangeBargeUnitToLand(UnitData unit)
+        {
+            if (unit == null && UnitController.instance != null) return;
+
+            Vector3 position = MapManager.instance.Tilemap.CellToWorld(unit.position);
+            GameObject bargeGo = UnitController.instance.GetUnitGameObject(unit);
+
+            if (bargeGo.TryGetComponent<BargeUnitMapping>(out var bargeUnitMapping))
+            {
+                GameObject unitGo = GetUnitPrefab(bargeUnitMapping.landUnitType);
+                if (unitGo != null)
+                {
+                    unit.unitType = bargeUnitMapping.landUnitType;
+                    GameObject unitGameObject = Instantiate(unitGo, position, Quaternion.identity, unitsContainer.transform);
+
+                    OnUnitBarged?.Invoke(unit, unitGameObject);
+                    return;
+                }
+            }
+            Debug.LogWarning("UnitManager: 将驳船单位变为陆地单位失败！");
+            return;
+        }
+
+        public GameObject GetUnitPrefab(UnitTypeConfig unitType)
+        {
+            switch (unitType.unitProperty)
+            {
+                case UnitProperty.Soldier:
+                    return availableSoldier.Find(x => x.GetComponent<InitialUnitSpawn>().unitType == unitType);
+                case UnitProperty.Armor:
+                    GameObject Go = availableArmor.Find(x => x.GetComponent<InitialUnitSpawn>().unitType == unitType);
+                    return Go != null ? Go : availableArtillery.Find(x => x.GetComponent<InitialUnitSpawn>().unitType == unitType);
+                case UnitProperty.Warship:
+                case UnitProperty.Battleship:
+                    return availableShip.Find(x => x.GetComponent<InitialUnitSpawn>().unitType == unitType);
+                default:
+                    return null;
+            }
         }
     }
 }

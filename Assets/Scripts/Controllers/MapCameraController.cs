@@ -15,8 +15,8 @@ namespace GlobalConqueror.Controllers
         [Header("拖拽设置")]
         [SerializeField] private bool enableDrag = true;
         [SerializeField] private float dragSpeed = 1f;
-        [SerializeField] private Vector2 dragBoundsMin = new Vector2(-50, -50);
-        [SerializeField] private Vector2 dragBoundsMax = new Vector2(50, 50);
+        [SerializeField] private Vector2 dragBoundsMin = new(-50, -50);
+        [SerializeField] private Vector2 dragBoundsMax = new(50, 50);
 
         [Header("缩放设置")]
         [SerializeField] private bool enableZoom = true;
@@ -56,11 +56,7 @@ namespace GlobalConqueror.Controllers
             // 初始化目标值为当前值
             targetZoom = mapCamera.orthographicSize;
             targetPosition = transform.position;
-        }
-        
-        private void OnEnable()
-        {
-        }
+        }     
         
         private void OnDisable()
         {
@@ -201,7 +197,7 @@ namespace GlobalConqueror.Controllers
             if (isDragging && Input.GetMouseButton(0))
             {
                 Vector3 delta = Input.mousePosition - lastMousePosition;
-                Vector3 moveDelta = new Vector3(-delta.x * dragSpeed, -delta.y * dragSpeed, 0) * mapCamera.orthographicSize * 0.01f;
+                Vector3 moveDelta = 0.01f * mapCamera.orthographicSize * new Vector3(-delta.x * dragSpeed, -delta.y * dragSpeed, 0);
                 
                 targetPosition += moveDelta;
                
@@ -281,12 +277,6 @@ namespace GlobalConqueror.Controllers
         /// </summary>
         private void UpdateDynamicDragBounds()
         {
-            float distanceToMap = Mathf.Abs(transform.position.z - 0);
-            // 相机左下角（视口0,0）的世界坐标
-            Vector3 viewportBottomLeft = mapCamera.ViewportToWorldPoint(new Vector3(0, 0, distanceToMap));
-            // 相机右上角（视口1,1）的世界坐标
-            Vector3 viewportTopRight = mapCamera.ViewportToWorldPoint(new Vector3(1, 1, distanceToMap));
-
             float cameraViewWidth = targetZoom * mapCamera.aspect * 2;
             float cameraViewHeight = targetZoom * 2;
 
@@ -378,11 +368,13 @@ namespace GlobalConqueror.Controllers
             if (EventSystem.current == null) return false;
 
             // 构建鼠标指针的事件数据
-            PointerEventData eventData = new PointerEventData(EventSystem.current);
-            eventData.position = Input.mousePosition;
+            PointerEventData eventData = new(EventSystem.current)
+            {
+                position = Input.mousePosition
+            };
 
             // 检测是否有UI元素接收该指针事件
-            List<RaycastResult> raycastResults = new List<RaycastResult>();
+            List<RaycastResult> raycastResults = new();
             EventSystem.current.RaycastAll(eventData, raycastResults);
 
             // 有UI元素被检测到 → 返回true（指针在UI上）

@@ -124,7 +124,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            if (CityManager.instance == null || NationManager.instance?.CurrentNation == null)
+            if (CityManager.instance == null || NationManager.instance == null || NationManager.instance.CurrentNation == null)
             {
                 Hide();
                 return;
@@ -210,7 +210,7 @@ namespace GlobalConqueror.Controllers
         /// </summary>
         private void RefreshButtons(List<GameObject> AvailableUnits)
         {
-            if (buttonContainer == null || unitPurchaseButtonPrefab == null || AvailableUnits == null || UnitManager.instance == null)
+            if (buttonContainer == null || unitPurchaseButtonPrefab == null || AvailableUnits == null || UnitManager.instance == null || NationManager.instance == null)
                 return;
 
             foreach (Transform child in buttonContainer)
@@ -218,7 +218,7 @@ namespace GlobalConqueror.Controllers
                 Destroy(child.gameObject);
             }
 
-            var nation = NationManager.instance?.CurrentNation;
+            var nation = NationManager.instance.CurrentNation;
             if (nation == null || (currentCity == null && currentPort == null)) return;
 
             currentAvailable = AvailableUnits;
@@ -231,9 +231,8 @@ namespace GlobalConqueror.Controllers
 
                 var go = Instantiate(unitPurchaseButtonPrefab, buttonContainer);
                 var btn = go.GetComponent<Button>();
-                var unitPurchaseItemView = go.GetComponent<UnitPurchaseItemView>();
-
-                if (unitPurchaseItemView != null)
+                
+                if (go.TryGetComponent<UnitPurchaseItemView>(out var unitPurchaseItemView))
                 {
                     unitPurchaseItemView.Setup(unitType);
                 }

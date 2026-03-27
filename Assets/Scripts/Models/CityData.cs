@@ -13,9 +13,9 @@ namespace GlobalConqueror.Models
         public int cityId;
         public string cityName;
 
-        public int cityGoldProduced => (cityKindsLevel.cityLevel + 1) * 10;
-        public int cityIndustryProduced => (cityKindsLevel.industryLevel) * 5;
-        public int cityScienceProduced => (cityKindsLevel.scienceLevel) * 2;
+        public int CityGoldProduced => (cityKindsLevel.cityLevel + 1) * 10;
+        public int CityIndustryProduced => (cityKindsLevel.industryLevel) * 5;
+        public int CityScienceProduced => (cityKindsLevel.scienceLevel) * 2;
 
         public Tilemap cityTiles;
         public Vector3Int cityLocation;
@@ -37,7 +37,7 @@ namespace GlobalConqueror.Models
         {
             int level = cityKindsLevel != null ? cityKindsLevel.cityLevel : 1;
             return $"城市ID: {cityId} | 名称: {cityName} | 等级: {level} | 所属国家: {ownerNationId}\n" +
-                   $"资源产出: 金币{cityGoldProduced} | 工业{cityIndustryProduced} | 科技{cityScienceProduced}\n" +
+                   $"资源产出: 金币{CityGoldProduced} | 工业{CityIndustryProduced} | 科技{CityScienceProduced}\n" +
                    $"位置: {cityLocation}";
         }
     }
@@ -65,7 +65,7 @@ namespace GlobalConqueror.Models
 
         public string GetCityLevelString()
         {
-            string result = "";
+            string result;
             switch (cityLevel)
             {
                 case 1:

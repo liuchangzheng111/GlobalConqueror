@@ -197,7 +197,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            List<NationData> nations = new List<NationData>(NationManager.instance.Nations);
+            List<NationData> nations = new(NationManager.instance.Nations);
             nations.Sort((a, b) => {
                 int defeatCompare = a.isDefeated.CompareTo(b.isDefeated);
                 if (defeatCompare != 0)

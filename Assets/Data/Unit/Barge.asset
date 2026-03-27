@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Barge
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u9A73\u8239"
+  unitIcon: {fileID: 21300000, guid: 03773d2d0b73d714f9ef8b04cfc64419, type: 3}
+  description: 
+  movementRange: 3
+  attackRange: 1
+  attackStrength_Armor: 15
+  attackStrength_Soldier: 15
+  attackStrength_Fort: 15
+  attackStrength_Warship: 15
+  attackStrength_Battleship: 15
+  health: 100
+  goldCost: 0
+  industryCost: 0
+  scienceCost: 0
+  unitProperty: 3
+  produceCondition: 1
+  plainAndCityMoveCost: 3
+  mountainMoveCost: 3
+  forestMoveCost: 3
+  waterMoveCost: 1

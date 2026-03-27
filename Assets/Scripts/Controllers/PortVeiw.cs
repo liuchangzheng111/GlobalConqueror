@@ -30,6 +30,29 @@ namespace GlobalConqueror.Controllers
             }
         }
 
+        private void OnEnable()
+        {
+            StartCoroutine(InitializeWhenPortReady());
+        }
+
+        private System.Collections.IEnumerator InitializeWhenPortReady()
+        {
+            while (UnitManager.instance == null || !UnitManager.instance.initialUnitsSpawned)
+            {
+                yield return null;
+            }
+
+            UnitManager.instance.OnPortCaptured += (unitData, portData) => Refresh(portData);
+        }
+
+        private void OnDisable()
+        {
+            if (UnitManager.instance != null)
+            {
+                UnitManager.instance.OnPortCaptured -= (unitData, portData) => Refresh(portData);
+            }
+        }
+
         /// <summary>
         /// 绑定港口数据并刷新显示
         /// </summary>
@@ -45,7 +68,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            Refresh();
+            Refresh(port);
         }
 
         /// <summary>
@@ -73,15 +96,16 @@ namespace GlobalConqueror.Controllers
         /// <summary>
         /// 刷新UI
         /// </summary>
-        public void Refresh()
+        public void Refresh(PortData port)
         {
-
             if (_boundPort == null)
             {
                 Debug.LogWarning("PortView: _boundPort数据丢失！");
                 ResetUI();
                 return;
             }
+
+            if (port != _boundPort) return;
 
             portName.enabled = true;
             portName.text = _boundPort.portName;

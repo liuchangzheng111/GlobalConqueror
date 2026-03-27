@@ -14,8 +14,8 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private GameObject floatingDamagePrefab;
 
         [Header("颜色")]
-        [SerializeField] private Color damageColor = new Color(1f, 0.25f, 0.2f, 1f);
-        [SerializeField] private Color counterDamageColor = new Color(1f, 0.6f, 0.2f, 1f);
+        [SerializeField] private Color damageColor = new(1f, 0.25f, 0.2f, 1f);
+        [SerializeField] private Color counterDamageColor = new(1f, 0.6f, 0.2f, 1f);
 
         private void Awake()
         {
@@ -36,15 +36,14 @@ namespace GlobalConqueror.Controllers
         /// </summary>
         public void ShowDamageAtCell(Vector3Int cell, int amount, Color? colorOverride = null)
         {
-            if (floatingDamagePrefab == null || MapManager.instance?.Tilemap == null || amount <= 0)
+            if (floatingDamagePrefab == null || MapManager.instance == null || MapManager.instance.Tilemap == null || amount <= 0)
                 return;
 
             Vector3 world = MapManager.instance.Tilemap.GetCellCenterWorld(cell);
             world.z = 0f;
 
             GameObject go = Instantiate(floatingDamagePrefab, world, Quaternion.identity);
-            var fd = go.GetComponent<FloatingDamageText>();
-            if (fd != null)
+            if (go.TryGetComponent<FloatingDamageText>(out var fd))
             {
                 Color c = colorOverride ?? damageColor;
                 fd.Play(amount, c);

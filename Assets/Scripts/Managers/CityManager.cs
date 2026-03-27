@@ -27,7 +27,7 @@ namespace GlobalConqueror.Managers
         public List<Sprite> science;
         public List<Sprite> supply;
 
-        private Dictionary<string, CityData> citiesDic = new Dictionary<string, CityData>();
+        private readonly Dictionary<string, CityData> citiesDic = new();
 
         // 索引即城市ID，一个场景的整局游戏中初始化后不会改动
         private List<CityData> allCities;
@@ -84,8 +84,8 @@ namespace GlobalConqueror.Managers
             }
 
             // 初始化城市地块和等级
-            Dictionary<string, Tilemap> cityTilemap = new Dictionary<string, Tilemap>();
-            Dictionary<string, CityLevelMapping> cityLevels = new Dictionary<string, CityLevelMapping>();
+            Dictionary<string, Tilemap> cityTilemap = new();
+            Dictionary<string, CityLevelMapping> cityLevels = new();
 
             Tilemap[] childTilemaps = cities.GetComponentsInChildren<Tilemap>(includeInactive: false);
 
@@ -133,8 +133,7 @@ namespace GlobalConqueror.Managers
             {
                 Vector3 location = MapManager.instance.Tilemap.CellToWorld(city.cityLocation);
                 GameObject cityGo = Instantiate(cityView, location, Quaternion.identity, this.transform);
-                CityView view = cityGo.GetComponent<CityView>();
-                if (view != null)
+                if (cityGo.TryGetComponent<CityView>(out var view))
                 {
                     view.Setup(city);
                 }
@@ -154,7 +153,7 @@ namespace GlobalConqueror.Managers
         /// </summary>
         public List<CityData> GetCitiesByNation(string nation)
         {
-            List<CityData> result = new List<CityData>();
+            List<CityData> result = new();
             foreach (var city in NationManager.instance.NationsDic[nation].ownedCitiesNames)
             {
                 result.Add(citiesDic[city]);
@@ -185,18 +184,12 @@ namespace GlobalConqueror.Managers
 
             int oldOwnerId = city.ownerNationId;
 
-            NationData oldOwner = NationManager.instance?.GetNation(oldOwnerId);
-            NationData newOwner = NationManager.instance?.NationsDic[newOwnerName];
+            NationData oldOwner = NationManager.instance.GetNation(oldOwnerId);
+            NationData newOwner = NationManager.instance.NationsDic[newOwnerName];
 
-            if (oldOwner != null)
-            {
-                oldOwner.RemoveCity(city);
-            }
+            oldOwner?.RemoveCity(city);
 
-            if (newOwner != null)
-            {
-                newOwner.AddCity(city);
-            }
+            newOwner?.AddCity(city);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace GlobalConqueror.Models
 
         public string GetPortLevelString()
         {
-            string result = "";
+            string result;
             switch (portLevel)
             {
                 case 1:

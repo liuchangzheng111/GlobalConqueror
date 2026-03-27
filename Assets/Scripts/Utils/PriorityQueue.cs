@@ -101,9 +101,9 @@ public class PriorityQueue<TElement, TPriority> : IEnumerable<TElement>
             throw new InvalidOperationException("优先队列为空，无法出队");
 
         // 1. 获取堆顶元素（优先级最高）
-        var top = _heap[0];
+        var (Element, _) = _heap[0];
         RemoveAt(0);
-        return top.Element;
+        return Element;
     }
 
     /// <summary>
@@ -254,11 +254,11 @@ public class PriorityQueue<TElement, TPriority> : IEnumerable<TElement>
     /// <param name="index">元素索引</param>
     private void UpHeap(int index)
     {
-        var item = _heap[index];
+        var (_, Priority) = _heap[index];
         int parentIndex = (index - 1) / 2; // 父节点索引
 
         // 当当前节点优先级高于父节点时，交换位置
-        while (index > 0 && _comparer.Compare(item.Priority, _heap[parentIndex].Priority) < 0)
+        while (index > 0 && _comparer.Compare(Priority, _heap[parentIndex].Priority) < 0)
         {
             Swap(index, parentIndex);
             index = parentIndex;
@@ -306,9 +306,7 @@ public class PriorityQueue<TElement, TPriority> : IEnumerable<TElement>
     /// <param name="j">索引2</param>
     private void Swap(int i, int j)
     {
-        var temp = _heap[i];
-        _heap[i] = _heap[j];
-        _heap[j] = temp;
+        (_heap[j], _heap[i]) = (_heap[i], _heap[j]);
 
         // 更新元素索引字典
         _elementIndices[_heap[i].Element] = i;
@@ -345,9 +343,9 @@ public class PriorityQueue<TElement, TPriority> : IEnumerable<TElement>
     public IEnumerator<TElement> GetEnumerator()
     {
         // 遍历的是堆的原始顺序（非优先级排序），如需排序遍历需先复制排序
-        foreach (var item in _heap)
+        foreach (var (Element, _) in _heap)
         {
-            yield return item.Element;
+            yield return Element;
         }
     }
 

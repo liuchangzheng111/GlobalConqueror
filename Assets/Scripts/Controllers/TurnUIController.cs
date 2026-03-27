@@ -71,10 +71,6 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-        private void Update()
-        {
-        }
-
         private void UpdateUI(int turn)
         {
             if (turnText != null)

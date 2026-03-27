@@ -25,8 +25,8 @@ namespace GlobalConqueror.Managers
         [Header("港口等级列表图标(按从低到高顺序)")]
         public List<Sprite> portLevels;
 
-        private List<PortData> allPorts = new List<PortData>();
-        private Dictionary<string, List<PortData>> nationOwnPorts = new Dictionary<string, List<PortData>>();
+        private readonly List<PortData> allPorts = new();
+        private readonly Dictionary<string, List<PortData>> nationOwnPorts = new();
 
         public bool IsPortsInitialized { get; private set; } = false;
 
@@ -59,7 +59,7 @@ namespace GlobalConqueror.Managers
         private System.Collections.IEnumerator InitializeWhenMapReady()
         {
             // 等待 NationManager 单例与国家初始化完成
-            while (NationManager.instance == null || !NationManager.instance.isNationsInitialized)
+            while (NationManager.instance == null || !NationManager.instance.IsNationsInitialized)
             {
                 yield return null;
             }
@@ -91,7 +91,7 @@ namespace GlobalConqueror.Managers
                     continue;
                 }
 
-                PortData port = new PortData(
+                PortData port = new(
                     countIndex,
                     portMapping.name,
                     portMapping.PortPositionInt,
@@ -119,8 +119,7 @@ namespace GlobalConqueror.Managers
             {
                 Vector3 location = MapManager.instance.Tilemap.CellToWorld(port.portLocation);
                 GameObject portGo = Instantiate(portView, location, Quaternion.identity, this.transform);
-                PortView view = portGo.GetComponent<PortView>();
-                if (view != null)
+                if (portGo.TryGetComponent<PortView>(out var view))
                 {
                     view.Setup(port);
                 }
@@ -152,22 +151,23 @@ namespace GlobalConqueror.Managers
         /// <summary>
         /// 转移港口所有权
         /// </summary>
-        public void TransferPortOwnership(PortData port, string newOwnerName)
+        public void TransferPortOwnership(PortData port, NationData newOwner)
         {
-            if (port == null) return;
+            if (port == null || NationManager.instance == null) return;
 
             int oldOwnerId = port.ownerNationId;
 
-            string oldOwner = NationManager.instance?.GetNation(oldOwnerId).nationName;
+            string oldOwner = NationManager.instance.GetNation(oldOwnerId).nationName;
 
             if (nationOwnPorts.TryGetValue(oldOwner,out List<PortData> oldPorts))
             {
                 oldPorts.Remove(port);
             }
 
-            if (nationOwnPorts.TryGetValue(oldOwner, out List<PortData> newPorts))
+            if (nationOwnPorts.TryGetValue(newOwner.nationName, out List<PortData> newPorts))
             {
                 newPorts.Add(port);
+                port.ownerNationId = newOwner.nationId;
             }
         }
     }

@@ -20,8 +20,8 @@ MonoBehaviour:
   attackStrength_Armor: 40
   attackStrength_Soldier: 50
   attackStrength_Fort: 35
-  attackStrength_Warship: 15
-  attackStrength_Battleship: 15
+  attackStrength_Warship: 40
+  attackStrength_Battleship: 25
   health: 180
   goldCost: 200
   industryCost: 45

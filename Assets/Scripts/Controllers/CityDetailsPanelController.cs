@@ -128,7 +128,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            if (CityManager.instance == null || NationManager.instance?.CurrentNation == null)
+            if (CityManager.instance == null || NationManager.instance == null || NationManager.instance.CurrentNation == null)
             {
                 Hide();
                 return;
@@ -172,7 +172,7 @@ namespace GlobalConqueror.Controllers
             if (cityNameText != null)
             {
                 cityNameText.enabled = city.cityName != null;
-                cityNameText.text = city.cityName != null ? city.cityName : "未知城市";
+                cityNameText.text = city.cityName ?? "未知城市";
             }
 
             if (nationNameText != null)
@@ -184,7 +184,7 @@ namespace GlobalConqueror.Controllers
             if (nationFlagImage != null)
             {
                 nationFlagImage.enabled = nation != null;
-                nationFlagImage.sprite = nation != null ? nation.nationFlag : null;
+                nationFlagImage.sprite = nation?.nationFlag;
                 nationFlagImage.preserveAspect = true;
             }
 
@@ -232,9 +232,9 @@ namespace GlobalConqueror.Controllers
                 gold.enabled = true;
                 industry.enabled = true;
                 science.enabled = true;
-                gold.text = $"每回合金钱产出 {city.cityGoldProduced}";
-                industry.text = $"每回合工业产出 {city.cityIndustryProduced}";
-                science.text = $"每回合科学产出 {city.cityScienceProduced}";
+                gold.text = $"每回合金钱产出 {city.CityGoldProduced}";
+                industry.text = $"每回合工业产出 {city.CityIndustryProduced}";
+                science.text = $"每回合科学产出 {city.CityScienceProduced}";
             }
 
             if (PurchaseButton != null && city.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)
@@ -261,7 +261,7 @@ namespace GlobalConqueror.Controllers
             if (cityNameText != null)
             {
                 cityNameText.enabled = port.portName != null;
-                cityNameText.text = port.portName != null ? port.portName : "未知港口";
+                cityNameText.text = port.portName ?? "未知港口";
             }
 
             if (nationNameText != null)
@@ -273,7 +273,7 @@ namespace GlobalConqueror.Controllers
             if (nationFlagImage != null)
             {
                 nationFlagImage.enabled = nation != null;
-                nationFlagImage.sprite = nation != null ? nation.nationFlag : null;
+                nationFlagImage.sprite = nation?.nationFlag;
                 nationFlagImage.preserveAspect = true;
             }
 

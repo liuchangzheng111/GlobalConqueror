@@ -13,7 +13,7 @@ namespace GlobalConqueror.Controllers
     {
         [Header("高亮设置")]
         [SerializeField] private GameObject highlightPrefab; // 高亮预制体（可选）
-        [SerializeField] private Color highlightColor = new Color(1f, 1f, 0f, 0.5f); // 高亮颜色
+        [SerializeField] private Color highlightColor = new(1f, 1f, 0f, 0.5f); // 高亮颜色
 
         private Camera mainCamera;
         private GameObject currentHighlight;
@@ -21,8 +21,8 @@ namespace GlobalConqueror.Controllers
         private Vector3 startMousePosition;
 
         // 用于存储每个地块的高亮对象（如果使用预制体）
-        private System.Collections.Generic.Dictionary<Vector3Int, GameObject> highlightObjects = 
-            new System.Collections.Generic.Dictionary<Vector3Int, GameObject>();    
+        private readonly System.Collections.Generic.Dictionary<Vector3Int, GameObject> highlightObjects = 
+            new();    
 
         private void Awake()
         {          

@@ -87,8 +87,9 @@ GameObject:
   - component: {fileID: 4056503811090801845}
   - component: {fileID: 7854204740531793977}
   - component: {fileID: 3390518458989197720}
+  - component: {fileID: 4199461837745228956}
   m_Layer: 0
-  m_Name: Battleship
+  m_Name: Barge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -103,11 +104,12 @@ Transform:
   m_GameObject: {fileID: 2022572202436202458}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.552321, y: -0.6174435, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6135039238310434670}
+  - {fileID: 7694728849198246053}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4056503811090801845
@@ -151,7 +153,7 @@ SpriteRenderer:
   m_SortingLayerID: -950771403
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 01ab3be2e52e00e46895d15bac69acbc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 03773d2d0b73d714f9ef8b04cfc64419, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -174,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37f72c44075fe064fbb77ce9eb3ed1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitType: {fileID: 11400000, guid: b441a535de008d8448fe5ea5d4083861, type: 2}
+  unitType: {fileID: 0}
   ownerNationName: 
 --- !u!114 &3390518458989197720
 MonoBehaviour:
@@ -190,6 +192,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flagImage: {fileID: 5237087569566886533}
   healthSlider: {fileID: 442652825749186864}
+--- !u!114 &4199461837745228956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2022572202436202458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45192703720bb0745b09eae98853f47f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bargeUnitType: {fileID: 11400000, guid: 0899074a185a52d48b53d6eb221e8943, type: 2}
+  landUnitType: {fileID: 0}
+  landUnitSprite: {fileID: 15156902321936977}
 --- !u!1 &3041097621373016712
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,6 +297,90 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &5399587389185394679
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7694728849198246053}
+  - component: {fileID: 15156902321936977}
+  m_Layer: 0
+  m_Name: LandUnit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7694728849198246053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5399587389185394679}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.15, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2755356900584288027}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &15156902321936977
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5399587389185394679}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: -950771403
+  m_SortingLayer: 3
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 87813f364416b99459f1e1238752759e, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &5550341462136707957
 GameObject:
   m_ObjectHideFlags: 0

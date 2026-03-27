@@ -48,12 +48,12 @@ namespace GlobalConqueror.Utils
         /// <returns>两个格子之间的最小步数（六边形距离）</returns>
         public static int GetHexDistance(Vector3Int a, Vector3Int b)
         {
-            var cubeA = ConvertOffsetToCube(a);
+            var (x, y, z) = ConvertOffsetToCube(a);
             var cubeB = ConvertOffsetToCube(b);
 
-            int dx = Mathf.Abs(cubeA.x - cubeB.x);
-            int dy = Mathf.Abs(cubeA.y - cubeB.y);
-            int dz = Mathf.Abs(cubeA.z - cubeB.z);
+            int dx = Mathf.Abs(x - cubeB.x);
+            int dy = Mathf.Abs(y - cubeB.y);
+            int dz = Mathf.Abs(z - cubeB.z);
 
             int distance = (dx + dy + dz) / 2;
 

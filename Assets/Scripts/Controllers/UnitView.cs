@@ -85,7 +85,7 @@ namespace GlobalConqueror.Controllers
                     return;
                 }
 
-                int maxHealth = _boundUnit.MaxHealth;
+                int maxHealth = _boundUnit.maxHealth;
                 int currentHealth = _boundUnit.currentHealth;
 
                 if (maxHealth <= 0)
@@ -120,7 +120,7 @@ namespace GlobalConqueror.Controllers
                     Debug.LogError("UnitView: 未绑定国家！");
                     return;
                 }
-                NationData nation = NationManager.instance?.GetNation(_boundUnit.ownerNationId);
+                NationData nation = NationManager.instance != null ? NationManager.instance.GetNation(_boundUnit.ownerNationId) : null;
                 if (nation == null)
                 {
                     Debug.LogError("UnitView: 不存在此国家！");

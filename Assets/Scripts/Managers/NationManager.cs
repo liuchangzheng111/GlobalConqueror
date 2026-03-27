@@ -3,6 +3,7 @@ using UnityEngine;
 using GlobalConqueror.Models;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using System;
 
 namespace GlobalConqueror.Managers
 {
@@ -19,7 +20,7 @@ namespace GlobalConqueror.Managers
         [Header("国家列表")]
         [SerializeField] private List<NationData> nations;
 
-        private Dictionary<string, NationData> nationsDic = new Dictionary<string, NationData>();
+        private readonly Dictionary<string, NationData> nationsDic = new();
         private int currentTurn = 1;
         private int currentNationIndex = 0;
         private NationData currentNation;
@@ -35,7 +36,7 @@ namespace GlobalConqueror.Managers
         public System.Action<NationData> OnNationTurnEnd;
         public System.Action<NationData> OnNationDefeated;
 
-        public bool isNationsInitialized { get; private set; } = false;
+        public bool IsNationsInitialized { get; private set; } = false;
 
         private void Awake()
         {
@@ -67,10 +68,10 @@ namespace GlobalConqueror.Managers
                 yield return null;
             }
 
-            if (!isNationsInitialized)
+            if (!IsNationsInitialized)
             {
                 InitializeNations();
-                isNationsInitialized = true;
+                IsNationsInitialized = true;
             }
         }
 
@@ -93,10 +94,7 @@ namespace GlobalConqueror.Managers
         /// </summary>
         private void InitializeNations()
         {
-            if (nations == null)
-            {
-                nations = new List<NationData>();
-            }
+            nations ??= new List<NationData>();
 
             if (nations.Count == 0)
             {
@@ -205,7 +203,10 @@ namespace GlobalConqueror.Managers
         /// </summary>
         private void ProcessNationTurnStart(NationData nation)
         {
-            
+            if (nation is null)
+            {
+                throw new ArgumentNullException(nameof(nation));
+            }
         }
 
         /// <summary>
@@ -213,7 +214,10 @@ namespace GlobalConqueror.Managers
         /// </summary>
         private void ProcessNationTurnEnd(NationData nation)
         {
-
+            if (nation is null)
+            {
+                throw new ArgumentNullException(nameof(nation));
+            }
         }
 
         /// <summary>
@@ -236,9 +240,9 @@ namespace GlobalConqueror.Managers
                 if (!CityManager.instance.CitiesDic.ContainsKey(city)) continue;
 
                 CityData cityData = CityManager.instance.CitiesDic[city];
-                goldProduction += cityData.cityGoldProduced;
-                industryProduction += cityData.cityIndustryProduced;
-                scienceProduction += cityData.cityScienceProduced;
+                goldProduction += cityData.CityGoldProduced;
+                industryProduction += cityData.CityIndustryProduced;
+                scienceProduction += cityData.CityScienceProduced;
 
                 if (city == nation.capital)
                 {
