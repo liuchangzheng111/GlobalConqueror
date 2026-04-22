@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using GlobalConqueror.Managers;
 using GlobalConqueror.Models;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,10 @@ namespace GlobalConqueror.Controllers
 
         private bool isVisible = false;
         private Tween currentTween;
+        private Action<NationData> _onNationTurnStartRefreshHandler;
+        private Action<NationData> _onNationDefeatedRefreshHandler;
+        private Action<UnitData, CityData> _onCityCapturedRefreshHandler;
+        private Action<UnitData, GameObject> _onUnitSpawnedRefreshHandler;
 
         private void Awake()
         {
@@ -52,13 +57,17 @@ namespace GlobalConqueror.Controllers
         {
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnStart += (unitData) => RefreshList();
-                NationManager.instance.OnNationDefeated += (unitData) => RefreshList();
+                _onNationTurnStartRefreshHandler ??= (_) => RefreshList();
+                _onNationDefeatedRefreshHandler ??= (_) => RefreshList();
+                NationManager.instance.OnNationTurnStart += _onNationTurnStartRefreshHandler;
+                NationManager.instance.OnNationDefeated += _onNationDefeatedRefreshHandler;
             }
             if (UnitManager.instance != null)
             {
-                UnitManager.instance.OnCityCaptured += (unitData, cityData) => RefreshList();
-                UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => RefreshList();
+                _onCityCapturedRefreshHandler ??= (unitData, cityData) => RefreshList();
+                _onUnitSpawnedRefreshHandler ??= (unitData, gameObject) => RefreshList();
+                UnitManager.instance.OnCityCaptured += _onCityCapturedRefreshHandler;
+                UnitManager.instance.OnUnitSpawned += _onUnitSpawnedRefreshHandler;
             }
         }
 
@@ -71,14 +80,26 @@ namespace GlobalConqueror.Controllers
 
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnStart -= (unitData) => RefreshList();
-                NationManager.instance.OnNationDefeated -= (unitData) => RefreshList();
+                if (_onNationTurnStartRefreshHandler != null)
+                {
+                    NationManager.instance.OnNationTurnStart -= _onNationTurnStartRefreshHandler;
+                }
+                if (_onNationDefeatedRefreshHandler != null)
+                {
+                    NationManager.instance.OnNationDefeated -= _onNationDefeatedRefreshHandler;
+                }
             }
 
             if (UnitManager.instance != null)
             {
-                UnitManager.instance.OnCityCaptured -= (unitData, cityData) => RefreshList();
-                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => RefreshList();
+                if (_onCityCapturedRefreshHandler != null)
+                {
+                    UnitManager.instance.OnCityCaptured -= _onCityCapturedRefreshHandler;
+                }
+                if (_onUnitSpawnedRefreshHandler != null)
+                {
+                    UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedRefreshHandler;
+                }
             }
         }
 

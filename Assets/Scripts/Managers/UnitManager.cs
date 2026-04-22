@@ -537,10 +537,11 @@ namespace GlobalConqueror.Managers
                 if (targetUnit != null && targetUnit.ownerNationId != unit.ownerNationId)
                 {
                     // 陆地单位和潜艇无法相互攻击，
-                    if (((unit.unitType.unitProperty == UnitProperty.Soldier || unit.unitType.unitProperty == UnitProperty.Armor) &&
-                        targetUnit.unitType.unitTypeName == "潜艇") ||
-                        ((targetUnit.unitType.unitProperty == UnitProperty.Soldier || targetUnit.unitType.unitProperty == UnitProperty.Armor) &&
-                        unit.unitType.unitTypeName == "潜艇"))
+                    bool attackerIsLand = unit.unitType.unitProperty == UnitProperty.Soldier || unit.unitType.unitProperty == UnitProperty.Armor;
+                    bool defenderIsLand = targetUnit.unitType.unitProperty == UnitProperty.Soldier || targetUnit.unitType.unitProperty == UnitProperty.Armor;
+                    bool attackerIsSubmarine = IsSubmarine(unit);
+                    bool defenderIsSubmarine = IsSubmarine(targetUnit);
+                    if ((attackerIsLand && defenderIsSubmarine) || (defenderIsLand && attackerIsSubmarine))
                     {
                         continue;
                     }
@@ -671,10 +672,10 @@ namespace GlobalConqueror.Managers
 
             // 如果攻击者为火炮单位、潜艇、航空母舰或者防守单位为航空母舰、攻击距离不够则无法反击
             if (!IsUnitInAvailableList(attacker, availableArtillery) &&
-                attacker.unitType.unitTypeName != "潜艇" &&
-                attacker.unitType.unitTypeName != "航空母舰" &&
+                !IsSubmarine(attacker) &&
+                !IsAircraftCarrier(attacker) &&
                 defender.AttackRange >= HexGridUtils.GetHexDistance(attacker.position, targetPosition) &&
-                defender.unitType.unitTypeName != "航空母舰")
+                !CannotBeReversed(defender))
             {
                 attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
 
@@ -903,6 +904,24 @@ namespace GlobalConqueror.Managers
                 }
             }
             return false;
+        }
+
+        private static bool IsSubmarine(UnitData unit)
+        {
+            if (unit?.unitType == null) return false;
+            return unit.unitType.isSubmarine || unit.unitType.unitTypeName == "潜艇";
+        }
+
+        private static bool IsAircraftCarrier(UnitData unit)
+        {
+            if (unit?.unitType == null) return false;
+            return unit.unitType.isSubmarine || unit.unitType.unitTypeName == "航空母舰";
+        }
+
+        private static bool CannotBeReversed(UnitData unit)
+        {
+            if (unit?.unitType == null) return false;
+            return unit.unitType.cannotBeReversed;
         }
 
         /// <summary>

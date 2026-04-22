@@ -1,5 +1,4 @@
 using UnityEngine;
-using DG.Tweening;
 using GlobalConqueror.Managers;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
@@ -39,9 +38,9 @@ namespace GlobalConqueror.Controllers
         private bool isDragging = false;
         private float targetZoom;
         private Vector3 targetPosition;
-        private Tween positionTween;
-        private Tween zoomTween;
         private Bounds originalMapBounds;
+        private Vector3 _positionVelocity;
+        private float _zoomVelocity;
 
         private void Awake()
         {
@@ -60,9 +59,6 @@ namespace GlobalConqueror.Controllers
         
         private void OnDisable()
         {
-            // 停止所有正在运行的Tween，避免禁用后仍执行
-            positionTween?.Kill();
-            zoomTween?.Kill();
             isDragging = false; // 重置拖拽状态
         }
         
@@ -85,8 +81,6 @@ namespace GlobalConqueror.Controllers
 
         private void OnDestroy()
         {
-            positionTween?.Kill();
-            zoomTween?.Kill();
         }
 
         /// <summary>
@@ -251,19 +245,19 @@ namespace GlobalConqueror.Controllers
         {
             if (smoothMovement)
             {
-                // 平滑位置
-                if (positionTween != null && positionTween.IsActive())
-                {
-                    positionTween.Kill();
-                }
-                positionTween = transform.DOMove(targetPosition, smoothTime).SetEase(Ease.OutQuad);
+                transform.position = Vector3.SmoothDamp(
+                    transform.position,
+                    targetPosition,
+                    ref _positionVelocity,
+                    smoothTime
+                );
 
-                // 平滑缩放
-                if (zoomTween != null && zoomTween.IsActive())
-                {
-                    zoomTween.Kill();
-                }
-                zoomTween = mapCamera.DOOrthoSize(targetZoom, smoothTime).SetEase(Ease.OutQuad);
+                mapCamera.orthographicSize = Mathf.SmoothDamp(
+                    mapCamera.orthographicSize,
+                    targetZoom,
+                    ref _zoomVelocity,
+                    smoothTime
+                );
             }
             else
             {

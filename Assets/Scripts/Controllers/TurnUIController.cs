@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using GlobalConqueror.Managers;
 using GlobalConqueror.Models;
+using System;
 
 namespace GlobalConqueror.Controllers
 {
@@ -21,6 +22,10 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Image FlagImage;
         [SerializeField] private Button endTurnButton;
 
+        private Action<NationData> _onNationTurnStartHandler;
+        private Action<UnitData, CityData> _onCityCapturedHandler;
+        private Action<UnitData, GameObject> _onUnitSpawnedHandler;
+
         private void Start()
         {
             StartCoroutine(BindWhenNationManagerReady());
@@ -37,15 +42,18 @@ namespace GlobalConqueror.Controllers
             }
 
             NationManager.instance.OnTurnStart += UpdateUI;
-            NationManager.instance.OnNationTurnStart += (nationData) => UpdateNationUI(nationData.nationId);
+            _onNationTurnStartHandler ??= (nationData) => UpdateNationUI(nationData.nationId);
+            NationManager.instance.OnNationTurnStart += _onNationTurnStartHandler;
 
-            if (UnitManager.instance != null)
+            while (UnitManager.instance == null)
             {
                 yield return null;
             }
             
-            UnitManager.instance.OnCityCaptured += (unitData, cityData) => UpdateDetailUI(unitData.ownerNationId);
-            UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => UpdateNationUI(unitData.ownerNationId);
+            _onCityCapturedHandler ??= (unitData, cityData) => UpdateDetailUI(unitData.ownerNationId);
+            _onUnitSpawnedHandler ??= (unitData, gameObject) => UpdateNationUI(unitData.ownerNationId);
+            UnitManager.instance.OnCityCaptured += _onCityCapturedHandler;
+            UnitManager.instance.OnUnitSpawned += _onUnitSpawnedHandler;
 
             if (endTurnButton != null)
             {
@@ -61,13 +69,22 @@ namespace GlobalConqueror.Controllers
             if (NationManager.instance != null)
             {
                 NationManager.instance.OnTurnStart -= UpdateUI;
-                NationManager.instance.OnNationTurnStart -= (nationData) => UpdateNationUI(nationData.nationId);
+                if (_onNationTurnStartHandler != null)
+                {
+                    NationManager.instance.OnNationTurnStart -= _onNationTurnStartHandler;
+                }
             }
 
             if (UnitManager.instance != null)
             {
-                UnitManager.instance.OnCityCaptured -= (unitData, cityData) => UpdateDetailUI(unitData.ownerNationId);
-                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => UpdateNationUI(unitData.ownerNationId);
+                if (_onCityCapturedHandler != null)
+                {
+                    UnitManager.instance.OnCityCaptured -= _onCityCapturedHandler;
+                }
+                if (_onUnitSpawnedHandler != null)
+                {
+                    UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedHandler;
+                }
             }
         }
 

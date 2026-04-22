@@ -1,6 +1,7 @@
 using GlobalConqueror.Managers;
 using GlobalConqueror.Models;
 using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +21,7 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Image OwnerNationFlag;
 
         private PortData _boundPort;
+        private Action<UnitData, PortData> _onPortCapturedHandler;
 
         private void Awake()
         {
@@ -42,14 +44,18 @@ namespace GlobalConqueror.Controllers
                 yield return null;
             }
 
-            UnitManager.instance.OnPortCaptured += (unitData, portData) => Refresh(portData);
+            _onPortCapturedHandler ??= (unitData, portData) => Refresh(portData);
+            UnitManager.instance.OnPortCaptured += _onPortCapturedHandler;
         }
 
         private void OnDisable()
         {
             if (UnitManager.instance != null)
             {
-                UnitManager.instance.OnPortCaptured -= (unitData, portData) => Refresh(portData);
+                if (_onPortCapturedHandler != null)
+                {
+                    UnitManager.instance.OnPortCaptured -= _onPortCapturedHandler;
+                }
             }
         }
 

@@ -40,6 +40,12 @@ namespace GlobalConqueror.Models
         [Header("单位类别")]
         public UnitProperty unitProperty = UnitProperty.Armor;
 
+        [Header("特殊规则")]
+        [Tooltip("潜艇：与陆军单位互相不可攻击")]
+        public bool isSubmarine = false;
+        [Tooltip("是否不可反击（由战斗逻辑决定）")]
+        public bool cannotBeReversed = false;
+
         [Header("生产条件")]
         public int produceCondition;
 

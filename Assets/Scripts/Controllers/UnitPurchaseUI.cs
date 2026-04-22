@@ -5,6 +5,8 @@ using TMPro;
 using GlobalConqueror.Models;
 using GlobalConqueror.Managers;
 using UnityEditor.Experimental.GraphView;
+using System;
+using UnityEngine.Events;
 
 namespace GlobalConqueror.Controllers
 {
@@ -32,6 +34,11 @@ namespace GlobalConqueror.Controllers
         private List<GameObject> currentAvailable;
         private Canvas _canvas;
         private Camera _uiCamera;
+        private Action<NationData> _onNationTurnEndHideHandler;
+        private Action<UnitData, GameObject> _onUnitSpawnedHideHandler;
+        private UnityAction _soldierPageHandler;
+        private UnityAction _armorPageHandler;
+        private UnityAction _artilleryPageHandler;
 
         private void Awake()
         {
@@ -55,20 +62,25 @@ namespace GlobalConqueror.Controllers
                 yield return null;
             }
 
-            NationManager.instance.OnNationTurnEnd += (nationData) => Hide();
-            UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => Hide();
+            _onNationTurnEndHideHandler ??= (_) => Hide();
+            _onUnitSpawnedHideHandler ??= (unitData, gameObject) => Hide();
+            NationManager.instance.OnNationTurnEnd += _onNationTurnEndHideHandler;
+            UnitManager.instance.OnUnitSpawned += _onUnitSpawnedHideHandler;
 
             if (soldierButton != null)
             {
-                soldierButton.onClick.AddListener(() => RefreshButtons(UnitManager.instance.AvailableSoldier));
+                _soldierPageHandler ??= () => RefreshButtons(UnitManager.instance.AvailableSoldier);
+                soldierButton.onClick.AddListener(_soldierPageHandler);
             }
             if (armorButton != null)
             {
-                armorButton.onClick.AddListener(() => RefreshButtons(UnitManager.instance.AvailableArmor));
+                _armorPageHandler ??= () => RefreshButtons(UnitManager.instance.AvailableArmor);
+                armorButton.onClick.AddListener(_armorPageHandler);
             }
             if (artilleryButton != null)
             {
-                artilleryButton.onClick.AddListener(() => RefreshButtons(UnitManager.instance.AvailableArtillery));
+                _artilleryPageHandler ??= () => RefreshButtons(UnitManager.instance.AvailableArtillery);
+                artilleryButton.onClick.AddListener(_artilleryPageHandler);
             }
             if (planeButton != null)
             {
@@ -84,26 +96,41 @@ namespace GlobalConqueror.Controllers
         {
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnEnd -= (nationData) => Hide();
+                if (_onNationTurnEndHideHandler != null)
+                {
+                    NationManager.instance.OnNationTurnEnd -= _onNationTurnEndHideHandler;
+                }
             }
             if (UnitManager.instance != null)
             {
-                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => Hide();
+                if (_onUnitSpawnedHideHandler != null)
+                {
+                    UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedHideHandler;
+                }
             }
         }
         private void OnDestroy()
         {
             if (soldierButton != null)
             {
-                soldierButton.onClick.RemoveListener(() => RefreshButtons(UnitManager.instance.AvailableSoldier));
+                if (_soldierPageHandler != null)
+                {
+                    soldierButton.onClick.RemoveListener(_soldierPageHandler);
+                }
             }
             if (armorButton != null)
             {
-                armorButton.onClick.RemoveListener(() => RefreshButtons(UnitManager.instance.AvailableArmor));
+                if (_armorPageHandler != null)
+                {
+                    armorButton.onClick.RemoveListener(_armorPageHandler);
+                }
             }
             if (artilleryButton != null)
             {
-                artilleryButton.onClick.RemoveListener(() => RefreshButtons(UnitManager.instance.AvailableArtillery));
+                if (_artilleryPageHandler != null)
+                {
+                    artilleryButton.onClick.RemoveListener(_artilleryPageHandler);
+                }
             }
             if (planeButton != null)
             {

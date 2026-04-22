@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using System;
 
 namespace GlobalConqueror.Controllers
 {
@@ -55,6 +57,9 @@ namespace GlobalConqueror.Controllers
 
         private Canvas _canvas;
         private Camera _uiCamera;
+        private Action<NationData> _onNationTurnEndHideHandler;
+        private Action<UnitData, GameObject> _onUnitSpawnedHideHandler;
+        private UnityAction _purchaseClickHandler;
 
         private void Awake()
         {
@@ -71,7 +76,8 @@ namespace GlobalConqueror.Controllers
             }
             if (PurchaseButton != null)
             {
-                PurchaseButton.onClick.AddListener(() => unitPurchaseUI.OnPurchaseBottomClick(currentCity, currentPort));
+                _purchaseClickHandler ??= () => unitPurchaseUI.OnPurchaseBottomClick(currentCity, currentPort);
+                PurchaseButton.onClick.AddListener(_purchaseClickHandler);
             }
         }
         private void OnEnable()
@@ -87,8 +93,10 @@ namespace GlobalConqueror.Controllers
             }
 
             MapManager.instance.OnTileSelected += OnTileSelected;
-            NationManager.instance.OnNationTurnEnd += (nationData) => Hide();
-            UnitManager.instance.OnUnitSpawned += (unitData, gameObject) => Hide();
+            _onNationTurnEndHideHandler ??= (_) => Hide();
+            _onUnitSpawnedHideHandler ??= (unitData, gameObject) => Hide();
+            NationManager.instance.OnNationTurnEnd += _onNationTurnEndHideHandler;
+            UnitManager.instance.OnUnitSpawned += _onUnitSpawnedHideHandler;
         }
 
         private void OnDisable()
@@ -99,11 +107,17 @@ namespace GlobalConqueror.Controllers
             }
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnEnd -= (nationData) => Hide();
+                if (_onNationTurnEndHideHandler != null)
+                {
+                    NationManager.instance.OnNationTurnEnd -= _onNationTurnEndHideHandler;
+                }
             }
             if (UnitManager.instance != null)
             {
-                UnitManager.instance.OnUnitSpawned -= (unitData, gameObject) => Hide();
+                if (_onUnitSpawnedHideHandler != null)
+                {
+                    UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedHideHandler;
+                }
             }
         }
 
@@ -115,7 +129,10 @@ namespace GlobalConqueror.Controllers
             }
             if (PurchaseButton != null)
             {
-                PurchaseButton.onClick.RemoveListener(() => unitPurchaseUI.OnPurchaseBottomClick(currentCity, currentPort));
+                if (_purchaseClickHandler != null)
+                {
+                    PurchaseButton.onClick.RemoveListener(_purchaseClickHandler);
+                }
             }
         }
 

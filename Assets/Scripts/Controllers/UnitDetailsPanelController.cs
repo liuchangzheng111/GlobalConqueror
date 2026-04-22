@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 namespace GlobalConqueror.Controllers
 {
@@ -50,6 +51,8 @@ namespace GlobalConqueror.Controllers
         private UnitTypeConfig currentLandUnit;
         private Canvas _canvas;
         private Camera _uiCamera;
+        private UnityAction _showLandUnitHandler;
+        private UnityAction _backHandler;
 
         private void Awake()
         {
@@ -66,11 +69,13 @@ namespace GlobalConqueror.Controllers
             }
             if (showLandUnitButton != null)
             {
-                showLandUnitButton.onClick.AddListener(() => ShowLandUnit(currentUnit, currentLandUnit));
+                _showLandUnitHandler ??= () => ShowLandUnit(currentUnit, currentLandUnit);
+                showLandUnitButton.onClick.AddListener(_showLandUnitHandler);
             }
             if (backButton != null)
             {
-                backButton.onClick.AddListener(() => Show(currentUnit, currentLandUnit));
+                _backHandler ??= () => Show(currentUnit, currentLandUnit);
+                backButton.onClick.AddListener(_backHandler);
             }
         }
 
@@ -82,11 +87,17 @@ namespace GlobalConqueror.Controllers
             }
             if (showLandUnitButton != null)
             {
-                showLandUnitButton.onClick.RemoveListener(() => ShowLandUnit(currentUnit, currentLandUnit));
+                if (_showLandUnitHandler != null)
+                {
+                    showLandUnitButton.onClick.RemoveListener(_showLandUnitHandler);
+                }
             }
             if (backButton != null)
             {
-                backButton.onClick.RemoveListener(() => Show(currentUnit, currentLandUnit));
+                if (_backHandler != null)
+                {
+                    backButton.onClick.RemoveListener(_backHandler);
+                }
             }
         }
 

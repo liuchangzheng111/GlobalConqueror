@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 using static UnityEditor.PlayerSettings;
 using System.Linq;
+using System;
 
 namespace GlobalConqueror.Controllers
 {
@@ -48,6 +49,7 @@ namespace GlobalConqueror.Controllers
 
         private bool isAnimating = false;
         private Camera mainCamera;
+        private Action<NationData> _onNationTurnEndHandler;
 
         private void Awake()
         {
@@ -83,7 +85,8 @@ namespace GlobalConqueror.Controllers
                 yield return null;
             }
 
-            NationManager.instance.OnNationTurnEnd += (nationData) => ClearSelection();
+            _onNationTurnEndHandler ??= (_) => ClearSelection();
+            NationManager.instance.OnNationTurnEnd += _onNationTurnEndHandler;
             NationManager.instance.OnNationTurnStart += ResetActionableHighlightObjects;
 
             UnitManager.instance.OnUnitSpawned += OnUnitSpawned;
@@ -111,7 +114,10 @@ namespace GlobalConqueror.Controllers
 
             if (NationManager.instance != null)
             {
-                NationManager.instance.OnNationTurnEnd -= (nationData) => ClearSelection();
+                if (_onNationTurnEndHandler != null)
+                {
+                    NationManager.instance.OnNationTurnEnd -= _onNationTurnEndHandler;
+                }
                 NationManager.instance.OnNationTurnStart -= ResetActionableHighlightObjects;
             }
         }
