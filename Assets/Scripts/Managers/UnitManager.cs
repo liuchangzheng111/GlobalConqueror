@@ -669,10 +669,12 @@ namespace GlobalConqueror.Managers
 
             int defenderStrength = Mathf.CeilToInt(defenderStr * Random.Range(0.8f, 1.2f) * defenderHealthRate);
 
-            // 如果攻击者为火炮单位、潜艇或者防守单位攻击距离不够则无法反击
+            // 如果攻击者为火炮单位、潜艇、航空母舰或者防守单位为航空母舰、攻击距离不够则无法反击
             if (!IsUnitInAvailableList(attacker, availableArtillery) &&
                 attacker.unitType.unitTypeName != "潜艇" &&
-                defender.AttackRange >= HexGridUtils.GetHexDistance(attacker.position, targetPosition))
+                attacker.unitType.unitTypeName != "航空母舰" &&
+                defender.AttackRange >= HexGridUtils.GetHexDistance(attacker.position, targetPosition) &&
+                defender.unitType.unitTypeName != "航空母舰")
             {
                 attacker.currentHealth = Mathf.Max(0, attacker.currentHealth - defenderStrength);
 
