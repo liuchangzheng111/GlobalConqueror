@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Coast gun
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u6D77\u5CB8\u70AE"
+  unitIcon: {fileID: 21300000, guid: fd4e2caea04dfd34b96ca5095de37f8e, type: 3}
+  description: "\u4E13\u5C5E\u6D77\u5CB8\u9632\u5FA1\u5DE5\u4E8B\uFF0C\u5BF9\u8230\u8239\u4F24\u5BB3\u9AD8\uFF0C\u5BF9\u9646\u5730\u5355\u4F4D\u4E00\u822C\n\u9488\u5BF9\u6D77\u519B\u8230\u8239\uFF0C\u5C04\u7A0B\u8FDC\uFF0C\u9002\u5408\u5B88\u62A4\u6E2F\u53E3\u3001\u6D77\u5CE1\u3001\u822A\u9053\u8981\u5730\n\u53EF\u6709\u6548\u963B\u6B62\u9646\u519B\u767B\u9646\n\u4E09\u56DE\u5408\u5EFA\u9020"
+  movementRange: 0
+  attackRange: 2
+  attackStrength_Armor: 20
+  attackStrength_Soldier: 20
+  attackStrength_Fort: 20
+  attackStrength_Warship: 60
+  attackStrength_Battleship: 55
+  health: 240
+  goldCost: 240
+  industryCost: 40
+  scienceCost: 0
+  unitProperty: 2
+  constructionIconTurn3: {fileID: 21300000, guid: 89a466506d0f7694ba0ee7a68e250a86, type: 3}
+  constructionIconTurn2: {fileID: 21300000, guid: ac8f2ffcef4ab4c4bbc950dbbd60ca85, type: 3}
+  constructionIconTurn1: {fileID: 21300000, guid: 5de16d3ff83ca914abf237535ddb5d99, type: 3}
+  isSubmarine: 0
+  cannotBeReversed: 0
+  produceCondition: 0
+  plainAndCityMoveCost: 999
+  mountainMoveCost: 999
+  forestMoveCost: 999
+  waterMoveCost: 999

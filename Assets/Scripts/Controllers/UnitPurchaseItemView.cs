@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace GlobalConqueror.Controllers
 {
     /// <summary>
-    /// 单个国家信息条目视图
+    /// 单位购买项视图 - 挂在单位购买项预制体上，绑定单位信息。
     /// </summary>
     public class UnitPurchaseItemView : MonoBehaviour
     {
@@ -23,7 +23,7 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Color BackgroundColor;
 
         /// <summary>
-        /// 使用指定国家数据刷新 UI
+        /// 使用指定单位数据刷新 UI
         /// </summary>
         public void Setup(UnitTypeConfig unitType)
         {
@@ -64,6 +64,7 @@ namespace GlobalConqueror.Controllers
 
             if (ProduceConditionImage != null && UnitManager.instance != null)
             {
+                ProduceConditionImage.enabled = unitType.unitProperty != UnitProperty.Fort;
                 ProduceConditionImage.sprite = UnitManager.instance.GetUnitProduceConditionSprite(unitType);
             }
 

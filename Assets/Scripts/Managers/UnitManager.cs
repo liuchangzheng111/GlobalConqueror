@@ -23,6 +23,7 @@ namespace GlobalConqueror.Managers
         [SerializeField] private List<GameObject> availableArmor = new();
         [SerializeField] private List<GameObject> availableArtillery = new();
         [SerializeField] private List<GameObject> availableShip = new();
+        [SerializeField] private List<GameObject> availableFort = new();
 
         [Header("驳船预制体")]
         [SerializeField] private GameObject barge;
@@ -42,6 +43,7 @@ namespace GlobalConqueror.Managers
         public List<GameObject> AvailableArmor => availableArmor;
         public List<GameObject> AvailableArtillery => availableArtillery;
         public List<GameObject> AvailableShip => availableShip;
+        public List<GameObject> AvailableFort => availableFort;
 
 
         public System.Action<UnitData, GameObject> OnUnitSpawned;
@@ -51,6 +53,9 @@ namespace GlobalConqueror.Managers
         public System.Action<UnitData> OnUnitDestroyed;
         public System.Action<UnitData, GameObject> OnUnitBarged;
         public System.Action<UnitData, GameObject> OnUnitLanded;
+        public System.Action<UnitData> OnUnitConstructionCompleted;
+        public System.Action<UnitData> OnUnitConstructionUpdated;
+        public System.Action<NationData> OnNationTurnPrepared;
 
         private void Awake()
         {
@@ -176,7 +181,9 @@ namespace GlobalConqueror.Managers
 
         private void OnNationTurnStart(NationData nation)
         {
+            ProgressConstructionForNation(nation.nationId);
             ResetUnitActionsForNation(nation.nationId);
+            OnNationTurnPrepared?.Invoke(nation);
         }
 
         private void OnNationDefeated(NationData nation)
@@ -193,10 +200,129 @@ namespace GlobalConqueror.Managers
             {
                 if (unit.ownerNationId == nationId)
                 {
+                    if (unit.isUnderConstruction)
+                    {
+                        unit.hasAttackedThisTurn = true;
+                        unit.hasMovedThisTurn = true;
+                        continue;
+                    }
+
                     unit.hasAttackedThisTurn = false;
                     unit.hasMovedThisTurn = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// 推进指定国家所有单位的建造进度
+        /// </summary>
+        /// <param name="nationId"></param>
+        private void ProgressConstructionForNation(int nationId)
+        {
+            for (int i = 0; i < allUnits.Count; i++)
+            {
+                UnitData unit = allUnits[i];
+                if (unit == null) continue;
+                if (unit.ownerNationId != nationId) continue;
+                if (!unit.isUnderConstruction) continue;
+
+                unit.constructionTurnsRemaining = Mathf.Max(0, unit.constructionTurnsRemaining - 1);
+                OnUnitConstructionUpdated?.Invoke(unit);
+                if (unit.constructionTurnsRemaining <= 0)
+                {
+                    unit.isUnderConstruction = false;
+                    OnUnitConstructionUpdated?.Invoke(unit);
+                    OnUnitConstructionCompleted?.Invoke(unit);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 尝试建造堡垒
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="fortType"></param>
+        /// <returns></returns>
+        public bool TryBuildFort(Vector3Int cell, UnitTypeConfig fortType)
+        {
+            if (fortType == null) return false;
+            if (fortType.unitProperty != UnitProperty.Fort) return false;
+            if (MapManager.instance == null || NationManager.instance == null) return false;
+            if (MapManager.instance.Tilemap == null) return false;
+            if (!MapManager.instance.IsCoordinateValid(cell)) return false;
+
+            NationData nation = NationManager.instance.CurrentNation;
+            if (nation == null) return false;
+
+            MapTileData tile = MapManager.instance.GetTileData(cell);
+            if (tile == null) return false;
+            if (tile.ownerId != nation.nationId) return false;
+
+            if (tile.tileType != TileType.Plain && tile.tileType != TileType.Forest && tile.tileType != TileType.Mountain)
+            {
+                return false;
+            }
+
+            if (GetUnitAtPosition(cell) != null) return false;
+
+            if (nation.gold < fortType.goldCost || nation.industry < fortType.industryCost || nation.science < fortType.scienceCost)
+            {
+                return false;
+            }
+
+            GameObject fortPrefab = GetFortPrefab(fortType);
+            if (fortPrefab == null) return false;
+
+            nation.gold -= fortType.goldCost;
+            nation.industry -= fortType.industryCost;
+            nation.science -= fortType.scienceCost;
+
+            Vector3 targetWorldPos = MapManager.instance.Tilemap.GetCellCenterWorld(cell);
+            Vector3 spawnStartPos = targetWorldPos + new Vector3(0, 0.5f, 0);
+            GameObject spawnedFort = Instantiate(fortPrefab, spawnStartPos, Quaternion.identity, unitsContainer != null ? unitsContainer.transform : null);
+            StartCoroutine(AnimateSpawnUnit(spawnedFort, targetWorldPos));
+
+            // 注意：需要在触发 OnUnitSpawned 之前就写入“建造中状态”，确保视图绑定时外观正确。
+            if (GetUnitAtPosition(cell) != null)
+            {
+                Debug.LogWarning($"UnitManager: 位置 {cell} 已有单位");
+                Destroy(spawnedFort);
+                return false;
+            }
+
+            UnitData unit = new(nextUnitId++, fortType, cell, nation.nationId)
+            {
+                isUnderConstruction = true,
+                constructionTurnsRemaining = 3,
+                hasMovedThisTurn = true,
+                hasAttackedThisTurn = true
+            };
+
+            allUnits.Add(unit);
+            OnUnitSpawned?.Invoke(unit, spawnedFort);
+            return true;
+        }
+
+        /// <summary>
+        /// 获取堡垒预制体
+        /// </summary>
+        /// <param name="fortType"></param>
+        /// <returns></returns>
+        private GameObject GetFortPrefab(UnitTypeConfig fortType)
+        {
+            if (fortType == null) return null;
+            if (availableFort == null) return null;
+
+            foreach (var prefab in availableFort)
+            {
+                if (prefab == null) continue;
+                var spawn = prefab.GetComponent<InitialUnitSpawn>();
+                if (spawn != null && spawn.unitType == fortType)
+                {
+                    return prefab;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -524,6 +650,7 @@ namespace GlobalConqueror.Managers
         {
             HashSet<Vector3Int> attackable = new();
             if (unit == null || unit.unitType == null) return attackable;
+            if (unit.isUnderConstruction) return attackable;
 
             int range = unit.AttackRange;
             HashSet<Vector3Int> inRange = HexGridUtils.GetCellsWithinHexDistance(unit.position, range);
@@ -632,6 +759,7 @@ namespace GlobalConqueror.Managers
         public bool TryAttack(UnitData attacker, Vector3Int targetPosition)
         {
             if (attacker == null || attacker.hasAttackedThisTurn) return false;
+            if (attacker.isUnderConstruction) return false;
 
             var attackable = GetAttackablePositions(attacker);
             if (!attackable.Contains(targetPosition))
@@ -670,10 +798,11 @@ namespace GlobalConqueror.Managers
 
             int defenderStrength = Mathf.CeilToInt(defenderStr * Random.Range(0.8f, 1.2f) * defenderHealthRate);
 
-            // 如果攻击者为火炮单位、潜艇、航空母舰或者防守单位为航空母舰、攻击距离不够则无法反击
+            // 如果攻击者为火炮单位、潜艇、航空母舰或者防守单位为无法反击的单位、建造中的堡垒或攻击距离不够则无法反击
             if (!IsUnitInAvailableList(attacker, availableArtillery) &&
                 !IsSubmarine(attacker) &&
                 !IsAircraftCarrier(attacker) &&
+                !IsUnderConstructionFort(defender) &&
                 defender.AttackRange >= HexGridUtils.GetHexDistance(attacker.position, targetPosition) &&
                 !CannotBeReversed(defender))
             {
@@ -916,6 +1045,12 @@ namespace GlobalConqueror.Managers
         {
             if (unit?.unitType == null) return false;
             return unit.unitType.isSubmarine || unit.unitType.unitTypeName == "航空母舰";
+        }
+
+        private static bool IsUnderConstructionFort(UnitData unit)
+        {
+            if (unit?.unitType == null) return false;
+            return unit.isUnderConstruction;
         }
 
         private static bool CannotBeReversed(UnitData unit)

@@ -44,12 +44,16 @@ namespace GlobalConqueror.Controllers
         private readonly Dictionary<Vector3Int, GameObject> actionableHighlightObjects = new();
 
         private readonly Dictionary<UnitData, GameObject> unitVisuals = new();
+        private readonly Dictionary<UnitData, Sprite> _originalMainSprites = new();
         private HashSet<Vector3Int> reachable = new();
         private HashSet<Vector3Int> attackable = new();
 
         private bool isAnimating = false;
         private Camera mainCamera;
         private Action<NationData> _onNationTurnEndHandler;
+        private Action<UnitData> _onUnitConstructionCompletedHandler;
+        private Action<UnitData> _onUnitConstructionUpdatedHandler;
+        private Action<NationData> _onNationTurnPreparedHandler;
 
         private void Awake()
         {
@@ -87,13 +91,20 @@ namespace GlobalConqueror.Controllers
 
             _onNationTurnEndHandler ??= (_) => ClearSelection();
             NationManager.instance.OnNationTurnEnd += _onNationTurnEndHandler;
-            NationManager.instance.OnNationTurnStart += ResetActionableHighlightObjects;
+            _onNationTurnPreparedHandler ??= ResetActionableHighlightObjects;
+            UnitManager.instance.OnNationTurnPrepared += _onNationTurnPreparedHandler;
 
             UnitManager.instance.OnUnitSpawned += OnUnitSpawned;
             UnitManager.instance.OnUnitDestroyed += OnUnitDestroyed;
             UnitManager.instance.OnUnitAttacked += OnUnitAttack;
             UnitManager.instance.OnUnitBarged += ChangeUnitVisual;
             UnitManager.instance.OnUnitLanded += ChangeUnitVisual;
+
+            _onUnitConstructionCompletedHandler ??= OnUnitConstructionCompleted;
+            UnitManager.instance.OnUnitConstructionCompleted += _onUnitConstructionCompletedHandler;
+
+            _onUnitConstructionUpdatedHandler ??= OnUnitConstructionUpdated;
+            UnitManager.instance.OnUnitConstructionUpdated += _onUnitConstructionUpdatedHandler;
         }
 
         private void OnDisable()
@@ -105,6 +116,18 @@ namespace GlobalConqueror.Controllers
                 UnitManager.instance.OnUnitAttacked -= OnUnitAttack;
                 UnitManager.instance.OnUnitBarged -= ChangeUnitVisual;
                 UnitManager.instance.OnUnitLanded -= ChangeUnitVisual;
+                if (_onUnitConstructionCompletedHandler != null)
+                {
+                    UnitManager.instance.OnUnitConstructionCompleted -= _onUnitConstructionCompletedHandler;
+                }
+                if (_onUnitConstructionUpdatedHandler != null)
+                {
+                    UnitManager.instance.OnUnitConstructionUpdated -= _onUnitConstructionUpdatedHandler;
+                }
+                if (_onNationTurnPreparedHandler != null)
+                {
+                    UnitManager.instance.OnNationTurnPrepared -= _onNationTurnPreparedHandler;
+                }
             }
 
             if (MapManager.instance != null)
@@ -118,7 +141,6 @@ namespace GlobalConqueror.Controllers
                 {
                     NationManager.instance.OnNationTurnEnd -= _onNationTurnEndHandler;
                 }
-                NationManager.instance.OnNationTurnStart -= ResetActionableHighlightObjects;
             }
         }
 
@@ -170,6 +192,24 @@ namespace GlobalConqueror.Controllers
             BindUnitVisual(unit, gameObject);
         }
 
+        private void OnUnitConstructionCompleted(UnitData unit)
+        {
+            if (unit == null) return;
+            if (unitVisuals.TryGetValue(unit, out var go) && go != null)
+            {
+                ApplyConstructionVisual(unit, go);
+            }
+        }
+
+        private void OnUnitConstructionUpdated(UnitData unit)
+        {
+            if (unit == null) return;
+            if (unitVisuals.TryGetValue(unit, out var go) && go != null)
+            {
+                ApplyConstructionVisual(unit, go);
+            }
+        }
+
         /// <summary>
         /// 单位被销毁时的回调
         /// </summary>
@@ -180,6 +220,7 @@ namespace GlobalConqueror.Controllers
                 Destroy(go);
                 unitVisuals.Remove(unit);
             }
+            _originalMainSprites.Remove(unit);
             if (selectedUnit == unit)
             {
                 ClearSelection();
@@ -211,6 +252,9 @@ namespace GlobalConqueror.Controllers
             if (gameObject.TryGetComponent<UnitView>(out var unitView))
                 unitView.Setup(unit);
             unitVisuals[unit] = gameObject;
+
+            CacheOriginalMainSprite(unit, gameObject);
+            ApplyConstructionVisual(unit, gameObject);
         }
 
         /// <summary>
@@ -398,6 +442,7 @@ namespace GlobalConqueror.Controllers
 
             foreach (var unit in UnitManager.instance.GetUnitsByNation(nationData.nationId))
             {
+                if (unit.hasAttackedThisTurn) continue;
                 Vector3Int pos = unit.position;
                 Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
                 var go = Instantiate(actionableHighlightPrefab, worldPos, Quaternion.identity, this.transform);
@@ -468,7 +513,82 @@ namespace GlobalConqueror.Controllers
             Destroy(oldGo);
 
             unitVisuals.Add(unit, newGo);
+            CacheOriginalMainSprite(unit, newGo);
+            ApplyConstructionVisual(unit, newGo);
             return;
+        }
+
+        /// <summary>
+        /// 缓存单位原始主精灵
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="unitGo"></param>
+        private void CacheOriginalMainSprite(UnitData unit, GameObject unitGo)
+        {
+            if (unit == null || unitGo == null) return;
+            var sr = GetMainSpriteRenderer(unitGo);
+            if (sr == null) return;
+            _originalMainSprites[unit] = sr.sprite;
+        }
+
+        /// <summary>
+        /// 获取单位主精灵渲染器
+        /// </summary>
+        /// <param name="unitGo"></param>
+        /// <returns></returns>
+        private static SpriteRenderer GetMainSpriteRenderer(GameObject unitGo)
+        {
+            if (unitGo == null) return null;
+            // 优先根节点，其次找子节点里第一个（用于兼容不同预制体结构）
+            var root = unitGo.GetComponent<SpriteRenderer>();
+            if (root != null) return root;
+            return unitGo.GetComponentInChildren<SpriteRenderer>(true);
+        }
+
+        /// <summary>
+        /// 应用建造视觉
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="unitGo"></param>
+        private void ApplyConstructionVisual(UnitData unit, GameObject unitGo)
+        {
+            if (unit == null || unitGo == null) return;
+
+            // 低成本做法：建造中灰化显示（含子节点）
+            Color target = unit.isUnderConstruction ? new Color(0.6f, 0.6f, 0.6f, 1f) : Color.white;
+            var renderers = unitGo.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var sr in renderers)
+            {
+                if (sr == null) continue;
+                sr.color = target;
+            }
+
+            // Fort 建造阶段图标切换（Turn3/2/1）
+            var mainSr = GetMainSpriteRenderer(unitGo);
+            if (mainSr == null) return;
+
+            if (unit.isUnderConstruction && unit.unitType != null && unit.unitType.unitProperty == UnitProperty.Fort)
+            {
+                Sprite stageSprite = unit.constructionTurnsRemaining switch
+                {
+                    >= 3 => unit.unitType.constructionIconTurn3,
+                    2 => unit.unitType.constructionIconTurn2,
+                    1 => unit.unitType.constructionIconTurn1,
+                    _ => null
+                };
+
+                if (stageSprite != null)
+                {
+                    mainSr.sprite = stageSprite;
+                }
+            }
+            else
+            {
+                if (_originalMainSprites.TryGetValue(unit, out var original) && original != null)
+                {
+                    mainSr.sprite = original;
+                }
+            }
         }
     }
 }

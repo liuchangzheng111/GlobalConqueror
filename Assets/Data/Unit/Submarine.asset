@@ -27,6 +27,8 @@ MonoBehaviour:
   industryCost: 35
   scienceCost: 0
   unitProperty: 3
+  isSubmarine: 1
+  cannotBeReversed: 0
   produceCondition: 1
   plainAndCityMoveCost: 999
   mountainMoveCost: 999

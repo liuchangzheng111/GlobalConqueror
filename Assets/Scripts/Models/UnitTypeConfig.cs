@@ -40,6 +40,14 @@ namespace GlobalConqueror.Models
         [Header("单位类别")]
         public UnitProperty unitProperty = UnitProperty.Armor;
 
+        [Header("建造阶段图标（Fort 专用，可选）")]
+        [Tooltip("建造剩余 3 回合时显示的图标")]
+        public Sprite constructionIconTurn3;
+        [Tooltip("建造剩余 2 回合时显示的图标")]
+        public Sprite constructionIconTurn2;
+        [Tooltip("建造剩余 1 回合时显示的图标")]
+        public Sprite constructionIconTurn1;
+
         [Header("特殊规则")]
         [Tooltip("潜艇：与陆军单位互相不可攻击")]
         public bool isSubmarine = false;

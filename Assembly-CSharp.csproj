@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Utils\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\Models\InitialUnitSpawn.cs" />
     <Compile Include="Assets\Scripts\Controllers\TurnUIController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\FortBuildPanelController.cs" />
     <Compile Include="Assets\Scripts\Models\NationData.cs" />
     <Compile Include="Assets\Scripts\Managers\NationManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\FloatingDamageManager.cs" />

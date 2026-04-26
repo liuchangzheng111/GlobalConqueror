@@ -29,6 +29,10 @@ namespace GlobalConqueror.Models
         /// <summary>最大生命值（来自兵种配置）</summary>
         public int maxHealth;
 
+        [Header("建造状态（用于堡垒等）")]
+        public bool isUnderConstruction = false;
+        public int constructionTurnsRemaining = 0;
+
         /// <summary>当前生命值比例</summary>
         public float HealthRate => (float)currentHealth / (float)maxHealth;
 

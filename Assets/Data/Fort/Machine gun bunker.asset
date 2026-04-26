@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d17114bff43f945a27e532f919468f, type: 3}
+  m_Name: Machine gun bunker
+  m_EditorClassIdentifier: 
+  unitTypeName: "\u673A\u67AA\u5821"
+  unitIcon: {fileID: 21300000, guid: 1cf6bb9675e5ebe469bd31f2cdcdc37a, type: 3}
+  description: "\u6700\u57FA\u7840\u7684\u5730\u9762\u9632\u5FA1\u5DE5\u4E8B\uFF0C\u9020\u4EF7\u4F4E\u5EC9\n\u4E00\u822C\u7528\u4E8E\u62E6\u622A\u654C\u65B9\u6B65\u5175\u5355\u4F4D\uFF0C\u4E3A\u57FA\u7840\u9632\u7EBF\n\u751F\u547D\u503C\u4E2D\u7B49\uFF0C\u96BE\u4EE5\u62B5\u5FA1\u88C5\u7532\u5355\u4F4D\u548C\u706B\u70AE\u8F70\u51FB\n\u4E09\u56DE\u5408\u5EFA\u9020"
+  movementRange: 0
+  attackRange: 1
+  attackStrength_Armor: 20
+  attackStrength_Soldier: 45
+  attackStrength_Fort: 15
+  attackStrength_Warship: 15
+  attackStrength_Battleship: 15
+  health: 180
+  goldCost: 160
+  industryCost: 25
+  scienceCost: 0
+  unitProperty: 2
+  constructionIconTurn3: {fileID: 21300000, guid: 89a466506d0f7694ba0ee7a68e250a86, type: 3}
+  constructionIconTurn2: {fileID: 21300000, guid: ac8f2ffcef4ab4c4bbc950dbbd60ca85, type: 3}
+  constructionIconTurn1: {fileID: 21300000, guid: 5de16d3ff83ca914abf237535ddb5d99, type: 3}
+  isSubmarine: 0
+  cannotBeReversed: 0
+  produceCondition: 0
+  plainAndCityMoveCost: 999
+  mountainMoveCost: 999
+  forestMoveCost: 999
+  waterMoveCost: 999
