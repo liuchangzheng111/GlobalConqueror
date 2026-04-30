@@ -35,8 +35,6 @@ namespace GlobalConqueror.Managers
         public bool IsCityTilemapInitialized { get; private set; } = false;
         public List<CityData> AllCities => allCities;
         public Dictionary<string, CityData> CitiesDic => citiesDic;
-        
-        public System.Action OnCitiesTilemapInitialized;
 
         private void Awake()
         {
@@ -144,7 +142,6 @@ namespace GlobalConqueror.Managers
             }
 
             IsCityTilemapInitialized = true;
-            OnCitiesTilemapInitialized?.Invoke();
             Debug.Log($"CityManager: 城市初始化完成，共加载 {cityTilemap.Count} 个城市Tilemap");
         }
 

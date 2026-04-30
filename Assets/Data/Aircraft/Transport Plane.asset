@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13a1c82bc507bc641a4a4600237b0be5, type: 3}
+  m_Name: Transport Plane
+  m_EditorClassIdentifier: 
+  missionName: "\u8FD0\u8F93\u673A"
+  icon: {fileID: 0}
+  description: 
+  goldCost: 180
+  industryCost: 35
+  scienceCost: 0
+  type: 1
+  range: 8
+  airportLevel: 2
+  attackStrength_Armor: 0
+  attackStrength_Soldier: 0
+  attackStrength_Fort: 0
+  attackStrength_Warship: 0
+  attackStrength_Battleship: 0
+  paradropInfantryType: {fileID: 11400000, guid: 6b9d9611f3345754085b419ac18b7d58, type: 2}

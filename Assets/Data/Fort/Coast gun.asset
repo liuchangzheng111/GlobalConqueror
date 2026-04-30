@@ -23,8 +23,8 @@ MonoBehaviour:
   attackStrength_Warship: 60
   attackStrength_Battleship: 55
   health: 240
-  goldCost: 240
-  industryCost: 40
+  goldCost: 180
+  industryCost: 25
   scienceCost: 0
   unitProperty: 2
   constructionIconTurn3: {fileID: 21300000, guid: 89a466506d0f7694ba0ee7a68e250a86, type: 3}

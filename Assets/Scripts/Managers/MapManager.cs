@@ -42,6 +42,7 @@ namespace GlobalConqueror.Managers
 
         // 事件：地块被选中
         public System.Action<Vector3Int> OnTileSelected;      
+        public System.Action<Vector3Int, MapTileData> OnTileDataChanged;
 
         private Vector3 cellSize;
 
@@ -215,7 +216,26 @@ namespace GlobalConqueror.Managers
             if (tileDataMap.TryGetValue(coordinate, out MapTileData data))
             {
                 data.ownerId = ownerId;
+                OnTileDataChanged?.Invoke(coordinate, data);
             }
+        }
+
+        public bool SetAntiAirLevel(Vector3Int coordinate, int antiAirLevel)
+        {
+            if (!tileDataMap.TryGetValue(coordinate, out MapTileData data))
+            {
+                return false;
+            }
+
+            int clamped = Mathf.Clamp(antiAirLevel, 0, 3);
+            if (data.antiAirLevel == clamped)
+            {
+                return true;
+            }
+
+            data.antiAirLevel = clamped;
+            OnTileDataChanged?.Invoke(coordinate, data);
+            return true;
         }
 
         /// <summary>

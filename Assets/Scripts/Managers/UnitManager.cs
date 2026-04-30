@@ -644,7 +644,7 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
-        /// 获取单位的可攻击范围（尖顶六边形距离）
+        /// 获取单位的可攻击范围内的可攻击目标（尖顶六边形距离）
         /// </summary>
         public HashSet<Vector3Int> GetAttackablePositions(UnitData unit)
         {
@@ -1010,7 +1010,19 @@ namespace GlobalConqueror.Managers
                 default:
                     return null;
             }
+        }
 
+        /// <summary>
+        /// 获取购买条件的各类城市图标（战机）
+        /// </summary>
+        /// <param name="unitTypeConfig"></param>
+        /// <returns></returns>
+        public Sprite GetUnitProduceConditionSprite(AirMissionConfig airMissionConfig)
+        {
+            if (airMissionConfig == null || airMissionConfig.airportLevel <= 0) return null;
+            if (CityManager.instance == null) return null;
+
+            return CityManager.instance.airport[airMissionConfig.airportLevel - 1];
         }
 
         /// <summary>

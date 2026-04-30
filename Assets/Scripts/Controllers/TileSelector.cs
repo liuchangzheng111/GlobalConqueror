@@ -103,6 +103,7 @@ namespace GlobalConqueror.Controllers
             if (currentHighlight == null)
             {
                 currentHighlight = Instantiate(highlightPrefab, worldPos, Quaternion.identity, this.transform);
+                currentHighlight.GetComponent<SpriteRenderer>().sortingOrder = 10;
             }
             else
                 currentHighlight.transform.position = worldPos;

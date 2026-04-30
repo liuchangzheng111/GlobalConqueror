@@ -11,40 +11,40 @@ using System;
 namespace GlobalConqueror.Controllers
 {
     /// <summary>
-    /// ³ÇÊÐ/¸Û¿ÚÏêÇéÃæ°å¿ØÖÆÆ÷
+    /// ï¿½ï¿½ï¿½ï¿½/ï¿½Û¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public class CityDetailsPanelController : MonoBehaviour
     {
-        [Header("¸ù½Úµã")]
+        [Header("ï¿½ï¿½ï¿½Úµï¿½")]
         [SerializeField] private GameObject panelRoot;
 
-        [Header("¹ºÂòÃæ°å")]
+        [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
         [SerializeField] private UnitPurchaseUI unitPurchaseUI;
 
-        [Header("¹Ø±Õ°´Å¥£¨¿ÉÑ¡£©")]
+        [Header("ï¿½Ø±Õ°ï¿½Å¥ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½")]
         [SerializeField] private Button closeButton;
-        [Header("¹ºÂò°´Å¥")]
+        [Header("ï¿½ï¿½ï¿½ï¿½Å¥")]
         [SerializeField] private Button PurchaseButton;
 
-        [Header("±êÌâ/»ù´¡ÐÅÏ¢")]
+        [Header("ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢")]
         [SerializeField] private TextMeshProUGUI cityNameText;
         [SerializeField] private TextMeshProUGUI nationNameText;
 
-        [Header("Í¼±ê")]
+        [Header("Í¼ï¿½ï¿½")]
         [SerializeField] private Image nationFlagImage;
         [SerializeField] private Image industryImage;
         [SerializeField] private Image airportImage;
         [SerializeField] private Image scienceImage;
         [SerializeField] private Image supplyImage;
 
-        [Header("µÈ¼¶")]
+        [Header("ï¿½È¼ï¿½")]
         [SerializeField] private TextMeshProUGUI levelText;
         [SerializeField] private TextMeshProUGUI industryText;
         [SerializeField] private TextMeshProUGUI airportText;
         [SerializeField] private TextMeshProUGUI scienceText;
         [SerializeField] private TextMeshProUGUI supplyText;
 
-        [Header("²úÄÜ")]
+        [Header("ï¿½ï¿½ï¿½ï¿½")]
         [SerializeField] private TextMeshProUGUI gold;
         [SerializeField] private TextMeshProUGUI industry;
         [SerializeField] private TextMeshProUGUI science;
@@ -138,7 +138,7 @@ namespace GlobalConqueror.Controllers
 
         private void OnTileSelected(Vector3Int coordinate)
         {
-            // ÈôÍæ¼ÒÕýÔÚ¶Ôµ¥Î»ÏÂ´ïÒÆ¶¯/¹¥»÷Ö¸Áî£¨»òµ¥Î»ÕýÔÚÒÆ¶¯¶¯»­ÖÐ£©£¬²»µ¯³ö¹ºÂòÃæ°å
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¶Ôµï¿½Î»ï¿½Â´ï¿½ï¿½Æ¶ï¿½/ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½î£¨ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             if (UnitController.IsUnitCommandActive)
             {
                 Hide();
@@ -189,13 +189,13 @@ namespace GlobalConqueror.Controllers
             if (cityNameText != null)
             {
                 cityNameText.enabled = city.cityName != null;
-                cityNameText.text = city.cityName ?? "Î´Öª³ÇÊÐ";
+                cityNameText.text = city.cityName ?? "Î´Öªï¿½ï¿½ï¿½ï¿½";
             }
 
             if (nationNameText != null)
             {
                 nationNameText.enabled = nation != null;
-                nationNameText.text = nation != null ? $"ËùÊô {nation.nationName}" : "Î´Öª¹ú¼Ò";
+                nationNameText.text = nation != null ? $"ï¿½ï¿½ï¿½ï¿½ {nation.nationName}" : "Î´Öªï¿½ï¿½ï¿½ï¿½";
             }
 
             if (nationFlagImage != null)
@@ -216,7 +216,7 @@ namespace GlobalConqueror.Controllers
             {
                 industryText.enabled = true;
                 industryImage.enabled = true;
-                industryText.text = $"¹¤Òµ {city.cityKindsLevel.industryLevel} ¼¶";
+                industryText.text = $"ï¿½ï¿½Òµ {city.cityKindsLevel.industryLevel} ï¿½ï¿½";
                 industryImage.sprite = CityManager.instance.industry[city.cityKindsLevel.industryLevel - 1];
             }
 
@@ -224,7 +224,7 @@ namespace GlobalConqueror.Controllers
             {
                 airportText.enabled = true;
                 airportImage.enabled = true;
-                airportText.text = $"»ú³¡ {city.cityKindsLevel.airportLevel} ¼¶";
+                airportText.text = $"ï¿½ï¿½ï¿½ï¿½ {city.cityKindsLevel.airportLevel} ï¿½ï¿½";
                 airportImage.sprite = CityManager.instance.airport[city.cityKindsLevel.airportLevel - 1];
             }
 
@@ -232,7 +232,7 @@ namespace GlobalConqueror.Controllers
             {
                 scienceText.enabled = true;
                 scienceImage.enabled = true;
-                scienceText.text = $"¿Æ¼¼ {city.cityKindsLevel.scienceLevel} ¼¶";
+                scienceText.text = $"ï¿½Æ¼ï¿½ {city.cityKindsLevel.scienceLevel} ï¿½ï¿½";
                 scienceImage.sprite = CityManager.instance.science[city.cityKindsLevel.scienceLevel - 1];
             }
 
@@ -240,7 +240,7 @@ namespace GlobalConqueror.Controllers
             {
                 supplyText.enabled = true;
                 supplyImage.enabled = true;
-                supplyText.text = $"²¹¸ø {city.cityKindsLevel.supplyLevel} ¼¶";
+                supplyText.text = $"ï¿½ï¿½ï¿½ï¿½ {city.cityKindsLevel.supplyLevel} ï¿½ï¿½";
                 supplyImage.sprite = CityManager.instance.supply[city.cityKindsLevel.supplyLevel - 1];
             }
 
@@ -249,9 +249,9 @@ namespace GlobalConqueror.Controllers
                 gold.enabled = true;
                 industry.enabled = true;
                 science.enabled = true;
-                gold.text = $"Ã¿»ØºÏ½ðÇ®²ú³ö {city.CityGoldProduced}";
-                industry.text = $"Ã¿»ØºÏ¹¤Òµ²ú³ö {city.CityIndustryProduced}";
-                science.text = $"Ã¿»ØºÏ¿ÆÑ§²ú³ö {city.CityScienceProduced}";
+                gold.text = $"Ã¿ï¿½ØºÏ½ï¿½Ç®ï¿½ï¿½ï¿½ï¿½ {city.CityGoldProduced}";
+                industry.text = $"Ã¿ï¿½ØºÏ¹ï¿½Òµï¿½ï¿½ï¿½ï¿½ {city.CityIndustryProduced}";
+                science.text = $"Ã¿ï¿½ØºÏ¿ï¿½Ñ§ï¿½ï¿½ï¿½ï¿½ {city.CityScienceProduced}";
             }
 
             if (PurchaseButton != null && city.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)
@@ -278,13 +278,13 @@ namespace GlobalConqueror.Controllers
             if (cityNameText != null)
             {
                 cityNameText.enabled = port.portName != null;
-                cityNameText.text = port.portName ?? "Î´Öª¸Û¿Ú";
+                cityNameText.text = port.portName ?? "Î´Öªï¿½Û¿ï¿½";
             }
 
             if (nationNameText != null)
             {
                 nationNameText.enabled = nation != null;
-                nationNameText.text = nation != null ? $"ËùÊô {nation.nationName}" : "Î´Öª¹ú¼Ò";
+                nationNameText.text = nation != null ? $"ï¿½ï¿½ï¿½ï¿½ {nation.nationName}" : "Î´Öªï¿½ï¿½ï¿½ï¿½";
             }
 
             if (nationFlagImage != null)
@@ -305,8 +305,8 @@ namespace GlobalConqueror.Controllers
             {
                 gold.enabled = true;
                 industry.enabled = true;
-                gold.text = $"Ã¿»ØºÏ½ðÇ®²ú³ö {port.PortGoldProduced}";
-                industry.text = $"Ã¿»ØºÏ¹¤Òµ²ú³ö {port.PortIndustryProduced}";
+                gold.text = $"Ã¿ï¿½ØºÏ½ï¿½Ç®ï¿½ï¿½ï¿½ï¿½ {port.PortGoldProduced}";
+                industry.text = $"Ã¿ï¿½ØºÏ¹ï¿½Òµï¿½ï¿½ï¿½ï¿½ {port.PortIndustryProduced}";
             }
 
             if (PurchaseButton != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(port.portLocation) == null)

@@ -73,8 +73,11 @@
     <Compile Include="Assets\Scripts\Managers\MapManager.cs" />
     <Compile Include="Assets\Scripts\Models\PortMapping.cs" />
     <Compile Include="Assets\Scripts\Controllers\FloatingDamageText.cs" />
+    <Compile Include="Assets\Scripts\Managers\AirManager.cs" />
+    <Compile Include="Assets\Scripts\Managers\AntiAirManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitController.cs" />
     <Compile Include="Assets\Scripts\Models\UnitTypeConfig.cs" />
+    <Compile Include="Assets\Scripts\Controllers\AntiAirTileOverlayController.cs" />
     <Compile Include="Assets\Scripts\Models\TileTypeMapping.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitPurchaseUI.cs" />
     <Compile Include="Assets\Scripts\Controllers\MapCameraController.cs" />
@@ -88,6 +91,7 @@
     <Compile Include="Assets\Scripts\Controllers\TileSelector.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\Managers\UnitManager.cs" />
+    <Compile Include="Assets\Scripts\Models\AirMissionConfig.cs" />
     <Compile Include="Assets\Scripts\Models\PortData.cs" />
     <Compile Include="Assets\Scripts\Models\UnitData.cs" />
     <Compile Include="Assets\Scripts\Controllers\CityView.cs" />

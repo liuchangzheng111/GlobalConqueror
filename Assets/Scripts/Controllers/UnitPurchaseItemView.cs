@@ -73,6 +73,55 @@ namespace GlobalConqueror.Controllers
                 UnitImage.sprite = unitType.unitIcon;
             }
         }
+
+        /// <summary>
+        /// 使用指定战机数据刷新 UI
+        /// </summary>
+        public void Setup(AirMissionConfig mission)
+        {
+            if (mission == null) return;
+
+            if (UnitNameText != null) UnitNameText.text = mission.missionName;
+            if (GoldText != null) GoldText.text = $"金钱 {mission.goldCost}";
+            if (IndustryText != null) IndustryText.text = $"工业 {mission.industryCost}";
+            if (ScienceText != null) ScienceText.text = $"科技 {mission.scienceCost}";
+
+            if (HealthText != null)
+            {
+                HealthText.text = $"航程 {mission.range}";
+            }
+
+            if (DescriptionText != null) DescriptionText.text = $"{mission.description}";
+
+            if (ProduceConditionImage != null)
+            {
+                ProduceConditionImage.enabled = true;
+                ProduceConditionImage.sprite = UnitManager.instance.GetUnitProduceConditionSprite(mission);
+            }
+
+            if (UnitImage != null) UnitImage.sprite = mission.icon;
+        }
+
+        /// <summary>
+        /// 使用防空数据刷新 UI
+        /// </summary>
+        public void SetupAntiAir(string name, int level, int goldCost, int industryCost, int scienceCost, Sprite icon, string description)
+        {
+            if (UnitNameText != null) UnitNameText.text = $"{name}（Lv{level}）";
+            if (GoldText != null) GoldText.text = $"金钱 {goldCost}";
+            if (IndustryText != null) IndustryText.text = $"工业 {industryCost}";
+            if (ScienceText != null) ScienceText.text = $"科技 {scienceCost}";
+            if (HealthText != null) HealthText.text = "";
+            if (DescriptionText != null) DescriptionText.text = description ?? "";
+
+            if (ProduceConditionImage != null)
+            {
+                ProduceConditionImage.enabled = false;
+                ProduceConditionImage.sprite = null;
+            }
+
+            if (UnitImage != null) UnitImage.sprite = icon;
+        }
     }
 }
 

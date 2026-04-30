@@ -442,15 +442,17 @@ namespace GlobalConqueror.Controllers
 
             foreach (var unit in UnitManager.instance.GetUnitsByNation(nationData.nationId))
             {
-                if (unit.hasAttackedThisTurn) continue;
-                Vector3Int pos = unit.position;
-                Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
-                var go = Instantiate(actionableHighlightPrefab, worldPos, Quaternion.identity, this.transform);
-                if (go != null)
+                if (unit.unitType.unitProperty != UnitProperty.Fort || UnitManager.instance.GetAttackablePositions(unit).Count != 0)
                 {
-                    var sr = go.GetComponentInChildren<SpriteRenderer>();
-                    if (sr != null) sr.color = actionableHighlightColor;
-                    actionableHighlightObjects.Add(pos, go);
+                    Vector3Int pos = unit.position;
+                    Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
+                    var go = Instantiate(actionableHighlightPrefab, worldPos, Quaternion.identity, this.transform);
+                    if (go != null)
+                    {
+                        var sr = go.GetComponentInChildren<SpriteRenderer>();
+                        if (sr != null) sr.color = actionableHighlightColor;
+                        actionableHighlightObjects.Add(pos, go);
+                    }
                 }
             }
         }

@@ -27,6 +27,7 @@ namespace GlobalConqueror.Models
         public int ownerId;               // 所有者ID（-1表示无主）
         public int defenseBonus;          // 防御加成
         public int resourceProduction;    // 资源产量
+        public int antiAirLevel;          // 防空等级（0无，1机枪，2防空炮，3防空导弹）
 
         public MapTileData(TileBase _tile, TileType type)
         {
@@ -35,6 +36,7 @@ namespace GlobalConqueror.Models
             ownerId = -1;
             defenseBonus = 0;
             resourceProduction = 0;
+            antiAirLevel = 0;
         }
 
         public bool IsOwned => ownerId >= 0;
