@@ -27,7 +27,6 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Button armorButton;
         [SerializeField] private Button artilleryButton;
         [SerializeField] private Button planeButton;
-        [SerializeField] private Button antiaircraftButton;
 
         private CityData currentCity;
         private PortData currentPort;
@@ -39,6 +38,11 @@ namespace GlobalConqueror.Controllers
         private UnityAction _soldierPageHandler;
         private UnityAction _armorPageHandler;
         private UnityAction _artilleryPageHandler;
+        private UnityAction _planePageHandler;
+
+        private bool _isSelectingAirTarget = false;
+        private AirMissionConfig _selectedAirMission;
+        private Vector3Int _airTargets = new();
 
         private void Awake()
         {
@@ -84,11 +88,8 @@ namespace GlobalConqueror.Controllers
             }
             if (planeButton != null)
             {
-
-            }
-            if (antiaircraftButton != null)
-            {
-
+                _planePageHandler ??= ShowAirMissionList;
+                planeButton.onClick.AddListener(_planePageHandler);
             }
         }
 
@@ -107,6 +108,11 @@ namespace GlobalConqueror.Controllers
                 {
                     UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedHideHandler;
                 }
+            }
+
+            if (MapManager.instance != null)
+            {
+                MapManager.instance.OnTileSelected -= OnAirTargetTileSelected;
             }
         }
         private void OnDestroy()
@@ -134,14 +140,144 @@ namespace GlobalConqueror.Controllers
             }
             if (planeButton != null)
             {
-
-            }
-            if (antiaircraftButton != null)
-            {
-
+                if (_planePageHandler != null)
+                {
+                    planeButton.onClick.RemoveListener(_planePageHandler);
+                }
             }
         }
 
+        /// <summary>
+        /// 显示空军任务列表
+        /// </summary>
+        private void ShowAirMissionList()
+        {
+            if (AirManager.instance == null || AirManager.instance.AvailableAircrafts == null) return;
+            if (currentCity == null) return;
+            if (currentCity.cityKindsLevel == null || currentCity.cityKindsLevel.airportLevel <= 0) return;
+
+            CancelAirTargetSelection();
+
+            if (buttonContainer == null || unitPurchaseButtonPrefab == null) return;
+            foreach (Transform child in buttonContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            foreach (var mission in AirManager.instance.AvailableAircrafts)
+            {
+                if (mission == null) continue;
+
+                var go = Instantiate(unitPurchaseButtonPrefab, buttonContainer);
+                var btn = go.GetComponent<Button>();
+                if (go.TryGetComponent<UnitPurchaseItemView>(out var unitPurchaseItemView))
+                {
+                    unitPurchaseItemView.Setup(mission);
+                }
+
+                if (btn != null && NationManager.instance != null && NationManager.instance.CurrentNation != null)
+                {
+                    var nation = NationManager.instance.CurrentNation;
+                    btn.interactable = nation.gold >= mission.goldCost &&
+                                      nation.industry >= mission.industryCost &&
+                                      nation.science >= mission.scienceCost &&
+                                      AirManager.instance.CanUseMissionFromCity(currentCity, mission);
+                    AirMissionConfig captured = mission;
+                    btn.onClick.AddListener(() => BeginAirTargetSelection(captured));
+                }
+            }
+        }
+
+        /// <summary>
+        /// 开始选择空军目标
+        /// </summary>
+        /// <param name="mission">空军任务</param>
+        private void BeginAirTargetSelection(AirMissionConfig mission)
+        {
+            if (mission == null) return;
+            if (currentCity == null) return;
+
+            _selectedAirMission = mission;
+            _isSelectingAirTarget = true;
+
+            if (panelRoot != null) panelRoot.SetActive(false);
+
+            if (MapManager.instance != null)
+            {
+                MapManager.instance.OnTileSelected -= OnAirTargetTileSelected;
+                MapManager.instance.OnTileSelected += OnAirTargetTileSelected;
+            }
+
+            //显示高亮
+            if (UnitController.instance != null && AirManager.instance != null)
+            {
+                if (mission.type == AirMissionType.AttackTarget)
+                {
+                    HashSet<Vector3Int> positions = AirManager.instance.GetAttackablePositions(mission, currentCity);
+                    UnitController.instance.ShowAttackRangeHighlights(positions);
+                }
+                else
+                {
+                    HashSet<Vector3Int> positions = AirManager.instance.GetParadropPositions(mission, currentCity);
+                    UnitController.instance.ShowMoveRangeHighlights(positions);
+                }
+                AirManager.instance.currentCity = currentCity;
+            }
+
+            Debug.Log($"空军任务已选择：{mission.missionName}，请点击地图选择目标。");
+        }
+
+        /// <summary>
+        /// 取消选择空军目标
+        /// </summary>
+        private void CancelAirTargetSelection()
+        {
+            _isSelectingAirTarget = false;
+            _selectedAirMission = null;
+            _airTargets.Set(0, 0, 0);
+            if (MapManager.instance != null)
+            {
+                MapManager.instance.OnTileSelected -= OnAirTargetTileSelected;
+            }
+
+            if (UnitController.instance != null)
+            {
+                UnitController.instance.ClearHighlightObjects();
+            }
+            if(AirManager.instance != null)
+            {
+                AirManager.instance.currentCity = null;
+            }
+        }
+
+        /// <summary>
+        /// 选择空军目标格子
+        /// </summary>
+        /// <param name="cell">目标格子</param>
+        private void OnAirTargetTileSelected(Vector3Int cell)
+        {
+            if (!_isSelectingAirTarget) return;
+            if (_selectedAirMission == null) return;
+            if (AirManager.instance == null) return;
+
+            bool ok = AirManager.instance.TryExecuteMission(_selectedAirMission, cell);
+            
+            if (!ok)
+            {
+                CancelAirTargetSelection();
+                Debug.Log("空军出击失败：目标不合法/航程不足/资源不足。");
+                return;
+            }
+
+            CancelAirTargetSelection();
+            Debug.Log("空军出击成功。");        
+        }
+
+        /// <summary>
+        /// 购买底部点击
+        /// </summary>
+        /// <param name="city">城市</param>
+        /// <param name="port">港口</param>
         public void OnPurchaseBottomClick(CityData city, PortData port)
         {
             // 若玩家正在对单位下达移动/攻击指令（或单位正在移动动画中），不弹出购买面板
@@ -195,7 +331,6 @@ namespace GlobalConqueror.Controllers
                 armorButton.gameObject.SetActive(true);
                 artilleryButton.gameObject.SetActive(true);
                 planeButton.gameObject.SetActive(true);
-                antiaircraftButton.gameObject.SetActive(true);
 
                 RefreshButtons(UnitManager.instance.AvailableSoldier);
             }
@@ -215,7 +350,6 @@ namespace GlobalConqueror.Controllers
                 armorButton.gameObject.SetActive(false);
                 artilleryButton.gameObject.SetActive(false);
                 planeButton.gameObject.SetActive(false);
-                antiaircraftButton.gameObject.SetActive(false);
 
                 RefreshButtons(UnitManager.instance.AvailableShip);
             }

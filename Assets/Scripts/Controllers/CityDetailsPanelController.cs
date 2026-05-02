@@ -1,4 +1,4 @@
-using GlobalConqueror.Managers;
+﻿using GlobalConqueror.Managers;
 using GlobalConqueror.Models;
 using TMPro;
 using UnityEngine;
@@ -11,40 +11,40 @@ using System;
 namespace GlobalConqueror.Controllers
 {
     /// <summary>
-    /// ����/�ۿ�������������
+    /// 城市/港口详情面板控制器
     /// </summary>
     public class CityDetailsPanelController : MonoBehaviour
     {
-        [Header("���ڵ�")]
+        [Header("根节点")]
         [SerializeField] private GameObject panelRoot;
 
-        [Header("�������")]
+        [Header("购买面板")]
         [SerializeField] private UnitPurchaseUI unitPurchaseUI;
 
-        [Header("�رհ�ť����ѡ��")]
+        [Header("关闭按钮（可选）")]
         [SerializeField] private Button closeButton;
-        [Header("����ť")]
+        [Header("购买按钮")]
         [SerializeField] private Button PurchaseButton;
 
-        [Header("����/������Ϣ")]
+        [Header("标题/基础信息")]
         [SerializeField] private TextMeshProUGUI cityNameText;
         [SerializeField] private TextMeshProUGUI nationNameText;
 
-        [Header("ͼ��")]
+        [Header("图标")]
         [SerializeField] private Image nationFlagImage;
         [SerializeField] private Image industryImage;
         [SerializeField] private Image airportImage;
         [SerializeField] private Image scienceImage;
         [SerializeField] private Image supplyImage;
 
-        [Header("�ȼ�")]
+        [Header("等级")]
         [SerializeField] private TextMeshProUGUI levelText;
         [SerializeField] private TextMeshProUGUI industryText;
         [SerializeField] private TextMeshProUGUI airportText;
         [SerializeField] private TextMeshProUGUI scienceText;
         [SerializeField] private TextMeshProUGUI supplyText;
 
-        [Header("����")]
+        [Header("产能")]
         [SerializeField] private TextMeshProUGUI gold;
         [SerializeField] private TextMeshProUGUI industry;
         [SerializeField] private TextMeshProUGUI science;
@@ -138,7 +138,7 @@ namespace GlobalConqueror.Controllers
 
         private void OnTileSelected(Vector3Int coordinate)
         {
-            // ��������ڶԵ�λ�´��ƶ�/����ָ���λ�����ƶ������У����������������
+            // 若玩家正在对单位下达移动/攻击指令（或单位正在移动动画中），不弹出购买面板
             if (UnitController.IsUnitCommandActive)
             {
                 Hide();
@@ -189,13 +189,13 @@ namespace GlobalConqueror.Controllers
             if (cityNameText != null)
             {
                 cityNameText.enabled = city.cityName != null;
-                cityNameText.text = city.cityName ?? "δ֪����";
+                cityNameText.text = city.cityName ?? "未知城市";
             }
 
             if (nationNameText != null)
             {
                 nationNameText.enabled = nation != null;
-                nationNameText.text = nation != null ? $"���� {nation.nationName}" : "δ֪����";
+                nationNameText.text = nation != null ? $"所属 {nation.nationName}" : "未知国家";
             }
 
             if (nationFlagImage != null)
@@ -216,7 +216,7 @@ namespace GlobalConqueror.Controllers
             {
                 industryText.enabled = true;
                 industryImage.enabled = true;
-                industryText.text = $"��ҵ {city.cityKindsLevel.industryLevel} ��";
+                industryText.text = $"工业 {city.cityKindsLevel.industryLevel} 级";
                 industryImage.sprite = CityManager.instance.industry[city.cityKindsLevel.industryLevel - 1];
             }
 
@@ -224,7 +224,7 @@ namespace GlobalConqueror.Controllers
             {
                 airportText.enabled = true;
                 airportImage.enabled = true;
-                airportText.text = $"���� {city.cityKindsLevel.airportLevel} ��";
+                airportText.text = $"机场 {city.cityKindsLevel.airportLevel} 级";
                 airportImage.sprite = CityManager.instance.airport[city.cityKindsLevel.airportLevel - 1];
             }
 
@@ -232,7 +232,7 @@ namespace GlobalConqueror.Controllers
             {
                 scienceText.enabled = true;
                 scienceImage.enabled = true;
-                scienceText.text = $"�Ƽ� {city.cityKindsLevel.scienceLevel} ��";
+                scienceText.text = $"科技 {city.cityKindsLevel.scienceLevel} 级";
                 scienceImage.sprite = CityManager.instance.science[city.cityKindsLevel.scienceLevel - 1];
             }
 
@@ -240,7 +240,7 @@ namespace GlobalConqueror.Controllers
             {
                 supplyText.enabled = true;
                 supplyImage.enabled = true;
-                supplyText.text = $"���� {city.cityKindsLevel.supplyLevel} ��";
+                supplyText.text = $"补给 {city.cityKindsLevel.supplyLevel} 级";
                 supplyImage.sprite = CityManager.instance.supply[city.cityKindsLevel.supplyLevel - 1];
             }
 
@@ -249,9 +249,9 @@ namespace GlobalConqueror.Controllers
                 gold.enabled = true;
                 industry.enabled = true;
                 science.enabled = true;
-                gold.text = $"ÿ�غϽ�Ǯ���� {city.CityGoldProduced}";
-                industry.text = $"ÿ�غϹ�ҵ���� {city.CityIndustryProduced}";
-                science.text = $"ÿ�غϿ�ѧ���� {city.CityScienceProduced}";
+                gold.text = $"每回合金钱产出 {city.CityGoldProduced}";
+                industry.text = $"每回合工业产出 {city.CityIndustryProduced}";
+                science.text = $"每回合科学产出 {city.CityScienceProduced}";
             }
 
             if (PurchaseButton != null && city.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)
@@ -278,13 +278,13 @@ namespace GlobalConqueror.Controllers
             if (cityNameText != null)
             {
                 cityNameText.enabled = port.portName != null;
-                cityNameText.text = port.portName ?? "δ֪�ۿ�";
+                cityNameText.text = port.portName ?? "未知港口";
             }
 
             if (nationNameText != null)
             {
                 nationNameText.enabled = nation != null;
-                nationNameText.text = nation != null ? $"���� {nation.nationName}" : "δ֪����";
+                nationNameText.text = nation != null ? $"所属 {nation.nationName}" : "未知国家";
             }
 
             if (nationFlagImage != null)
@@ -305,8 +305,8 @@ namespace GlobalConqueror.Controllers
             {
                 gold.enabled = true;
                 industry.enabled = true;
-                gold.text = $"ÿ�غϽ�Ǯ���� {port.PortGoldProduced}";
-                industry.text = $"ÿ�غϹ�ҵ���� {port.PortIndustryProduced}";
+                gold.text = $"每回合金钱产出 {port.PortGoldProduced}";
+                industry.text = $"每回合工业产出 {port.PortIndustryProduced}";
             }
 
             if (PurchaseButton != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(port.portLocation) == null)

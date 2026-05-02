@@ -25,6 +25,7 @@ namespace GlobalConqueror.Controllers
         private Action<NationData> _onNationTurnStartHandler;
         private Action<UnitData, CityData> _onCityCapturedHandler;
         private Action<UnitData, GameObject> _onUnitSpawnedHandler;
+        private Action<AirMissionConfig, CityData, Vector3Int> _onAirAttackMissionHandler;
 
         private void Start()
         {
@@ -55,6 +56,13 @@ namespace GlobalConqueror.Controllers
             UnitManager.instance.OnCityCaptured += _onCityCapturedHandler;
             UnitManager.instance.OnUnitSpawned += _onUnitSpawnedHandler;
 
+            while (AirManager.instance == null)
+            {
+                yield return null;
+            }
+            _onAirAttackMissionHandler ??= (airMissionConfig, cityData, vector3Int) => UpdateNationUI(cityData.ownerNationId);
+            AirManager.instance.OnAirAttackMissionExecuted += _onAirAttackMissionHandler;
+
             if (endTurnButton != null)
             {
                 endTurnButton.onClick.AddListener(OnEndTurnClicked);
@@ -84,6 +92,14 @@ namespace GlobalConqueror.Controllers
                 if (_onUnitSpawnedHandler != null)
                 {
                     UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedHandler;
+                }
+            }
+
+            if (AirManager.instance != null)
+            {
+                if (_onAirAttackMissionHandler != null)
+                {
+                    AirManager.instance.OnAirAttackMissionExecuted -= _onAirAttackMissionHandler;
                 }
             }
         }

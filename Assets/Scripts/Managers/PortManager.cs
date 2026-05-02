@@ -110,7 +110,10 @@ namespace GlobalConqueror.Managers
                     nationOwnPorts.Add(portMapping.nationName, new List<PortData> { port });
                 }
 
-                MapManager.instance.SetTileOwner(portMapping.PortPositionInt, nation.nationId);
+                if (nation != null)
+                {
+                    MapManager.instance.SetTileOwner(portMapping.PortPositionInt, nation.nationId);
+                }
                 countIndex++;
             }     
 

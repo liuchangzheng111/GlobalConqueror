@@ -440,6 +440,44 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
+        /// 在指定位置生成空投单位
+        /// </summary>
+        public UnitData SpawnParadropUnit(Vector3Int position, Vector3 targetWorldPos, UnitTypeConfig unitType, int ownerNationId, GameObject unitObject, bool isNewUnit)
+        {
+            if (unitType == null) return null;
+            if (!MapManager.instance.IsCoordinateValid(position))
+            {
+                Debug.LogWarning($"UnitManager: 无效坐标 {position}");
+                return null;
+            }
+            if (GetUnitAtPosition(position) != null)
+            {
+                Debug.LogWarning($"UnitManager: 位置 {position} 已有单位");
+                return null;
+            }
+
+            UnitData unit = new(nextUnitId++, unitType, position, ownerNationId);
+
+            // 判断是否为新生成的单位
+            if (isNewUnit)
+            {
+                unit.hasAttackedThisTurn = true;
+                unit.hasMovedThisTurn = true;
+            }
+            else
+            {
+                unit.hasAttackedThisTurn = false;
+                unit.hasMovedThisTurn = true;
+            }
+            allUnits.Add(unit);
+
+            StartCoroutine(AnimateSpawnUnit(unitObject, targetWorldPos));
+            // 告诉UnitController绑定游戏对象
+            OnUnitSpawned?.Invoke(unit, unitObject);
+            return unit;
+        }
+
+        /// <summary>
         /// 生成部队的动画
         /// </summary>
         /// <param name="unit"></param>
@@ -512,7 +550,7 @@ namespace GlobalConqueror.Managers
 
                 if (currentCost > maxCost) continue;
 
-                List<Vector3Int> neighbors = HexGridUtils.GetPointyTopNeighbors(currentPos);
+                List<Vector3Int> neighbors = HexGridUtils.GetPointNeighbors(currentPos);
                 if (neighbors == null || neighbors.Count == 0) continue;
 
                 foreach (Vector3Int nextPos in neighbors)
@@ -586,7 +624,7 @@ namespace GlobalConqueror.Managers
                     break;
                 }
 
-                List<Vector3Int> neighbors = HexGridUtils.GetPointyTopNeighbors(currentPos);
+                List<Vector3Int> neighbors = HexGridUtils.GetPointNeighbors(currentPos);
                 if (neighbors == null || neighbors.Count == 0) continue;
 
                 foreach (Vector3Int nextPos in neighbors)
@@ -833,7 +871,7 @@ namespace GlobalConqueror.Managers
         /// <summary>
         /// 占领城市
         /// </summary>
-        private void CaptureCity(UnitData unit, CityData city)
+        public void CaptureCity(UnitData unit, CityData city)
         {
             if (city == null || unit == null) return;
             if (CityManager.instance == null || NationManager.instance == null) return;
@@ -1056,7 +1094,7 @@ namespace GlobalConqueror.Managers
         private static bool IsAircraftCarrier(UnitData unit)
         {
             if (unit?.unitType == null) return false;
-            return unit.unitType.isSubmarine || unit.unitType.unitTypeName == "航空母舰";
+            return unit.unitType.unitTypeName == "航空母舰";
         }
 
         private static bool IsUnderConstructionFort(UnitData unit)
@@ -1103,7 +1141,7 @@ namespace GlobalConqueror.Managers
         /// <param name="unit"></param>
         private void ChangeBargeUnitToLand(UnitData unit)
         {
-            if (unit == null && UnitController.instance != null) return;
+            if (unit == null || UnitController.instance == null) return;
 
             Vector3 position = MapManager.instance.Tilemap.CellToWorld(unit.position);
             GameObject bargeGo = UnitController.instance.GetUnitGameObject(unit);

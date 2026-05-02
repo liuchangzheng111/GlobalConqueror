@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Warcraft
   m_EditorClassIdentifier: 
   missionName: "\u6218\u6597\u673A"
-  icon: {fileID: 0}
-  description: 
+  icon: {fileID: 21300000, guid: 09951c167ce55e34a89ba68e9c6c0987, type: 3}
+  description: "\u7A7A\u519B\u7684\u57FA\u7840\u7A7A\u6218\u5355\u4F4D\uFF0C\u751F\u4EA7\u6761\u4EF6\u4F4E\n\u673A\u52A8\u6027\u8F83\u5F3A\uFF0C\u53EF\u8F85\u52A9\u6253\u51FB\u5730\u9762\u8F7B\u578B\u5355\u4F4D\n\u5BF9\u5730\u5BF9\u6D77\u6253\u51FB\u80FD\u529B\u6709\u9650\uFF0C\u9762\u5BF9\u88C5\u7532\u548C\u9632\u7A7A\u5355\u4F4D\u8F83\u5403\u529B"
   goldCost: 80
   industryCost: 30
   scienceCost: 0

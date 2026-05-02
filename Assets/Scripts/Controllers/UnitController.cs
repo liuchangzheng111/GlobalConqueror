@@ -429,6 +429,57 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
+        /// 显示攻击高亮（供外部调用）
+        /// </summary>
+        public void ShowAttackRangeHighlights(HashSet<Vector3Int> positions)
+        {
+            ClearHighlightObjects(attackHighlightObjects);
+            if (attackRangeHighlightPrefab == null || MapManager.instance == null) return;
+
+            foreach (var pos in positions)
+            {
+                Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
+                var go = Instantiate(attackRangeHighlightPrefab, worldPos, Quaternion.identity, this.transform);
+                if (go != null)
+                {
+                    var sr = go.GetComponentInChildren<SpriteRenderer>();
+                    if (sr != null) sr.color = attackHighlightColor;
+                    attackHighlightObjects.Add(go);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 显示移动高亮（供外部调用）
+        /// </summary>
+        public void ShowMoveRangeHighlights(HashSet<Vector3Int> positions)
+        {
+            ClearHighlightObjects(moveHighlightObjects);
+            if (moveRangeHighlightPrefab == null || MapManager.instance == null) return;
+
+            foreach (var pos in positions)
+            {
+                Vector3 worldPos = MapManager.instance.Tilemap.GetCellCenterWorld(pos);
+                var go = Instantiate(moveRangeHighlightPrefab, worldPos, Quaternion.identity, this.transform);
+                if (go != null)
+                {
+                    var sr = go.GetComponentInChildren<SpriteRenderer>();
+                    if (sr != null) sr.color = moveHighlightColor;
+                    moveHighlightObjects.Add(go);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 清除所有攻击、移动范围高亮（供外部调用）
+        /// </summary>
+        public void ClearHighlightObjects()
+        {
+            ClearHighlightObjects(moveHighlightObjects);
+            ClearHighlightObjects(attackHighlightObjects);
+        }
+
+        /// <summary>
         /// 重置可行动高亮显示
         /// </summary>
         /// <param name="nationData"></param>
@@ -542,8 +593,7 @@ namespace GlobalConqueror.Controllers
         {
             if (unitGo == null) return null;
             // 优先根节点，其次找子节点里第一个（用于兼容不同预制体结构）
-            var root = unitGo.GetComponent<SpriteRenderer>();
-            if (root != null) return root;
+            if (unitGo.TryGetComponent<SpriteRenderer>(out var root)) return root;
             return unitGo.GetComponentInChildren<SpriteRenderer>(true);
         }
 

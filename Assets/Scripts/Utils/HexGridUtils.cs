@@ -12,7 +12,7 @@ namespace GlobalConqueror.Utils
         /// <summary>
         /// 获取尖顶六边形的 6 个邻格（Offset 坐标）
         /// </summary>
-        public static List<Vector3Int> GetPointyTopNeighbors(Vector3Int cell)
+        public static List<Vector3Int> GetPointNeighbors(Vector3Int cell)
         {
             int x = cell.x;
             int y = cell.y;
