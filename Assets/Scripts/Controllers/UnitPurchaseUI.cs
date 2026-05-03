@@ -28,6 +28,9 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private Button artilleryButton;
         [SerializeField] private Button planeButton;
 
+        [Header("关闭")]
+        [SerializeField] private Button closePanelButton;
+
         private CityData currentCity;
         private PortData currentPort;
         private List<GameObject> currentAvailable;
@@ -91,6 +94,10 @@ namespace GlobalConqueror.Controllers
                 _planePageHandler ??= ShowAirMissionList;
                 planeButton.onClick.AddListener(_planePageHandler);
             }
+            if (closePanelButton != null)
+            {
+                closePanelButton.onClick.AddListener(OnClosePanelClicked);
+            }
         }
 
         private void OnDisable()
@@ -114,6 +121,7 @@ namespace GlobalConqueror.Controllers
             {
                 MapManager.instance.OnTileSelected -= OnAirTargetTileSelected;
             }
+            if (closePanelButton != null) closePanelButton.onClick.RemoveAllListeners();
         }
         private void OnDestroy()
         {
@@ -145,6 +153,10 @@ namespace GlobalConqueror.Controllers
                     planeButton.onClick.RemoveListener(_planePageHandler);
                 }
             }
+        }
+        private void OnClosePanelClicked()
+        {
+            Hide();
         }
 
         /// <summary>
@@ -274,7 +286,7 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
-        /// 购买底部点击
+        /// 按钮点击
         /// </summary>
         /// <param name="city">城市</param>
         /// <param name="port">港口</param>
@@ -295,10 +307,16 @@ namespace GlobalConqueror.Controllers
 
             Vector3Int vector3Int = city != null ? city.cityLocation : (port != null ? port.portLocation : Vector3Int.zero);
                        
-            // 若该格有单位，不显示购买面板（由 UnitController 处理单位选中）
-            if (UnitManager.instance != null && UnitManager.instance.GetUnitAtPosition(vector3Int) != null)
+            if (UnitManager.instance != null)
             {
-                Hide();
+                if (UnitManager.instance.GetUnitAtPosition(vector3Int) != null)
+                {
+                    ShowAirMissionForCity(city);
+                }
+                else
+                {
+                    ShowForCity(city);
+                }
                 return;
             }
             
@@ -312,9 +330,9 @@ namespace GlobalConqueror.Controllers
 
                 Hide();
                 return;
-            } 
+            }
 
-            ShowForCity(city);
+            return;
         }
 
         /// <summary>
@@ -328,11 +346,38 @@ namespace GlobalConqueror.Controllers
                 if (panelRoot != null) panelRoot.SetActive(true);
 
                 soldierButton.gameObject.SetActive(true);
+                soldierButton.interactable = true;
                 armorButton.gameObject.SetActive(true);
+                armorButton.interactable = true;
                 artilleryButton.gameObject.SetActive(true);
+                artilleryButton.interactable = true;
                 planeButton.gameObject.SetActive(true);
+                planeButton.interactable = true;
 
                 RefreshButtons(UnitManager.instance.AvailableSoldier);
+            }
+        }
+
+        /// <summary>
+        /// 为指定城市显示空军面板
+        /// </summary>
+        public void ShowAirMissionForCity(CityData city)
+        {
+            if (UnitManager.instance != null)
+            {
+                currentCity = city;
+                if (panelRoot != null) panelRoot.SetActive(true);
+
+                soldierButton.gameObject.SetActive(true);
+                soldierButton.interactable = false;
+                armorButton.gameObject.SetActive(true);
+                armorButton.interactable = false;
+                artilleryButton.gameObject.SetActive(true);
+                artilleryButton.interactable = false;
+                planeButton.gameObject.SetActive(true);
+                planeButton.interactable = true;
+
+                ShowAirMissionList();
             }
         }
 

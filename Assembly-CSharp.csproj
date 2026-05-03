@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\Controllers\FortBuildPanelController.cs" />
     <Compile Include="Assets\Scripts\Models\NationData.cs" />
     <Compile Include="Assets\Scripts\Managers\NationManager.cs" />
+    <Compile Include="Assets\Scripts\Controllers\AntiAirBuildPanelController.cs" />
     <Compile Include="Assets\Scripts\Controllers\FloatingDamageManager.cs" />
     <Compile Include="Assets\Scripts\Managers\MapManager.cs" />
     <Compile Include="Assets\Scripts\Models\PortMapping.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Assets\Scripts\Controllers\UnitPurchaseUI.cs" />
     <Compile Include="Assets\Scripts\Controllers\MapCameraController.cs" />
     <Compile Include="Assets\Scripts\Models\CityLevelMapping.cs" />
+    <Compile Include="Assets\Scripts\Models\AntiAirConfig.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListPanelController.cs" />
     <Compile Include="Assets\Scripts\Managers\PortManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitPurchaseItemView.cs" />

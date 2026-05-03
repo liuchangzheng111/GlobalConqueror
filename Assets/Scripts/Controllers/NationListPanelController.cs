@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using GlobalConqueror.Managers;
@@ -39,6 +40,9 @@ namespace GlobalConqueror.Controllers
         private Action<NationData> _onNationDefeatedRefreshHandler;
         private Action<UnitData, CityData> _onCityCapturedRefreshHandler;
         private Action<UnitData, GameObject> _onUnitSpawnedRefreshHandler;
+        private Action<AirMissionConfig, CityData, Vector3Int> _onAirAttackMissionHandler;
+        private Action<AirMissionConfig, CityData, Vector3Int> _onAirParadropMissionHandler;
+        private Action<int, Vector3Int, AntiAirConfig> _onAntiAirBuiltHandler;
 
         private void Awake()
         {
@@ -69,6 +73,26 @@ namespace GlobalConqueror.Controllers
                 UnitManager.instance.OnCityCaptured += _onCityCapturedRefreshHandler;
                 UnitManager.instance.OnUnitSpawned += _onUnitSpawnedRefreshHandler;
             }
+            if (AirManager.instance != null)
+            {
+                _onAirAttackMissionHandler ??= (airMissionConfig, cityData, vector3Int) => RefreshList();
+                _onAirParadropMissionHandler ??= (airMissionConfig, cityData, vector3Int) => RefreshList();
+                AirManager.instance.OnAirAttackMissionExecuted += _onAirAttackMissionHandler;
+                AirManager.instance.OnAirParadropMissionExecuted += _onAirParadropMissionHandler;
+            }
+
+            StartCoroutine(BindAntiAirListWhenReady());
+        }
+
+        private IEnumerator BindAntiAirListWhenReady()
+        {
+            while (AntiAirManager.instance == null)
+            {
+                yield return null;
+            }
+
+            _onAntiAirBuiltHandler ??= (_, _, _) => RefreshList();
+            AntiAirManager.instance.OnAntiAirBuilt += _onAntiAirBuiltHandler;
         }
 
         private void OnDestroy()
@@ -100,6 +124,23 @@ namespace GlobalConqueror.Controllers
                 {
                     UnitManager.instance.OnUnitSpawned -= _onUnitSpawnedRefreshHandler;
                 }
+            }
+
+            if (AirManager.instance != null)
+            {
+                if (_onAirAttackMissionHandler != null)
+                {
+                    AirManager.instance.OnAirAttackMissionExecuted -= _onAirAttackMissionHandler;
+                }
+                if (_onAirParadropMissionHandler != null)
+                {
+                    AirManager.instance.OnAirParadropMissionExecuted -= _onAirParadropMissionHandler;
+                }
+            }
+
+            if (AntiAirManager.instance != null && _onAntiAirBuiltHandler != null)
+            {
+                AntiAirManager.instance.OnAntiAirBuilt -= _onAntiAirBuiltHandler;
             }
         }
 

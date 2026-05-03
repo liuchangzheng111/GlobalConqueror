@@ -88,9 +88,6 @@ namespace GlobalConqueror.Managers
 
             NationData nation = NationManager.instance.CurrentNation;
             if (nation.gold < mission.goldCost || nation.industry < mission.industryCost || nation.science < mission.scienceCost) return false;
-            nation.gold -= mission.goldCost;
-            nation.industry -= mission.industryCost;
-            nation.science -= mission.scienceCost;
 
             bool ok = mission.type switch
             {
@@ -98,6 +95,23 @@ namespace GlobalConqueror.Managers
                 AirMissionType.ParadropInfantry => ExecuteParadrop(mission, targetCell),
                 _ => false
             };
+
+            if (ok)
+            {
+                nation.gold -= mission.goldCost;
+                nation.industry -= mission.industryCost;
+                nation.science -= mission.scienceCost;
+
+                // 在扣费之后通知 UI，否则 TurnUI 等读到的是执行前资源数，看起来像“没刷新”
+                if (mission.type == AirMissionType.AttackTarget)
+                {
+                    OnAirAttackMissionExecuted?.Invoke(mission, currentCity, targetCell);
+                }
+                else if (mission.type == AirMissionType.ParadropInfantry)
+                {
+                    OnAirParadropMissionExecuted?.Invoke(mission, currentCity, targetCell);
+                }
+            }
 
             return ok;
         }
@@ -123,15 +137,15 @@ namespace GlobalConqueror.Managers
         }
 
         /// <summary>
-        /// 获取目标格子的防空等级
+        /// 获取目标格子的防空信息
         /// </summary>
         /// <param name="cell">目标格子</param>
         /// <returns>防空等级</returns>
-        private static int GetAntiAirLevel(Vector3Int cell)
+        private static AntiAirConfig GetAntiAirLevel(Vector3Int cell)
         {
-            if (MapManager.instance == null) return 0;
+            if (MapManager.instance == null) return null;
             MapTileData tile = MapManager.instance.GetTileData(cell);
-            return tile != null ? tile.antiAirLevel : 0;
+            return tile != null ? tile.antiAir : null;
         }
 
         /// <summary>
@@ -152,8 +166,8 @@ namespace GlobalConqueror.Managers
             }
 
             int baseDamage = GetAirSpecialAttack(mission, targetUnit);
-            int antiAirLevel = GetAntiAirLevel(targetCell);
-            float amendment = AntiAirManager.instance != null ? AntiAirManager.instance.GetAirStrikeMultiplier(antiAirLevel) : 1f;
+            AntiAirConfig antiAir = GetAntiAirLevel(targetCell);
+            float amendment = AntiAirManager.instance != null ? AntiAirManager.instance.GetAirStrikeMultiplier(antiAir) : 1f;
 
             int finalDamage = Mathf.Max(0, Mathf.RoundToInt(baseDamage * amendment));
             int dmg = Mathf.CeilToInt(finalDamage * Random.Range(0.8f, 1.2f));
@@ -184,7 +198,6 @@ namespace GlobalConqueror.Managers
                 }
             }
 
-            OnAirAttackMissionExecuted?.Invoke(mission, currentCity, targetCell);
             return true;
         }
 
@@ -219,8 +232,8 @@ namespace GlobalConqueror.Managers
                 return false;
             }
 
-            int antiAirLevel = GetAntiAirLevel(targetCell);
-            int paradropDmg = AntiAirManager.instance != null ? AntiAirManager.instance.GetParadropDamage(antiAirLevel) : 0;
+            AntiAirConfig antiAir = GetAntiAirLevel(targetCell);
+            int paradropDmg = AntiAirManager.instance != null ? AntiAirManager.instance.GetParadropDamage(antiAir) : 0;
             if (paradropDmg > 0)
             {
                 unit.currentHealth = Mathf.Max(0, unit.currentHealth - paradropDmg);
@@ -234,12 +247,20 @@ namespace GlobalConqueror.Managers
                 {
                     UnitManager.instance.AllUnits.Remove(unit);
                     UnitManager.instance.OnUnitDestroyed?.Invoke(unit);
-                    OnAirParadropMissionExecuted?.Invoke(mission, currentCity, targetCell);
                     return true;
                 }
+                else
+                {
+                    if (UnitController.instance != null)
+                    {
+                        GameObject go = UnitController.instance.GetUnitGameObject(unit);
+                        if (go != null && go.TryGetComponent<UnitView>(out var view))
+                        {
+                            view.RefreshHealthBar();
+                        }
+                    }
+                }
             }
-
-            OnAirParadropMissionExecuted?.Invoke(mission, currentCity, targetCell);
 
             // 如果空投目标为城市且无守军，则立即占领
             CityData city = CityManager.instance.GetCityAtPosition(targetCell);

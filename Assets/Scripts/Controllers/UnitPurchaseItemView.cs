@@ -105,14 +105,14 @@ namespace GlobalConqueror.Controllers
         /// <summary>
         /// 使用防空数据刷新 UI
         /// </summary>
-        public void SetupAntiAir(string name, int level, int goldCost, int industryCost, int scienceCost, Sprite icon, string description)
+        public void SetupAntiAir(AntiAirConfig antiAir)
         {
-            if (UnitNameText != null) UnitNameText.text = $"{name}（Lv{level}）";
-            if (GoldText != null) GoldText.text = $"金钱 {goldCost}";
-            if (IndustryText != null) IndustryText.text = $"工业 {industryCost}";
-            if (ScienceText != null) ScienceText.text = $"科技 {scienceCost}";
+            if (UnitNameText != null) UnitNameText.text = $"{antiAir.antiairName}";
+            if (GoldText != null) GoldText.text = $"金钱 {antiAir.goldCost}";
+            if (IndustryText != null) IndustryText.text = $"工业 {antiAir.industryCost}";
+            if (ScienceText != null) ScienceText.text = $"科技 {antiAir.scienceCost}";
             if (HealthText != null) HealthText.text = "";
-            if (DescriptionText != null) DescriptionText.text = description ?? "";
+            if (DescriptionText != null) DescriptionText.text = $"减伤：{(1 - antiAir.airStrikeDamageMultiplier) * 100}%  对空投兵伤害：{antiAir.paradropDamage}\n" + antiAir.description;
 
             if (ProduceConditionImage != null)
             {
@@ -120,7 +120,7 @@ namespace GlobalConqueror.Controllers
                 ProduceConditionImage.sprite = null;
             }
 
-            if (UnitImage != null) UnitImage.sprite = icon;
+            if (UnitImage != null) UnitImage.sprite = antiAir.icon;
         }
     }
 }

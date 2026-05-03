@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using GlobalConqueror.Managers;
 using GlobalConqueror.Models;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GlobalConqueror.Controllers
 {
     public class AntiAirTileOverlayController : MonoBehaviour
     {
         [SerializeField] private Vector3 worldOffset = new(-0.35f, -0.35f, 0f);
-        [SerializeField] private float sortingOrder = 10;
+        [SerializeField] private int sortingOrder = 10;
 
         private readonly Dictionary<Vector3Int, SpriteRenderer> _icons = new();
 
@@ -37,11 +38,19 @@ namespace GlobalConqueror.Controllers
             }
         }
 
+        /// <summary>
+        /// 地块数据变化事件
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="data"></param>
         private void OnTileDataChanged(Vector3Int cell, MapTileData data)
         {
             UpdateIcon(cell, data);
         }
 
+        /// <summary>
+        /// 重建所有图标
+        /// </summary>
         private void RebuildAll()
         {
             foreach (var kv in _icons)
@@ -56,12 +65,16 @@ namespace GlobalConqueror.Controllers
             }
         }
 
+        /// <summary>
+        /// 更新图标
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="data"></param>
         private void UpdateIcon(Vector3Int cell, MapTileData data)
         {
             if (data == null) return;
-            int level = Mathf.Clamp(data.antiAirLevel, 0, 3);
 
-            if (level <= 0)
+            if (data.antiAir == null)
             {
                 if (_icons.TryGetValue(cell, out var existing) && existing != null)
                 {
@@ -71,7 +84,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            Sprite icon = AntiAirManager.instance != null ? AntiAirManager.instance.GetAntiAirIcon(level) : null;
+            Sprite icon = AntiAirManager.instance != null ? AntiAirManager.instance.GetAntiAirIcon(data.antiAir) : null;
             if (icon == null)
             {
                 // 没配置图标就不显示
@@ -88,7 +101,8 @@ namespace GlobalConqueror.Controllers
                 var go = new GameObject($"AAIcon_{cell.x}_{cell.y}_{cell.z}");
                 go.transform.SetParent(transform, false);
                 sr = go.AddComponent<SpriteRenderer>();
-                sr.sortingOrder = (int)sortingOrder;
+                sr.sortingOrder = sortingOrder;
+                sr.sortingLayerName = "Unit";
                 _icons[cell] = sr;
             }
 

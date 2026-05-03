@@ -701,13 +701,18 @@ namespace GlobalConqueror.Managers
                 UnitData targetUnit = GetUnitAtPosition(target);
                 if (targetUnit != null && targetUnit.ownerNationId != unit.ownerNationId)
                 {
-                    // 陆地单位和潜艇无法相互攻击，
-                    bool attackerIsLand = unit.unitType.unitProperty == UnitProperty.Soldier || unit.unitType.unitProperty == UnitProperty.Armor;
-                    bool defenderIsLand = targetUnit.unitType.unitProperty == UnitProperty.Soldier || targetUnit.unitType.unitProperty == UnitProperty.Armor;
+                    // 陆地单位和潜艇无法相互攻击
+                    bool attackerIsLand = unit.unitType.unitProperty == UnitProperty.Soldier || unit.unitType.unitProperty == UnitProperty.Armor || unit.unitType.unitProperty == UnitProperty.Fort;
+                    bool defenderIsLand = targetUnit.unitType.unitProperty == UnitProperty.Soldier || targetUnit.unitType.unitProperty == UnitProperty.Armor || targetUnit.unitType.unitProperty == UnitProperty.Fort;
                     bool attackerIsSubmarine = IsSubmarine(unit);
                     bool defenderIsSubmarine = IsSubmarine(targetUnit);
                     if ((attackerIsLand && defenderIsSubmarine) || (defenderIsLand && attackerIsSubmarine))
                     {
+                        // 堡垒单位海岸炮除外
+                        if (unit.unitType.unitTypeName == "海岸炮" && defenderIsSubmarine)
+                        {
+                            attackable.Add(target);
+                        }
                         continue;
                     }
 

@@ -220,20 +220,14 @@ namespace GlobalConqueror.Managers
             }
         }
 
-        public bool SetAntiAirLevel(Vector3Int coordinate, int antiAirLevel)
+        public bool SetAntiAirLevel(Vector3Int coordinate, AntiAirConfig antiAir)
         {
             if (!tileDataMap.TryGetValue(coordinate, out MapTileData data))
             {
                 return false;
             }
 
-            int clamped = Mathf.Clamp(antiAirLevel, 0, 3);
-            if (data.antiAirLevel == clamped)
-            {
-                return true;
-            }
-
-            data.antiAirLevel = clamped;
+            data.antiAir = antiAir;
             OnTileDataChanged?.Invoke(coordinate, data);
             return true;
         }

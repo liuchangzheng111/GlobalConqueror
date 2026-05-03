@@ -24,7 +24,8 @@ namespace GlobalConqueror.Controllers
         [Header("关闭按钮（可选）")]
         [SerializeField] private Button closeButton;
         [Header("购买按钮")]
-        [SerializeField] private Button PurchaseButton;
+        [SerializeField] private Button purchaseButton;
+        [SerializeField] private TextMeshProUGUI purchaseText;
 
         [Header("标题/基础信息")]
         [SerializeField] private TextMeshProUGUI cityNameText;
@@ -74,10 +75,10 @@ namespace GlobalConqueror.Controllers
             {
                 closeButton.onClick.AddListener(Hide);
             }
-            if (PurchaseButton != null)
+            if (purchaseButton != null)
             {
                 _purchaseClickHandler ??= () => unitPurchaseUI.OnPurchaseBottomClick(currentCity, currentPort);
-                PurchaseButton.onClick.AddListener(_purchaseClickHandler);
+                purchaseButton.onClick.AddListener(_purchaseClickHandler);
             }
         }
         private void OnEnable()
@@ -127,11 +128,11 @@ namespace GlobalConqueror.Controllers
             {
                 closeButton.onClick.RemoveListener(Hide);
             }
-            if (PurchaseButton != null)
+            if (purchaseButton != null)
             {
                 if (_purchaseClickHandler != null)
                 {
-                    PurchaseButton.onClick.RemoveListener(_purchaseClickHandler);
+                    purchaseButton.onClick.RemoveListener(_purchaseClickHandler);
                 }
             }
         }
@@ -254,9 +255,17 @@ namespace GlobalConqueror.Controllers
                 science.text = $"每回合科学产出 {city.CityScienceProduced}";
             }
 
-            if (PurchaseButton != null && city.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)
+            if (purchaseButton != null && city.ownerNationId == NationManager.instance.CurrentNation.nationId)
             {
-                PurchaseButton.gameObject.SetActive(true);
+                if (UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)
+                {
+                    purchaseText.text = "生产部队/空军任务";
+                }
+                else
+                {
+                    purchaseText.text = "空军任务";
+                }
+                purchaseButton.gameObject.SetActive(true);
             }
         }
         public void ShowPort(PortData port)
@@ -309,9 +318,9 @@ namespace GlobalConqueror.Controllers
                 industry.text = $"每回合工业产出 {port.PortIndustryProduced}";
             }
 
-            if (PurchaseButton != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(port.portLocation) == null)
+            if (purchaseButton != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(port.portLocation) == null)
             {
-                PurchaseButton.gameObject.SetActive(true);
+                purchaseButton.gameObject.SetActive(true);
             }
         }
         private void ResetUI()
@@ -361,9 +370,9 @@ namespace GlobalConqueror.Controllers
                 science.enabled = false;
                 science.text = "";
             }
-            if (PurchaseButton != null)
+            if (purchaseButton != null)
             {
-                PurchaseButton.gameObject.SetActive(false);
+                purchaseButton.gameObject.SetActive(false);
             }
             unitPurchaseUI.Hide();
         }

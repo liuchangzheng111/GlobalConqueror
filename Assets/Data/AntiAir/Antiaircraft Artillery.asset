@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a6eac43125d7b844996479557756411, type: 3}
+  m_Name: Antiaircraft Artillery
+  m_EditorClassIdentifier: 
+  antiairName: "\u9632\u7A7A\u70AE"
+  icon: {fileID: 21300000, guid: 631ce5c8990ab8549a976fd746ad27dc, type: 3}
+  tileIcon: {fileID: 21300000, guid: 631ce5c8990ab8549a976fd746ad27dc, type: 3}
+  description: "\u4E2D\u7AEF\u5730\u5757\u9632\u7A7A\u6838\u5FC3\u5DE5\u4E8B\uFF0C\u751F\u4EA7\u8D39\u7528\u4E2D\u7B49\n\u53EF\u5BF9\u7A7A\u6295\u5175\u9020\u6210\u6709\u6548\u4F24\u5BB3\uFF0C\u5BF9\u7A7A\u88AD\u51CF\u4F24\u8FDB\u4E00\u6B65\u63D0\u9AD8\n\u9002\u5408\u90E8\u7F72\u5728\u9635\u5730\u6838\u5FC3\u3001\u57CE\u5E02\u3001\u642D\u914D\u9632\u7A7A\u673A\u67AA\u5F62\u6210\u5206\u5C42\u9632\u7A7A"
+  goldCost: 150
+  industryCost: 30
+  scienceCost: 4
+  paradropDamage: 25
+  airStrikeDamageMultiplier: 0.6

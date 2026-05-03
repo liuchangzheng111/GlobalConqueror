@@ -26,6 +26,8 @@ namespace GlobalConqueror.Controllers
         private Action<UnitData, CityData> _onCityCapturedHandler;
         private Action<UnitData, GameObject> _onUnitSpawnedHandler;
         private Action<AirMissionConfig, CityData, Vector3Int> _onAirAttackMissionHandler;
+        private Action<AirMissionConfig, CityData, Vector3Int> _onAirParadropMissionHandler;
+        private Action<int, Vector3Int, AntiAirConfig> _onAntiAirBuiltHandler;
 
         private void Start()
         {
@@ -61,7 +63,17 @@ namespace GlobalConqueror.Controllers
                 yield return null;
             }
             _onAirAttackMissionHandler ??= (airMissionConfig, cityData, vector3Int) => UpdateNationUI(cityData.ownerNationId);
+            _onAirParadropMissionHandler ??= (airMissionConfig, cityData, vector3Int) => UpdateNationUI(cityData.ownerNationId);
             AirManager.instance.OnAirAttackMissionExecuted += _onAirAttackMissionHandler;
+            AirManager.instance.OnAirParadropMissionExecuted += _onAirParadropMissionHandler;
+
+            while (AntiAirManager.instance == null)
+            {
+                yield return null;
+            }
+
+            _onAntiAirBuiltHandler ??= (nationId, _, _) => UpdateNationUI(nationId);
+            AntiAirManager.instance.OnAntiAirBuilt += _onAntiAirBuiltHandler;
 
             if (endTurnButton != null)
             {
@@ -101,6 +113,15 @@ namespace GlobalConqueror.Controllers
                 {
                     AirManager.instance.OnAirAttackMissionExecuted -= _onAirAttackMissionHandler;
                 }
+                if (_onAirParadropMissionHandler != null)
+                {
+                    AirManager.instance.OnAirParadropMissionExecuted -= _onAirParadropMissionHandler;
+                }
+            }
+
+            if (AntiAirManager.instance != null && _onAntiAirBuiltHandler != null)
+            {
+                AntiAirManager.instance.OnAntiAirBuilt -= _onAntiAirBuiltHandler;
             }
         }
 

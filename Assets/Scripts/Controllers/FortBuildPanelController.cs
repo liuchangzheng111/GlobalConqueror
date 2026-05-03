@@ -10,36 +10,44 @@ using UnityEngine.UI;
 namespace GlobalConqueror.Controllers
 {
     /// <summary>
-    /// 选格建造面板（堡垒 + 防空）。列表生成方式与 <see cref="UnitPurchaseUI"/> 一致，
-    /// 复用同一套 <c>unitPurchaseButtonPrefab</c> + <see cref="UnitPurchaseItemView"/>。
+    /// 选格建造堡垒面板
+    /// 列表生成方式与 <see cref="UnitPurchaseUI"/> 一致，复用 unitPurchaseButtonPrefab + <see cref="UnitPurchaseItemView"/>。
     /// </summary>
     public class FortBuildPanelController : MonoBehaviour
     {
         [Header("主按钮")]
         [SerializeField] private Button buildFortButton;
         [SerializeField] private TextMeshProUGUI buildFortButtonLabel;
-        [SerializeField] private Button buildAntiAirButton;
-        [SerializeField] private TextMeshProUGUI buildAntiAirButtonLabel;
 
         [Header("列表区域（与 UnitPurchaseUI 对齐）")]
         [SerializeField] private GameObject listRoot;
         [SerializeField] private Transform buttonContainer;
         [SerializeField] private GameObject unitPurchaseButtonPrefab;
 
+        [Header("页面按钮")]
+        [SerializeField] private Button soldierButton;
+        [SerializeField] private Button armorButton;
+        [SerializeField] private Button artilleryButton;
+        [SerializeField] private Button planeButton;
+
+        [Header("关闭")]
+        [SerializeField] private Button closePanelButton;
+
         private Vector3Int? _selectedCell;
         private List<GameObject> _currentAvailableFortPrefabs;
-        private bool _showingAntiAir = false;
+        private bool _fortVisibilityDirty;
 
         private void Awake()
         {
             Hide();
             if (buildFortButton != null)
             {
-                buildFortButton.onClick.AddListener(() => ToggleList(false));
+                buildFortButton.onClick.AddListener(ToggleFortList);
             }
-            if (buildAntiAirButton != null)
+
+            if (closePanelButton != null)
             {
-                buildAntiAirButton.onClick.AddListener(() => ToggleList(true));
+                closePanelButton.onClick.AddListener(OnClosePanelClicked);
             }
         }
 
@@ -69,7 +77,12 @@ namespace GlobalConqueror.Controllers
         private void OnDestroy()
         {
             if (buildFortButton != null) buildFortButton.onClick.RemoveAllListeners();
-            if (buildAntiAirButton != null) buildAntiAirButton.onClick.RemoveAllListeners();
+            if (closePanelButton != null) closePanelButton.onClick.RemoveAllListeners();
+        }
+
+        private void OnClosePanelClicked()
+        {
+            if (listRoot != null) listRoot.SetActive(false);
         }
 
         private void OnTileSelected(Vector3Int cell)
@@ -80,13 +93,36 @@ namespace GlobalConqueror.Controllers
             }
 
             _selectedCell = cell;
+            // 与其它 OnTileSelected 订阅者同帧执行时，单位移动协程可能尚未把 isAnimating 置为 true，
+            // 推迟到 LateUpdate 再判定，避免“点移动目标空格却先弹出建造堡垒”的冲突。
+            _fortVisibilityDirty = true;
+        }
 
-            bool canFort = IsBuildableFortCell(cell);
-            bool canAA = AntiAirManager.instance != null && AntiAirManager.instance.CanBuildAntiAir(cell);
-
-            if (canFort || canAA)
+        private void LateUpdate()
+        {
+            if (!_fortVisibilityDirty)
             {
-                ShowButtons(canFort, canAA);
+                return;
+            }
+
+            _fortVisibilityDirty = false;
+
+            if (_selectedCell == null)
+            {
+                return;
+            }
+
+            Vector3Int cell = _selectedCell.Value;
+
+            if (UnitController.IsUnitCommandActive)
+            {
+                Hide();
+                return;
+            }
+
+            if (IsBuildableFortCell(cell))
+            {
+                ShowFortButton();
             }
             else
             {
@@ -108,28 +144,24 @@ namespace GlobalConqueror.Controllers
             if (tile.ownerId != nation.nationId) return false;
             if (tile.tileType != TileType.Plain && tile.tileType != TileType.Forest && tile.tileType != TileType.Mountain) return false;
 
-            // 堡垒要求空格
             if (UnitManager.instance.GetUnitAtPosition(cell) != null) return false;
             return true;
         }
 
-        private void ToggleList(bool showAntiAir)
+        private void ToggleFortList()
         {
             if (listRoot == null) return;
             bool next = !listRoot.activeSelf;
             if (next)
             {
-                _showingAntiAir = showAntiAir;
-                if (showAntiAir)
-                {
-                    RefreshAntiAirButtons();
-                }
-                else
-                {
-                    RefreshFortButtons(UnitManager.instance != null ? UnitManager.instance.AvailableFort : null);
-                }
+                RefreshFortButtons(UnitManager.instance != null ? UnitManager.instance.AvailableFort : null);
             }
             listRoot.SetActive(next);
+            soldierButton.gameObject.SetActive(false);
+            armorButton.gameObject.SetActive(false);
+            artilleryButton.gameObject.SetActive(false);
+            planeButton.gameObject.SetActive(false);
+            closePanelButton.gameObject.SetActive(true);
         }
 
         private void RefreshFortButtons(List<GameObject> availableFortPrefabs)
@@ -172,59 +204,6 @@ namespace GlobalConqueror.Controllers
             }
         }
 
-        private void RefreshAntiAirButtons()
-        {
-            if (buttonContainer == null || unitPurchaseButtonPrefab == null) return;
-            if (AntiAirManager.instance == null || NationManager.instance == null) return;
-            if (_selectedCell == null) return;
-            if (!AntiAirManager.instance.CanBuildAntiAir(_selectedCell.Value)) return;
-
-            ClearContainer();
-
-            for (int level = 1; level <= 3; level++)
-            {
-                int gold = AntiAirManager.instance.goldCostByLevel.Length > level ? AntiAirManager.instance.goldCostByLevel[level] : 0;
-                int industry = AntiAirManager.instance.industryCostByLevel.Length > level ? AntiAirManager.instance.industryCostByLevel[level] : 0;
-                int science = AntiAirManager.instance.scienceCostByLevel.Length > level ? AntiAirManager.instance.scienceCostByLevel[level] : 0;
-                Sprite icon = AntiAirManager.instance.GetAntiAirIcon(level);
-
-                var go = Instantiate(unitPurchaseButtonPrefab, buttonContainer);
-                if (go.TryGetComponent<UnitPurchaseItemView>(out var view))
-                {
-                    string name = level switch
-                    {
-                        1 => "防空机枪",
-                        2 => "防空炮",
-                        _ => "防空导弹"
-                    };
-                    view.SetupAntiAir(name, level, gold, industry, science, icon, "为该地块提供防空减伤与空投伤害");
-                }
-
-                var btn = go.GetComponent<Button>() ?? go.GetComponentInChildren<Button>(true);
-                if (btn != null)
-                {
-                    int capturedLevel = level;
-                    btn.interactable = CanAffordAA(gold, industry, science);
-                    btn.onClick.AddListener(() => OnAntiAirBuildClicked(capturedLevel));
-                }
-            }
-        }
-
-        private void OnAntiAirBuildClicked(int level)
-        {
-            if (_selectedCell == null || AntiAirManager.instance == null) return;
-            bool ok = AntiAirManager.instance.TryBuildAntiAir(_selectedCell.Value, level);
-            if (ok)
-            {
-                Hide();
-            }
-            else
-            {
-                ShowButtons(IsBuildableFortCell(_selectedCell.Value), AntiAirManager.instance.CanBuildAntiAir(_selectedCell.Value));
-                RefreshAntiAirButtons();
-            }
-        }
-
         private void OnFortPurchaseClicked(GameObject fortPrefab)
         {
             if (_selectedCell == null || fortPrefab == null || UnitManager.instance == null) return;
@@ -238,9 +217,8 @@ namespace GlobalConqueror.Controllers
             }
             else
             {
-                bool canAA = AntiAirManager.instance != null && AntiAirManager.instance.CanBuildAntiAir(_selectedCell.Value);
-                ShowButtons(true, canAA);
-                RefreshFortButtons(_currentAvailableFortPrefabs);
+                ShowFortButton();
+                RefreshFortButtons(UnitManager.instance != null ? UnitManager.instance.AvailableFort : null);
             }
         }
 
@@ -255,33 +233,21 @@ namespace GlobalConqueror.Controllers
                    nation.science >= fortType.scienceCost;
         }
 
-        private static bool CanAffordAA(int gold, int industry, int science)
-        {
-            if (NationManager.instance == null) return false;
-            var nation = NationManager.instance.CurrentNation;
-            if (nation == null) return false;
-            return nation.gold >= gold && nation.industry >= industry && nation.science >= science;
-        }
-
         private void Hide()
         {
             if (buildFortButton != null) buildFortButton.gameObject.SetActive(false);
-            if (buildAntiAirButton != null) buildAntiAirButton.gameObject.SetActive(false);
             if (listRoot != null) listRoot.SetActive(false);
             ClearContainer();
             _currentAvailableFortPrefabs = null;
             _selectedCell = null;
         }
 
-        private void ShowButtons(bool showFort, bool showAntiAir)
+        private void ShowFortButton()
         {
             if (listRoot != null) listRoot.SetActive(false);
 
-            if (buildFortButton != null) buildFortButton.gameObject.SetActive(showFort);
+            if (buildFortButton != null) buildFortButton.gameObject.SetActive(true);
             if (buildFortButtonLabel != null) buildFortButtonLabel.text = "建造堡垒";
-
-            if (buildAntiAirButton != null) buildAntiAirButton.gameObject.SetActive(showAntiAir);
-            if (buildAntiAirButtonLabel != null) buildAntiAirButtonLabel.text = "建造防空";
 
             ClearContainer();
             _currentAvailableFortPrefabs = null;

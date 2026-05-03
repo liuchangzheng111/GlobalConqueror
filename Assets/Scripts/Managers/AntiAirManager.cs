@@ -1,4 +1,6 @@
 using GlobalConqueror.Models;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GlobalConqueror.Managers
@@ -7,19 +9,14 @@ namespace GlobalConqueror.Managers
     {
         public static AntiAirManager instance;
 
-        [Header("建造消耗（按等级 0~3）")]
-        public int[] goldCostByLevel = { 0, 80, 160, 250 };
-        public int[] industryCostByLevel = { 0, 30, 50, 75 };
-        public int[] scienceCostByLevel = { 0, 0, 5, 10 };
+        [Header("防空配置")]
+        public List<AntiAirConfig> antiAir = new();
 
-        [Header("对空袭减伤倍率（按等级 0~3）")]
-        public float[] airStrikeDamageMultiplierByLevel = { 1f, 0.8f, 0.6f, 0.4f };
+        [HideInInspector]
+        public bool initialAntiAirManagerSpawned = false;
 
-        [Header("对空投兵伤害（按等级 0~3）")]
-        public int[] paradropDamageByLevel = { 0, 15, 35, 55 };
-
-        [Header("地块显示图标（按等级 0~3）")]
-        public Sprite[] antiAirIconByLevel = { null, null, null, null };
+        /// <summary>防空建造成功并已扣费、地块已写入后触发，供 UI 刷新资源/列表。</summary>
+        public Action<int, Vector3Int, AntiAirConfig> OnAntiAirBuilt;
 
         private void Awake()
         {
@@ -44,7 +41,7 @@ namespace GlobalConqueror.Managers
             if (tile == null) return false;
             if (tile.ownerId != nation.nationId) return false;
 
-            if (tile.tileType != TileType.Plain && tile.tileType != TileType.Forest && tile.tileType != TileType.Mountain) return false;
+            if (tile.tileType != TileType.Plain && tile.tileType != TileType.Forest && tile.tileType != TileType.Mountain && tile.tileType != TileType.City) return false;
 
             UnitData unit = UnitManager.instance.GetUnitAtPosition(cell);
             if (unit != null && unit.ownerNationId != nation.nationId) return false;
@@ -58,17 +55,16 @@ namespace GlobalConqueror.Managers
         /// <param name="cell"></param>
         /// <param name="level"></param>
         /// <returns></returns>
-        public bool TryBuildAntiAir(Vector3Int cell, int level)
+        public bool TryBuildAntiAir(Vector3Int cell, AntiAirConfig antiAir)
         {
             if (!CanBuildAntiAir(cell)) return false;
-            level = Mathf.Clamp(level, 1, 3);
 
             NationData nation = NationManager.instance.CurrentNation;
             if (nation == null) return false;
 
-            int gold = GetCost(goldCostByLevel, level);
-            int industry = GetCost(industryCostByLevel, level);
-            int science = GetCost(scienceCostByLevel, level);
+            int gold = antiAir.goldCost;
+            int industry = antiAir.industryCost;
+            int science = antiAir.scienceCost;
 
             if (nation.gold < gold || nation.industry < industry || nation.science < science) return false;
 
@@ -76,7 +72,13 @@ namespace GlobalConqueror.Managers
             nation.industry -= industry;
             nation.science -= science;
 
-            return MapManager.instance.SetAntiAirLevel(cell, level);
+            bool placed = MapManager.instance.SetAntiAirLevel(cell, antiAir);
+            if (placed)
+            {
+                OnAntiAirBuilt?.Invoke(nation.nationId, cell, antiAir);
+            }
+
+            return placed;
         }
 
         /// <summary>
@@ -84,10 +86,9 @@ namespace GlobalConqueror.Managers
         /// </summary>
         /// <param name="antiAirLevel"></param>
         /// <returns></returns>
-        public float GetAirStrikeMultiplier(int antiAirLevel)
+        public float GetAirStrikeMultiplier(AntiAirConfig antiAir)
         {
-            int idx = Mathf.Clamp(antiAirLevel, 0, airStrikeDamageMultiplierByLevel.Length - 1);
-            return airStrikeDamageMultiplierByLevel[idx];
+            return antiAir == null ? 1 : antiAir.airStrikeDamageMultiplier;
         }
 
         /// <summary>
@@ -95,10 +96,9 @@ namespace GlobalConqueror.Managers
         /// </summary>
         /// <param name="antiAirLevel"></param>
         /// <returns></returns>
-        public int GetParadropDamage(int antiAirLevel)
+        public int GetParadropDamage(AntiAirConfig antiAir)
         {
-            int idx = Mathf.Clamp(antiAirLevel, 0, paradropDamageByLevel.Length - 1);
-            return paradropDamageByLevel[idx];
+            return antiAir == null ? 0 : antiAir.paradropDamage;
         }
 
         /// <summary>
@@ -106,23 +106,19 @@ namespace GlobalConqueror.Managers
         /// </summary>
         /// <param name="antiAirLevel"></param>
         /// <returns></returns>
-        public Sprite GetAntiAirIcon(int antiAirLevel)
+        public Sprite GetAntiAirIcon(AntiAirConfig antiAir)
         {
-            int idx = Mathf.Clamp(antiAirLevel, 0, antiAirIconByLevel.Length - 1);
-            return antiAirIconByLevel[idx];
+            return antiAir == null ? null : antiAir.icon;
         }
 
         /// <summary>
-        /// 获取指定等级的消耗
+        /// 获取防空设施的地块图标显示
         /// </summary>
-        /// <param name="arr"></param>
-        /// <param name="level"></param>
+        /// <param name="antiAirLevel"></param>
         /// <returns></returns>
-        private static int GetCost(int[] arr, int level)
+        public Sprite GetAntiAirTileIcon(AntiAirConfig antiAir)
         {
-            if (arr == null || arr.Length == 0) return 0;
-            int idx = Mathf.Clamp(level, 0, arr.Length - 1);
-            return arr[idx];
+            return antiAir.tileIcon;
         }
     }
 }
