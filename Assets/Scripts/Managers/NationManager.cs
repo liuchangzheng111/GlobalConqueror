@@ -105,9 +105,9 @@ namespace GlobalConqueror.Managers
             // 绑定其所拥有的城市，并赋予国家颜色，同时将该城市 Tilemap 上所有有瓦片的格子的地块归属设为该国
             foreach (var nation in nations)
             {
-                foreach (var city in nation.ownedCitiesNames)
+                foreach (var city in nation.ownedCities)
                 {
-                    CityData cityData = CityManager.instance.CitiesDic[city];
+                    CityData cityData = CityManager.instance.CitiesDic[city.name];
                     cityData.ownerNationId = nation.nationId;
                     cityData.cityTiles.color = nation.nationColor;
 
@@ -229,22 +229,22 @@ namespace GlobalConqueror.Managers
             int industryProduction = 0;
             int scienceProduction = 0;
 
-            if (nation.ownedCitiesNames == null || nation.ownedCitiesNames.Count == 0)
+            if (nation.ownedCities == null || nation.ownedCities.Count == 0)
             {
                 Debug.Log($"{nation.nationName} 回合开始 - 无城市，无资源产出");
                 return;
             }
 
-            foreach (var city in nation.ownedCitiesNames)
+            foreach (var city in nation.ownedCities)
             {
-                if (!CityManager.instance.CitiesDic.ContainsKey(city)) continue;
+                if (!CityManager.instance.CitiesDic.ContainsKey(city.name)) continue;
 
-                CityData cityData = CityManager.instance.CitiesDic[city];
+                CityData cityData = CityManager.instance.CitiesDic[city.name];
                 goldProduction += cityData.CityGoldProduced;
                 industryProduction += cityData.CityIndustryProduced;
                 scienceProduction += cityData.CityScienceProduced;
 
-                if (city == nation.capital)
+                if (city.name == nation.capital)
                 {
                     goldProduction += 50;
                     industryProduction += 20;
@@ -275,7 +275,7 @@ namespace GlobalConqueror.Managers
         {
             if (nation.isDefeated) return;
 
-            bool hasNoCities = nation.ownedCitiesNames.Count == 0;
+            bool hasNoCities = nation.ownedCities.Count == 0;
 
             if (hasNoCities)
             {

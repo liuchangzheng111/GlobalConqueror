@@ -17,6 +17,14 @@ namespace GlobalConqueror.Models
         public int CityIndustryProduced => (cityKindsLevel.industryLevel) * 5;
         public int CityScienceProduced => (cityKindsLevel.scienceLevel) * 2;
 
+        /// <summary>
+        /// 每回合补给：位于该城所占格子上的己方单位回复的血量（与工业产出同档系数）。
+        /// </summary>
+        public int CitySupplyHealPerTurn =>
+            cityKindsLevel != null && cityKindsLevel.cityLevel > 0 ?
+            cityKindsLevel.cityLevel * 4 + (cityKindsLevel.supplyLevel > 0 ? cityKindsLevel.supplyLevel * 5 : 0) :
+            0;
+
         public Tilemap cityTiles;
         public Vector3Int cityLocation;
 

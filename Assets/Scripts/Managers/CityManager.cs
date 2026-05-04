@@ -151,9 +151,9 @@ namespace GlobalConqueror.Managers
         public List<CityData> GetCitiesByNation(string nation)
         {
             List<CityData> result = new();
-            foreach (var city in NationManager.instance.NationsDic[nation].ownedCitiesNames)
+            foreach (var city in NationManager.instance.NationsDic[nation].ownedCities)
             {
-                result.Add(citiesDic[city]);
+                result.Add(citiesDic[city.name]);
             }
             return result;
         }

@@ -22,7 +22,7 @@ namespace GlobalConqueror.Models
         public int industry = 100;
         public int science = 25;
         
-        public List<string> ownedCitiesNames;
+        public List<Tilemap> ownedCities;
         public string? capital;      // TOEXTEND:
         
         public bool isPlayer = false;
@@ -33,7 +33,7 @@ namespace GlobalConqueror.Models
             string name, 
             Sprite flag,
             Color color, 
-            List<string> cities,
+            List<Tilemap> cities,
             int _gold = 1000,
             int _industry = 200,
             int _science = 50,
@@ -44,7 +44,7 @@ namespace GlobalConqueror.Models
             nationName = name;
             nationFlag = flag;
             nationColor = color;
-            ownedCitiesNames = cities;           
+            ownedCities = cities;           
             
             gold = _gold;
             industry = _industry;
@@ -67,9 +67,9 @@ namespace GlobalConqueror.Models
                 return;
             }
 
-            if (!ownedCitiesNames.Contains(city.cityName))
+            if (!ownedCities.Contains(city.cityTiles))
             {
-                ownedCitiesNames.Add(city.cityName);
+                ownedCities.Add(city.cityTiles);
                 city.cityTiles.color = nationColor;
                 city.ownerNationId = nationId;
             }
@@ -87,9 +87,9 @@ namespace GlobalConqueror.Models
                 return;
             }
 
-            if (ownedCitiesNames.Contains(city.cityName))
+            if (ownedCities.Contains(city.cityTiles))
             {
-                ownedCitiesNames.Remove(city.cityName);
+                ownedCities.Remove(city.cityTiles);
             }
             else
             {

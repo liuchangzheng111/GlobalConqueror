@@ -182,8 +182,39 @@ namespace GlobalConqueror.Managers
         private void OnNationTurnStart(NationData nation)
         {
             ProgressConstructionForNation(nation.nationId);
+            ApplyCitySupplyHealForNation(nation);
             ResetUnitActionsForNation(nation.nationId);
             OnNationTurnPrepared?.Invoke(nation);
+        }
+
+        /// <summary>
+        /// 该国回合开始时：该国拥有的、补给等级大于 0 的城市，为其所占格子上己方单位回复血量。
+        /// </summary>
+        private void ApplyCitySupplyHealForNation(NationData nation)
+        {
+            if (nation == null || CityManager.instance == null || MapManager.instance == null) return;
+
+            foreach (var city in nation.ownedCities)
+            {
+                if (city == null) continue;
+                if (CityManager.instance.CitiesDic.TryGetValue(city.name, out CityData cityData))
+                {
+                    UnitData unit = GetUnitAtPosition(cityData.cityLocation);
+                    int heal = cityData.CitySupplyHealPerTurn;
+                    if (unit == null || unit.ownerNationId != nation.nationId) continue;
+                    if (unit.isUnderConstruction) continue;
+                    if (unit.currentHealth >= unit.maxHealth || heal <= 0) continue;
+
+                    unit.currentHealth = Mathf.Min(unit.maxHealth, unit.currentHealth + heal);
+
+                    if (UnitController.instance != null)
+                    {
+                        GameObject go = UnitController.instance.GetUnitGameObject(unit);
+                        if (go != null && go.TryGetComponent<UnitView>(out var view))
+                            view.RefreshHealthBar();
+                    }
+                }
+            }
         }
 
         private void OnNationDefeated(NationData nation)
@@ -890,7 +921,7 @@ namespace GlobalConqueror.Managers
             Debug.Log($"{newOwner.nationName} 的 {unit.unitType.unitTypeName} 占领了 {city.cityName}！");
 
             // 检查原国家是否战败（失去最后一座城市）
-            if (oldOwner.ownedCitiesNames.Count == 0)
+            if (oldOwner.ownedCities.Count == 0)
             {
                 oldOwner.isDefeated = true;
                 NationManager.instance.OnNationDefeated?.Invoke(oldOwner);

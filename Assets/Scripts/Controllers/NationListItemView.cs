@@ -28,7 +28,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            int cityCount = nation.ownedCitiesNames != null ? nation.ownedCitiesNames.Count : 0;
+            int cityCount = nation.ownedCities != null ? nation.ownedCities.Count : 0;
 
             if (nationNameText != null)
             {

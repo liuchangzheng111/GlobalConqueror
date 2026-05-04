@@ -370,7 +370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -731,7 +731,7 @@ GameObject:
   - component: {fileID: 107948093}
   - component: {fileID: 107948094}
   m_Layer: 0
-  m_Name: Port4
+  m_Name: "\u5965\u5229\u5CE1\u6E2F"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -765,7 +765,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PortLevel: 2
-  nationName: C
+  nationName: "\u65E5\u6B66"
 --- !u!1 &116666184
 GameObject:
   m_ObjectHideFlags: 0
@@ -916,7 +916,7 @@ GameObject:
   - component: {fileID: 165291676}
   - component: {fileID: 165291677}
   m_Layer: 0
-  m_Name: Port2
+  m_Name: "\u5965\u6E2F"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -950,7 +950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PortLevel: 3
-  nationName: B
+  nationName: "\u5B89\u62C9\u65AF\u7279"
 --- !u!1 &192438061
 GameObject:
   m_ObjectHideFlags: 0
@@ -1456,7 +1456,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 65, y: -15}
-  m_SizeDelta: {x: 120, y: 20}
+  m_SizeDelta: {x: 120, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &219458064
 MonoBehaviour:
@@ -1505,8 +1505,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1622,7 +1622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 7b4402abb893de34084e086979312813, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1691,7 +1691,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 10049d824f7caaa468d9f5d17f02702c, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2314,7 +2314,7 @@ GameObject:
   - component: {fileID: 315115654}
   - component: {fileID: 315115656}
   m_Layer: 6
-  m_Name: City3
+  m_Name: "\u8FB9\u6CB3\u57CE"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3436,7 +3436,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 42833008c7b320942adba355a3994109, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3658,7 +3658,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: a7bc32f80e194f0469dff78c85d532fc, type: 2}
     - target: {fileID: 7854204740531793977, guid: 04e12646dab35b94589a54c619e96e2d, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4131,7 +4131,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 42833008c7b320942adba355a3994109, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4382,7 +4382,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4470,7 +4470,7 @@ GameObject:
   - component: {fileID: 545483772}
   - component: {fileID: 545483773}
   m_Layer: 0
-  m_Name: Port3
+  m_Name: "\u82B1\u6D0B\u6E2F"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4504,7 +4504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PortLevel: 1
-  nationName: B
+  nationName: "\u5B89\u62C9\u65AF\u7279"
 --- !u!4 &552030287 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2755356900584288027, guid: e799683068331174293d1d9d2cba8e99, type: 3}
@@ -4971,7 +4971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5040,7 +5040,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 42833008c7b320942adba355a3994109, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5060,7 +5060,7 @@ GameObject:
   - component: {fileID: 612979607}
   - component: {fileID: 612979609}
   m_Layer: 6
-  m_Name: City5
+  m_Name: "\u79D1\u9633"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9177,7 +9177,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 80, y: -35}
-  m_SizeDelta: {x: 150, y: 20}
+  m_SizeDelta: {x: 150, y: 15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &645112628
 MonoBehaviour:
@@ -9226,8 +9226,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 12
+  m_fontSizeBase: 12
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -9666,7 +9666,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 4457aa907617b944187e4c4289e24539, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11457,7 +11457,7 @@ GameObject:
   - component: {fileID: 779200046}
   - component: {fileID: 779200048}
   m_Layer: 6
-  m_Name: City6
+  m_Name: "\u752B\u9675"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12136,7 +12136,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: ff06d1ce0a6e63349bcd65f134b1e144, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12221,7 +12221,7 @@ GameObject:
   - component: {fileID: 824953913}
   - component: {fileID: 824953915}
   m_Layer: 6
-  m_Name: City2
+  m_Name: "\u5965\u6E2F"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12854,7 +12854,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: f58706c936188dd4da1ce5bfe3a382da, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12998,7 +12998,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13440,7 +13440,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 4457aa907617b944187e4c4289e24539, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13714,7 +13714,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 89505f57c56ed4241a6ba60fafe14c9c, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14404,8 +14404,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1791420282}
   m_HandleRect: {fileID: 1791420281}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -14510,7 +14510,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14595,7 +14595,7 @@ GameObject:
   - component: {fileID: 1052000243}
   - component: {fileID: 1052000245}
   m_Layer: 6
-  m_Name: City4
+  m_Name: "\u6D2A\u91CE"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15186,7 +15186,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: d7e8ff7797c57354d8fcccdc0605795c, type: 2}
     - target: {fileID: 7854204740531793977, guid: 04e12646dab35b94589a54c619e96e2d, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15260,7 +15260,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 42833008c7b320942adba355a3994109, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15445,7 +15445,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15668,7 +15668,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 42833008c7b320942adba355a3994109, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15835,7 +15835,7 @@ GameObject:
   - component: {fileID: 1165217407}
   - component: {fileID: 1165217408}
   m_Layer: 0
-  m_Name: Port1
+  m_Name: "\u5357\u5C71\u6E2F"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15869,7 +15869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PortLevel: 2
-  nationName: A
+  nationName: "\u4E8E\u56FD"
 --- !u!4 &1177332185 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2755356900584288027, guid: b1d80cf6d4874bb4fa9a403f9c578be9, type: 3}
@@ -16331,7 +16331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 4457aa907617b944187e4c4289e24539, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -17356,7 +17356,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: d68d279ef8ff0d94ebd3266923dcb9d4, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -17534,7 +17534,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 435da6accfa91ca408f27f1714a467d0, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -17608,7 +17608,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 4457aa907617b944187e4c4289e24539, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18813,41 +18813,41 @@ MonoBehaviour:
   maxTurns: 100
   nations:
   - nationId: 1
-    nationName: A
+    nationName: "\u4E8E\u56FD"
     nationFlag: {fileID: 21300000, guid: 50435d6277d277f4b8ab93589fe3216b, type: 3}
     nationColor: {r: 1, g: 0, b: 0, a: 1}
     gold: 0
     industry: 0
     science: 0
-    ownedCitiesNames:
-    - City1
-    - City4
+    ownedCities:
+    - {fileID: 1607480447}
+    - {fileID: 1052000244}
     capital: 
     isPlayer: 0
     isDefeated: 0
   - nationId: 2
-    nationName: B
+    nationName: "\u5B89\u62C9\u65AF\u7279"
     nationFlag: {fileID: 21300000, guid: 248b89c5cb603084e89381b8bcc2e654, type: 3}
     nationColor: {r: 0, g: 0.30872893, b: 1, a: 1}
     gold: 0
     industry: 0
     science: 0
-    ownedCitiesNames:
-    - City3
-    - City2
+    ownedCities:
+    - {fileID: 824953914}
+    - {fileID: 315115655}
     capital: 
     isPlayer: 0
     isDefeated: 0
   - nationId: 3
-    nationName: C
+    nationName: "\u65E5\u6B66"
     nationFlag: {fileID: 21300000, guid: 0b1f03a2a87b9e74d8d761dbe9f41b4d, type: 3}
     nationColor: {r: 0, g: 1, b: 0.073872566, a: 1}
     gold: 0
     industry: 0
     science: 0
-    ownedCitiesNames:
-    - City5
-    - City6
+    ownedCities:
+    - {fileID: 612979608}
+    - {fileID: 779200047}
     capital: 
     isPlayer: 0
     isDefeated: 0
@@ -19342,7 +19342,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 4457aa907617b944187e4c4289e24539, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -19886,7 +19886,7 @@ GameObject:
   - component: {fileID: 1607480446}
   - component: {fileID: 1607480448}
   m_Layer: 6
-  m_Name: City1
+  m_Name: "\u4EC6\u65AF\u7279"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20475,7 +20475,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 4457aa907617b944187e4c4289e24539, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -20684,7 +20684,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: 42833008c7b320942adba355a3994109, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -21430,7 +21430,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: f58706c936188dd4da1ce5bfe3a382da, type: 3}
       propertyPath: ownerNationName
-      value: A
+      value: "\u4E8E\u56FD"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -22294,7 +22294,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7854204740531793977, guid: f58706c936188dd4da1ce5bfe3a382da, type: 3}
       propertyPath: ownerNationName
-      value: B
+      value: "\u5B89\u62C9\u65AF\u7279"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -23442,7 +23442,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 7e2f076525fb938488bfe00e3aa27711, type: 2}
     - target: {fileID: 7854204740531793977, guid: 04e12646dab35b94589a54c619e96e2d, type: 3}
       propertyPath: ownerNationName
-      value: C
+      value: "\u65E5\u6B66"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

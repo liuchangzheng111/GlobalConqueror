@@ -188,7 +188,7 @@ namespace GlobalConqueror.Controllers
             if (nationData != null && DetailText != null && UnitManager.instance != null)
             {
                 string capitalName = string.IsNullOrEmpty(nationData.capital) ? "无" : nationData.capital;
-                DetailText.text = $"首都 {capitalName}\n" + $"城市数 {nationData.ownedCitiesNames.Count}\n" + $"部队数 {UnitManager.instance.GetUnitsByNation(nationData.nationId).Count}";
+                DetailText.text = $"首都 {capitalName}\n" + $"城市数 {nationData.ownedCities.Count}\n" + $"部队数 {UnitManager.instance.GetUnitsByNation(nationData.nationId).Count}";
             }
         }
 
