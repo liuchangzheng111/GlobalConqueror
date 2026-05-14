@@ -82,6 +82,10 @@ namespace GlobalConqueror.Controllers
 
             // 初始化 UI（若此时已经在某个回合中，可根据实际需要读取当前 turn）
             UpdateUI(NationManager.instance.CurrentTurn > 0 ? NationManager.instance.CurrentTurn : 1);
+            if (NationManager.instance.CurrentNation != null)
+            {
+                UpdateNationUI(NationManager.instance.CurrentNation.nationId);
+            }
         }
 
         private void OnDestroy()
@@ -141,15 +145,18 @@ namespace GlobalConqueror.Controllers
                 nation = NationManager.instance.GetNation(nationId);
             }
 
+            if (nation == null)
+                return;
+
             if (nationText != null)
             {
                 nationText.text = $"{nation.nationName}";
             }
 
-            //if (endTurnButton != null)
-            //{
-            //    endTurnButton.interactable = nation.isPlayer;
-            //}
+            if (endTurnButton != null && NationManager.instance != null)
+            {
+                endTurnButton.interactable = NationManager.instance.IsLocalHumanTurn();
+            }
 
             if (FlagImage != null && nation.nationFlag != null)
             {
@@ -194,10 +201,10 @@ namespace GlobalConqueror.Controllers
 
         private void OnEndTurnClicked()
         {
-            if (NationManager.instance != null)
-            {
-                NationManager.instance.EndTurn();
-            }
+            if (NationManager.instance == null || !NationManager.instance.IsLocalHumanTurn())
+                return;
+
+            NationManager.instance.EndTurn();
         }
     }
 }

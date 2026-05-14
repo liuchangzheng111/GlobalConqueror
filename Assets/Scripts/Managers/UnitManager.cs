@@ -514,16 +514,18 @@ namespace GlobalConqueror.Managers
         /// <param name="unit"></param>
         /// <param name="targetCell"></param>
         /// <returns></returns>
-        private IEnumerator AnimateSpawnUnit(GameObject unit, Vector3 targetPosition)
+        private IEnumerator AnimateSpawnUnit(GameObject unitGo, Vector3 targetPosition)
         {
-            if (unit == null)
-            {
+            if (unitGo == null)
                 yield break;
-            }
 
             float spawnDuration = 0.3f;
 
-            Tween spawnTween = unit.transform.DOMove(targetPosition, spawnDuration).SetUpdate(true);
+            // 空投等场景下单位可能在动画中途被击毁并 Destroy，SetLink 会在 GameObject 销毁时自动杀掉 tween，避免 DOTween 报 NULL target
+            Tween spawnTween = unitGo.transform
+                .DOMove(targetPosition, spawnDuration)
+                .SetUpdate(true)
+                .SetLink(unitGo);
 
             yield return spawnTween.WaitForCompletion();
         }

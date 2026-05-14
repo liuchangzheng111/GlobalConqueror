@@ -43,6 +43,9 @@ namespace GlobalConqueror.Controllers
         /// </summary>
         private void HandleTileSelection()
         {
+            if (NationManager.instance == null || !NationManager.instance.IsLocalHumanTurn())
+                return;
+
             if (Input.GetMouseButtonDown(0))
             {
                 if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())

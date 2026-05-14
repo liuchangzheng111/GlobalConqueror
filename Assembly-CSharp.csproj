@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Controllers\CityDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\Debug\TileCoordinateDebugger.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\SimpleNationSkirmishAi.cs" />
     <Compile Include="Assets\Scripts\Models\BargeUnitData.cs" />
     <Compile Include="Assets\Scripts\Utils\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\Models\InitialUnitSpawn.cs" />

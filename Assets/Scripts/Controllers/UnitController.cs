@@ -7,7 +7,6 @@ using System.Collections;
 using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
-using static UnityEditor.PlayerSettings;
 using System.Linq;
 using System;
 
@@ -155,6 +154,7 @@ namespace GlobalConqueror.Controllers
         private void HandleRightClickForDetails()
         {
             if (isAnimating) return;
+            if (NationManager.instance == null || !NationManager.instance.IsLocalHumanTurn()) return;
             if (!Input.GetMouseButtonDown(1)) return;
 
             // 点击到 UI 上不触发
@@ -217,6 +217,7 @@ namespace GlobalConqueror.Controllers
         {
             if (unitVisuals.TryGetValue(unit, out var go) && go != null)
             {
+                go.transform.DOKill();
                 Destroy(go);
                 unitVisuals.Remove(unit);
             }
@@ -265,6 +266,7 @@ namespace GlobalConqueror.Controllers
             if (isAnimating) return;
 
             if (NationManager.instance == null || NationManager.instance.CurrentNation == null || UnitManager.instance == null) return;
+            if (!NationManager.instance.IsLocalHumanTurn()) return;
 
             UnitData unitAtTile = UnitManager.instance.GetUnitAtPosition(coordinate);
 
@@ -289,7 +291,7 @@ namespace GlobalConqueror.Controllers
                     UnitData targetUnit = UnitManager.instance.GetUnitAtPosition(coordinate);
                     if (targetUnit == null)
                     {
-                        StartCoroutine(AnimateMoveAlongPath(selectedUnit, coordinate));
+                        StartCoroutine(CoAnimateMoveAlongPath(selectedUnit, coordinate));
                         return;
                     }
                 }
@@ -344,16 +346,23 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
-        /// 沿六边形路径播放单位移动动画，并在结束时更新逻辑位置
+        /// AI 与脚本调用的移动：与玩家相同的 DOTween 逐格动画，结束后不刷新玩家选中/范围高亮。
         /// </summary>
-        private IEnumerator AnimateMoveAlongPath(UnitData unit, Vector3Int targetCell)
+        public Coroutine StartAnimatedMoveForAi(UnitData unit, Vector3Int targetCell)
+        {
+            return StartCoroutine(CoAnimateMoveAlongPath(unit, targetCell));
+        }
+
+        /// <summary>
+        /// 沿六边形路径播放单位移动动画，并在结束时更新逻辑位置（与玩家点击移动共用）。
+        /// </summary>
+        private IEnumerator CoAnimateMoveAlongPath(UnitData unit, Vector3Int targetCell)
         {
             if (unit == null || UnitManager.instance == null)
             {
                 yield break;
             }
 
-            // 寻路
             List<Vector3Int> path = UnitManager.instance.FindPath(unit, targetCell);
             if (path == null || path.Count == 0)
             {
@@ -368,28 +377,31 @@ namespace GlobalConqueror.Controllers
             ClearActionableSelection(unit.position);
 
             ClearSelection();
+
             isAnimating = true;
 
-            // 简单匀速：每格固定时间
             float stepDuration = 0.15f;
 
-            // 起点已经在第一格，逐格移动到后续格子
             for (int i = 1; i < path.Count; i++)
             {
+                if (!unitVisuals.TryGetValue(unit, out GameObject stepGo) || stepGo == null)
+                {
+                    isAnimating = false;
+                    yield break;
+                }
+
                 Vector3 nextWorld = MapManager.instance.Tilemap.GetCellCenterWorld(path[i]);
-                Tween t = go.transform.DOMove(nextWorld, stepDuration).SetEase(Ease.Linear);
+                Tween t = stepGo.transform.DOMove(nextWorld, stepDuration).SetEase(Ease.Linear).SetLink(stepGo);
                 yield return t.WaitForCompletion();
             }
 
-            // 动画完成后，更新逻辑位置并走一次正式移动逻辑（占城、标记已移动等）
             UnitManager.instance.TryMoveUnit(unit, targetCell);
 
             isAnimating = false;
 
             SelectUnit(unit, unit.hasAttackedThisTurn, unit.hasMovedThisTurn);
 
-            // 如果移动后攻击范围内还有敌人且本回合未攻击则显示可行动高亮
-            if (attackable.Count > 0 && !selectedUnit.hasAttackedThisTurn)
+            if (attackable.Count > 0 && selectedUnit != null && !selectedUnit.hasAttackedThisTurn)
             {
                 ShowActionableSelection(targetCell);
             }
@@ -538,6 +550,14 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
+        /// 移除某一格上的可行动高亮（供 AI 等在攻击结束后与玩家表现一致）。
+        /// </summary>
+        public void ClearActionableHighlightAt(Vector3Int cell)
+        {
+            ClearActionableSelection(cell);
+        }
+
+        /// <summary>
         /// 根据单位数据获取单位模型
         /// </summary>
         /// <param name="unit"></param>
@@ -563,6 +583,8 @@ namespace GlobalConqueror.Controllers
             if (newGo.TryGetComponent<UnitView>(out var unitView))
                 unitView.Setup(unit);
             unitVisuals.Remove(unit, out GameObject oldGo);
+            if (oldGo != null)
+                oldGo.transform.DOKill();
             Destroy(oldGo);
 
             unitVisuals.Add(unit, newGo);

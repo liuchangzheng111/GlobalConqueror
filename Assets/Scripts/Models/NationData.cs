@@ -24,7 +24,8 @@ namespace GlobalConqueror.Models
         
         public List<Tilemap> ownedCities;
         public string? capital;      // TOEXTEND:
-        
+
+        [Tooltip("勾选：该国回合由本地人类操作；不勾选：由 NationManager 配置的 AI 接手")]
         public bool isPlayer = false;
         public bool isDefeated = false;
 

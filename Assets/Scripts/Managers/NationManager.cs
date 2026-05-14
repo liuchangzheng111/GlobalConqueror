@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GlobalConqueror.Models;
@@ -20,6 +21,12 @@ namespace GlobalConqueror.Managers
         [Header("国家列表")]
         [SerializeField] private List<NationData> nations;
 
+        [Header("单机 AI（isPlayer=false 的国家由 AI 执行回合）")]
+        [SerializeField] private bool autoEndTurnForAiNations = true;
+        [SerializeField] private float aiEndTurnDelaySeconds = 0.75f;
+        [Tooltip("AI 每次移动/攻击之间的停顿（秒），便于观察")]
+        [SerializeField] private float aiActionPauseSeconds = 0.35f;
+
         private readonly Dictionary<string, NationData> nationsDic = new();
         private int currentTurn = 1;
         private int currentNationIndex = 0;
@@ -38,6 +45,40 @@ namespace GlobalConqueror.Managers
 
         public bool IsNationsInitialized { get; private set; } = false;
 
+        private Coroutine _aiAutoEndTurnRoutine;
+
+        /// <summary>
+        /// 当前行动方是否为本地人类：读取编辑器里为该国配置的 <see cref="NationData.isPlayer"/>。
+        /// </summary>
+        public bool IsLocalHumanTurn()
+        {
+            return currentNation != null && currentNation.isPlayer;
+        }
+
+        /// <summary>
+        /// 当前行动方是否由 AI 接手：与 <see cref="NationData.isPlayer"/> 相反（未勾选 isPlayer 即为 AI 国）。
+        /// </summary>
+        public bool IsCurrentNationAiControlled()
+        {
+            return currentNation != null && !currentNation.isPlayer;
+        }
+
+        /// <summary>
+        /// 读取某国在场景配置中是否为人类玩家国（仅看 <see cref="NationData.isPlayer"/>，不做推断）。
+        /// </summary>
+        public static bool IsHumanPlayerNation(NationData nation)
+        {
+            return nation != null && nation.isPlayer;
+        }
+
+        /// <summary>
+        /// 读取某国是否应由 AI 接手（<see cref="NationData.isPlayer"/> 为 false）。
+        /// </summary>
+        public static bool IsAiControlledNation(NationData nation)
+        {
+            return nation != null && !nation.isPlayer;
+        }
+
         private void Awake()
         {
             if (instance == null)
@@ -55,6 +96,15 @@ namespace GlobalConqueror.Managers
             // 等待 CityManager 初始化城市后再初始化国家和开始回合
             StartCoroutine(InitializeWhenReady());
             StartCoroutine(StartWhenReady());
+        }
+
+        private void OnDestroy()
+        {
+            if (_aiAutoEndTurnRoutine != null)
+            {
+                StopCoroutine(_aiAutoEndTurnRoutine);
+                _aiAutoEndTurnRoutine = null;
+            }
         }
 
         /// <summary>
@@ -134,8 +184,29 @@ namespace GlobalConqueror.Managers
                 nationsDic.Add(nation.nationName, nation);
             }
 
+            LogPlayerNationConfigWarnings();
+
             currentNationIndex = 0;
             currentNation = nations[0];
+        }
+
+        /// <summary>
+        /// 根据编辑器里配置的 <see cref="NationData.isPlayer"/> 做校验，不修改任何配置。
+        /// </summary>
+        private void LogPlayerNationConfigWarnings()
+        {
+            if (nations == null || nations.Count == 0) return;
+
+            int playerCount = 0;
+            foreach (var n in nations)
+            {
+                if (n != null && n.isPlayer) playerCount++;
+            }
+
+            if (playerCount == 0)
+            {
+                Debug.LogWarning("NationManager: 国家列表中没有任何 isPlayer=true 的国家，本局将没有本地人类操作回合（若需人类操作，请在编辑器中勾选一国 isPlayer）。");
+            }
         }
 
         /// <summary>
@@ -177,6 +248,46 @@ namespace GlobalConqueror.Managers
             OnNationTurnStart?.Invoke(currentNation);
 
             ProcessNationTurnStart(currentNation);
+
+            ScheduleAiAutoEndTurnIfNeeded();
+        }
+
+        /// <summary>
+        /// 如果需要，则调度 AI 自动结束回合
+        /// </summary>
+        private void ScheduleAiAutoEndTurnIfNeeded()
+        {
+            if (!autoEndTurnForAiNations || currentNation == null || IsHumanPlayerNation(currentNation))
+                return;
+
+            if (_aiAutoEndTurnRoutine != null)
+                StopCoroutine(_aiAutoEndTurnRoutine);
+            _aiAutoEndTurnRoutine = StartCoroutine(CoAutoEndTurnForCurrentAiNation());
+        }
+
+        /// <summary>
+        /// 自动结束当前 AI 回合
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator CoAutoEndTurnForCurrentAiNation()
+        {
+            yield return new WaitForSeconds(aiEndTurnDelaySeconds);
+            _aiAutoEndTurnRoutine = null;
+
+            if (currentNation == null || IsHumanPlayerNation(currentNation))
+                yield break;
+
+            NationData actingNation = currentNation;
+
+            yield return SimpleNationSkirmishAi.RunSimpleSkirmishTurn(
+                actingNation,
+                aiActionPauseSeconds,
+                () => instance != null && currentNation == actingNation && !IsHumanPlayerNation(currentNation));
+
+            if (currentNation == null || currentNation != actingNation || IsHumanPlayerNation(currentNation))
+                yield break;
+
+            EndTurn();
         }
 
         /// <summary>
