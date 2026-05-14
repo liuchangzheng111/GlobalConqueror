@@ -16,8 +16,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 97df80fba3efe6d4abcbe86880cc2ad7, type: 3}
   tileIcon: {fileID: 21300000, guid: 97df80fba3efe6d4abcbe86880cc2ad7, type: 3}
   description: "\u9AD8\u7EA7\u5730\u5757\u9632\u7A7A\u8BBE\u65BD\uFF0C\u751F\u4EA7\u8D39\u7528\u9AD8\n\u5C5E\u4E8E\u6218\u7565\u7EA7\u9632\u7A7A\u5355\u4F4D\uFF0C\u662F\u9AD8\u7AEF\u9632\u7A7A\u7F51\u7684\u6838\u5FC3\uFF0C\u4F24\u5BB3\u9AD8\uFF0C\u51CF\u4F24\u5927\n\u5EFA\u8BAE\u8D44\u6E90\u5145\u8DB3\u3001\u5B88\u62A4\u6838\u5FC3\u6218\u7565\u5730\u5757\u65F6\u751F\u4EA7"
-  goldCost: 210
+  goldCost: 240
   industryCost: 50
   scienceCost: 8
-  paradropDamage: 60
+  paradropDamage: 120
   airStrikeDamageMultiplier: 0.3

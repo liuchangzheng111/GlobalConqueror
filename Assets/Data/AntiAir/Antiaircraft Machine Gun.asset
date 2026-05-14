@@ -19,5 +19,5 @@ MonoBehaviour:
   goldCost: 80
   industryCost: 15
   scienceCost: 0
-  paradropDamage: 0
+  paradropDamage: 25
   airStrikeDamageMultiplier: 0.8

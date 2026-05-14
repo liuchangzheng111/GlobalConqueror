@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using GlobalConqueror.Models;
 using GlobalConqueror.Managers;
@@ -31,6 +32,37 @@ namespace GlobalConqueror.Controllers
             {
                 mainCamera = FindObjectOfType<Camera>();
             }
+        }
+
+        private void OnEnable()
+        {
+            StartCoroutine(BindNationManagerWhenReady());
+        }
+
+        private void OnDisable()
+        {
+            if (NationManager.instance != null)
+            {
+                NationManager.instance.OnNationTurnStart -= ClearMapSelectionForNewNationTurn;
+            }
+        }
+
+        private IEnumerator BindNationManagerWhenReady()
+        {
+            while (NationManager.instance == null)
+                yield return null;
+            NationManager.instance.OnNationTurnStart += ClearMapSelectionForNewNationTurn;
+        }
+
+        /// <summary>
+        /// 国家轮换、新一方回合开始时清除上一方留下的地块选中与高亮，避免误读当前可操作格。
+        /// </summary>
+        private void ClearMapSelectionForNewNationTurn(NationData _)
+        {
+            lastSelectedCoordinate = null;
+            if (MapManager.instance != null)
+                MapManager.instance.SetSelectedTile(null);
+            ClearHighlight();
         }
 
         private void Update()
@@ -109,7 +141,10 @@ namespace GlobalConqueror.Controllers
                 currentHighlight.GetComponent<SpriteRenderer>().sortingOrder = 10;
             }
             else
+            {
+                currentHighlight.SetActive(true);
                 currentHighlight.transform.position = worldPos;
+            }
         }
 
         /// <summary>

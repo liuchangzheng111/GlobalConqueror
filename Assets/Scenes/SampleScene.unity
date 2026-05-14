@@ -14404,8 +14404,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1791420282}
   m_HandleRect: {fileID: 1791420281}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.99999994
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -18823,7 +18823,7 @@ MonoBehaviour:
     - {fileID: 1607480447}
     - {fileID: 1052000244}
     capital: 
-    isPlayer: 0
+    isPlayer: 1
     isDefeated: 0
   - nationId: 2
     nationName: "\u5B89\u62C9\u65AF\u7279"
@@ -18849,8 +18849,11 @@ MonoBehaviour:
     - {fileID: 612979608}
     - {fileID: 779200047}
     capital: 
-    isPlayer: 0
+    isPlayer: 1
     isDefeated: 0
+  autoEndTurnForAiNations: 1
+  aiEndTurnDelaySeconds: 0.75
+  aiActionPauseSeconds: 0.35
 --- !u!4 &1458017630
 Transform:
   m_ObjectHideFlags: 0

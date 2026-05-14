@@ -61,9 +61,8 @@ namespace GlobalConqueror.Managers
                     if (TryPickAttackCell(unit, out Vector3Int attackCell) &&
                         UnitManager.instance.TryAttack(unit, attackCell))
                     {
-                        Vector3Int attackerCell = unit.position;
                         if (UnitController.instance != null)
-                            UnitController.instance.ClearActionableHighlightAt(attackerCell);
+                            UnitController.instance.ClearHighlightsAfterAiUnitAttack(unit);
 
                         if (pauseBetweenActions > 0f)
                             yield return new WaitForSeconds(pauseBetweenActions);

@@ -558,6 +558,16 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
+        /// AI 攻击结束后清除移动动画末尾 <see cref="SelectUnit"/> 留下的移动/攻击范围圈及可行动高亮。
+        /// </summary>
+        public void ClearHighlightsAfterAiUnitAttack(UnitData attacker)
+        {
+            ClearSelection();
+            if (attacker != null)
+                ClearActionableHighlightAt(attacker.position);
+        }
+
+        /// <summary>
         /// 根据单位数据获取单位模型
         /// </summary>
         /// <param name="unit"></param>

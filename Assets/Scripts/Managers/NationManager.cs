@@ -221,16 +221,9 @@ namespace GlobalConqueror.Managers
             }
 
             // 跳过已战败的国家
-            while (currentNationIndex < nations.Count)
+            while (currentNationIndex < nations.Count && nations[currentNationIndex].isDefeated)
             {
-                if (nations[currentNationIndex].isDefeated)
-                {
-                    currentNationIndex++;
-                }
-                else
-                {
-                    break;
-                }
+                currentNationIndex++;
             }
 
             // 如果一轮结束，开始下一轮
@@ -239,7 +232,18 @@ namespace GlobalConqueror.Managers
                 currentNationIndex = 0;
                 currentTurn++;
                 OnTurnStart?.Invoke(currentTurn);
-            }          
+                // 新回合从列表头开始，必须再次跳过战败国（否则 index=0 可能是已败的 AI 国，会白等一轮 AI）
+                while (currentNationIndex < nations.Count && nations[currentNationIndex].isDefeated)
+                {
+                    currentNationIndex++;
+                }
+            }
+
+            if (currentNationIndex >= nations.Count)
+            {
+                Debug.LogWarning("NationManager: 无存活国家可进入回合，已中止 StartTurn。");
+                return;
+            }
 
             currentNation = nations[currentNationIndex];
 
@@ -257,7 +261,8 @@ namespace GlobalConqueror.Managers
         /// </summary>
         private void ScheduleAiAutoEndTurnIfNeeded()
         {
-            if (!autoEndTurnForAiNations || currentNation == null || IsHumanPlayerNation(currentNation))
+            if (!autoEndTurnForAiNations || currentNation == null || currentNation.isDefeated ||
+                IsHumanPlayerNation(currentNation))
                 return;
 
             if (_aiAutoEndTurnRoutine != null)
@@ -274,7 +279,7 @@ namespace GlobalConqueror.Managers
             yield return new WaitForSeconds(aiEndTurnDelaySeconds);
             _aiAutoEndTurnRoutine = null;
 
-            if (currentNation == null || IsHumanPlayerNation(currentNation))
+            if (currentNation == null || currentNation.isDefeated || IsHumanPlayerNation(currentNation))
                 yield break;
 
             NationData actingNation = currentNation;
@@ -282,9 +287,11 @@ namespace GlobalConqueror.Managers
             yield return SimpleNationSkirmishAi.RunSimpleSkirmishTurn(
                 actingNation,
                 aiActionPauseSeconds,
-                () => instance != null && currentNation == actingNation && !IsHumanPlayerNation(currentNation));
+                () => instance != null && currentNation == actingNation && !currentNation.isDefeated &&
+                     !IsHumanPlayerNation(currentNation));
 
-            if (currentNation == null || currentNation != actingNation || IsHumanPlayerNation(currentNation))
+            if (currentNation == null || currentNation != actingNation || currentNation.isDefeated ||
+                IsHumanPlayerNation(currentNation))
                 yield break;
 
             EndTurn();
