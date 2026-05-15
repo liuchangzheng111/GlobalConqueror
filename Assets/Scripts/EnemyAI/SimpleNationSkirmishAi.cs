@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using GlobalConqueror.Models;
 using GlobalConqueror.Utils;
 using GlobalConqueror.Controllers;
+using GlobalConqueror.Managers;
 using UnityEngine;
 
-namespace GlobalConqueror.Managers
+namespace GlobalConqueror.EnemyAI
 {
     /// <summary>
     /// 极简陆战 AI：各单位先尝试向最近敌军或敌方城市靠近一格路径终点，
@@ -100,7 +101,7 @@ namespace GlobalConqueror.Managers
             {
                 foreach (UnitData u in um.AllUnits)
                 {
-                    if (u == null || u.ownerNationId < 0 || u.ownerNationId == nationId)
+                    if (u == null || u.ownerNationId < 0 || AllianceManager.AreAllied(nationId, u.ownerNationId))
                         continue;
                     Consider(u.position);
                 }
@@ -110,7 +111,7 @@ namespace GlobalConqueror.Managers
             {
                 foreach (CityData city in CityManager.instance.AllCities)
                 {
-                    if (city == null || city.ownerNationId == nationId)
+                    if (city == null || AllianceManager.AreAllied(nationId, city.ownerNationId))
                         continue;
                     Consider(city.cityLocation);
                 }

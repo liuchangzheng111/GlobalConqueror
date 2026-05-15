@@ -179,6 +179,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
+            currentPort = null;
             currentCity = city;
             ResetUI();
 
@@ -259,7 +260,7 @@ namespace GlobalConqueror.Controllers
             {
                 if (UnitManager.instance.GetUnitAtPosition(city.cityLocation) == null)
                 {
-                    purchaseText.text = "生产部队/空军任务";
+                    purchaseText.text = "陆军部队/空军任务";
                 }
                 else
                 {
@@ -276,6 +277,7 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
+            currentCity = null;
             currentPort = port;
             ResetUI();
 
@@ -320,6 +322,7 @@ namespace GlobalConqueror.Controllers
 
             if (purchaseButton != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId && UnitManager.instance.GetUnitAtPosition(port.portLocation) == null)
             {
+                purchaseText.text = "海军部队";
                 purchaseButton.gameObject.SetActive(true);
             }
         }

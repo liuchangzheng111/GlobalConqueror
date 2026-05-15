@@ -58,7 +58,7 @@ namespace GlobalConqueror.Models
             return $"单位ID:{unitId} | {typeName} | 位置:{position} | 所属:{ownerNationId}";
         }
 
-        public string GetUnitPropertyString()
+        public static string GetUnitPropertyString(UnitTypeConfig unitType)
         {
             string result = unitType.unitProperty switch
             {

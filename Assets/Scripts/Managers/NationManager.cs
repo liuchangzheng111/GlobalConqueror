@@ -1,10 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GlobalConqueror.Models;
+using GlobalConqueror.EnemyAI;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using System;
 
 namespace GlobalConqueror.Managers
 {
@@ -247,12 +248,15 @@ namespace GlobalConqueror.Managers
 
             currentNation = nations[currentNationIndex];
 
+            // 处理国家回合开始前的资源生产
             ProcessResourceProduction(currentNation);
 
             OnNationTurnStart?.Invoke(currentNation);
 
+            // 处理国家回合开始
             ProcessNationTurnStart(currentNation);
 
+            // 如果需要，则调度 AI 自动结束回合
             ScheduleAiAutoEndTurnIfNeeded();
         }
 
@@ -284,7 +288,7 @@ namespace GlobalConqueror.Managers
 
             NationData actingNation = currentNation;
 
-            yield return SimpleNationSkirmishAi.RunSimpleSkirmishTurn(
+            yield return AiNationTurnPipeline.RunFullAiTurn(
                 actingNation,
                 aiActionPauseSeconds,
                 () => instance != null && currentNation == actingNation && !currentNation.isDefeated &&

@@ -90,7 +90,7 @@ namespace GlobalConqueror.Controllers
 
             _onNationTurnEndHandler ??= (_) => ClearSelection();
             NationManager.instance.OnNationTurnEnd += _onNationTurnEndHandler;
-            _onNationTurnPreparedHandler ??= ResetActionableHighlightObjects;
+            _onNationTurnPreparedHandler ??= OnNationTurnPrepared;
             UnitManager.instance.OnNationTurnPrepared += _onNationTurnPreparedHandler;
 
             UnitManager.instance.OnUnitSpawned += OnUnitSpawned;
@@ -192,6 +192,9 @@ namespace GlobalConqueror.Controllers
             BindUnitVisual(unit, gameObject);
         }
 
+        /// <summary>
+        /// 堡垒建造完毕时的回调
+        /// </summary>
         private void OnUnitConstructionCompleted(UnitData unit)
         {
             if (unit == null) return;
@@ -201,6 +204,9 @@ namespace GlobalConqueror.Controllers
             }
         }
 
+        /// <summary>
+        /// 堡垒建造时的更新回调
+        /// </summary>
         private void OnUnitConstructionUpdated(UnitData unit)
         {
             if (unit == null) return;
@@ -241,6 +247,15 @@ namespace GlobalConqueror.Controllers
             {
                 defenderGo.GetComponent<UnitView>().RefreshHealthBar();
             }
+        }
+
+        /// <summary>
+        /// 国家回合准备完毕时的回调（用于UI、view等更新）
+        /// </summary>
+        private void OnNationTurnPrepared(NationData nationData)
+        {
+            ResetActionableHighlightObjects(nationData);
+            RefreshAllUnitView(nationData);
         }
 
         /// <summary>
@@ -671,6 +686,42 @@ namespace GlobalConqueror.Controllers
                 if (_originalMainSprites.TryGetValue(unit, out var original) && original != null)
                 {
                     mainSr.sprite = original;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 刷新所有单位视觉
+        /// </summary>
+        /// <param name="nation"></param>
+        private void RefreshAllUnitView(NationData nationData)
+        {
+            if (AllianceManager.instance != null)
+            {
+                foreach (var nation in NationManager.instance.Nations)
+                {
+                    if (nation == null || nation.isDefeated)
+                        continue;
+                    if (AllianceManager.AreAllied(nation.nationId, nationData.nationId))
+                    {
+                        foreach(var unit in UnitManager.instance.GetUnitsByNation(nation.nationId))
+                        {
+                            if (unitVisuals.TryGetValue(unit, out GameObject unitGo) && unitGo != null)
+                            {
+                                unitGo.GetComponent<UnitView>().RefreshHealthBarColor(Color.green);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var unit in UnitManager.instance.GetUnitsByNation(nation.nationId))
+                        {
+                            if (unitVisuals.TryGetValue(unit, out GameObject unitGo) && unitGo != null)
+                            {
+                                unitGo.GetComponent<UnitView>().RefreshHealthBarColor(Color.red);
+                            }
+                        }
+                    }
                 }
             }
         }

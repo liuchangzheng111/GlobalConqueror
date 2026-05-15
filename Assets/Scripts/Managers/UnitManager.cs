@@ -179,6 +179,10 @@ namespace GlobalConqueror.Managers
             return -1;
         }
 
+        /// <summary>
+        /// 国家回合开始回调
+        /// </summary>
+        /// <param name="nation"></param>
         private void OnNationTurnStart(NationData nation)
         {
             ProgressConstructionForNation(nation.nationId);
@@ -217,6 +221,10 @@ namespace GlobalConqueror.Managers
             }
         }
 
+        /// <summary>
+        /// 国家战败回调
+        /// </summary>
+        /// <param name="nation"></param>
         private void OnNationDefeated(NationData nation)
         {
             RemoveAllUnitsOfNation(nation.nationId);
@@ -599,9 +607,9 @@ namespace GlobalConqueror.Managers
                     if (newCost > maxCost) continue;
 
                     UnitData blockingUnit = GetUnitAtPosition(nextPos);
-                    if (blockingUnit != null && blockingUnit.ownerNationId != unit.ownerNationId)
+                    if (blockingUnit != null && !AllianceManager.AreAllied(blockingUnit.ownerNationId, unit.ownerNationId))
                     {
-                        // 敌军阻挡
+                        // 非盟友占据则不可穿行扩展；盟友格可穿行但不可作为停留终点（见 reachable 条件）
                         continue;
                     }
 
@@ -673,9 +681,9 @@ namespace GlobalConqueror.Managers
                     if (newCost > maxCost) continue;
 
                     UnitData blockingUnit = GetUnitAtPosition(nextPos);
-                    if (blockingUnit != null && blockingUnit.ownerNationId != unit.ownerNationId)
+                    if (blockingUnit != null && !AllianceManager.AreAllied(blockingUnit.ownerNationId, unit.ownerNationId))
                     {
-                        // 敌军阻挡
+                        // 非盟友占据则不可穿行扩展；盟友格可穿行（路径可经过盟友格，但不可落子，见 TryMoveUnit）
                         continue;
                     }
 
@@ -732,7 +740,7 @@ namespace GlobalConqueror.Managers
                 if (!MapManager.instance.IsCoordinateValid(target)) continue;
 
                 UnitData targetUnit = GetUnitAtPosition(target);
-                if (targetUnit != null && targetUnit.ownerNationId != unit.ownerNationId)
+                if (targetUnit != null && !AllianceManager.AreAllied(targetUnit.ownerNationId, unit.ownerNationId))
                 {
                     // 陆地单位和潜艇无法相互攻击
                     bool attackerIsLand = unit.unitType.unitProperty == UnitProperty.Soldier || unit.unitType.unitProperty == UnitProperty.Armor || unit.unitType.unitProperty == UnitProperty.Fort;
@@ -845,7 +853,7 @@ namespace GlobalConqueror.Managers
             }
 
             UnitData defender = GetUnitAtPosition(targetPosition);
-            if (defender == null || defender.ownerNationId == attacker.ownerNationId)
+            if (defender == null || AllianceManager.AreAllied(defender.ownerNationId, attacker.ownerNationId))
             {
                 Debug.Log("目标格无敌方单位");
                 return false;

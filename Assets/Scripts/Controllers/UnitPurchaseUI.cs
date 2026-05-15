@@ -305,34 +305,51 @@ namespace GlobalConqueror.Controllers
                 return;
             }
 
-            Vector3Int vector3Int = city != null ? city.cityLocation : (port != null ? port.portLocation : Vector3Int.zero);
-                       
-            if (UnitManager.instance != null)
+            if (UnitManager.instance == null)
             {
-                if (UnitManager.instance.GetUnitAtPosition(vector3Int) != null)
-                {
-                    ShowAirMissionForCity(city);
-                }
-                else
-                {
-                    ShowForCity(city);
-                }
-                return;
-            }
-            
-            if (city == null || city.ownerNationId != NationManager.instance.CurrentNation.nationId)
-            {
-                if (port != null && port.ownerNationId == NationManager.instance.CurrentNation.nationId)
-                {
-                    ShowForPort(port);
-                    return;
-                }
-
                 Hide();
                 return;
             }
 
-            return;
+            NationData currentNation = NationManager.instance.CurrentNation;
+
+            // 城市：格上有己方单位时走空军任务，否则走陆军/生产面板（与城市逻辑绑定）
+            if (city != null)
+            {
+                if (city.ownerNationId != currentNation.nationId)
+                {
+                    Hide();
+                    return;
+                }
+
+                Vector3Int cityCell = city.cityLocation;
+                if (UnitManager.instance.GetUnitAtPosition(cityCell) != null)
+                    ShowAirMissionForCity(city);
+                else
+                    ShowForCity(city);
+                return;
+            }
+
+            // 港口：仅海军购买面板，不使用城市的空军/生产分支
+            if (port != null)
+            {
+                if (port.ownerNationId != currentNation.nationId)
+                {
+                    Hide();
+                    return;
+                }
+
+                if (UnitManager.instance.GetUnitAtPosition(port.portLocation) != null)
+                {
+                    Hide();
+                    return;
+                }
+
+                ShowForPort(port);
+                return;
+            }
+
+            Hide();
         }
 
         /// <summary>
@@ -342,6 +359,7 @@ namespace GlobalConqueror.Controllers
         {
             if (UnitManager.instance != null)
             {
+                currentPort = null;
                 currentCity = city;
                 if (panelRoot != null) panelRoot.SetActive(true);
 
@@ -365,6 +383,7 @@ namespace GlobalConqueror.Controllers
         {
             if (UnitManager.instance != null)
             {
+                currentPort = null;
                 currentCity = city;
                 if (panelRoot != null) panelRoot.SetActive(true);
 
@@ -388,6 +407,7 @@ namespace GlobalConqueror.Controllers
         {
             if (UnitManager.instance != null)
             {
+                currentCity = null;
                 currentPort = port;
                 if (panelRoot != null) panelRoot.SetActive(true);
 

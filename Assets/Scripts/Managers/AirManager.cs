@@ -160,7 +160,7 @@ namespace GlobalConqueror.Managers
             if (targetUnit == null) return false;
 
             if (NationManager.instance != null && NationManager.instance.CurrentNation != null &&
-                targetUnit.ownerNationId == NationManager.instance.CurrentNation.nationId)
+                AllianceManager.AreAllied(targetUnit.ownerNationId, NationManager.instance.CurrentNation.nationId))
             {
                 return false;
             }
@@ -363,7 +363,7 @@ namespace GlobalConqueror.Managers
                 if (!MapManager.instance.IsCoordinateValid(target)) continue;
 
                 UnitData targetUnit = UnitManager.instance.GetUnitAtPosition(target);
-                if (targetUnit != null && targetUnit.ownerNationId != cityData.ownerNationId)
+                if (targetUnit != null && !AllianceManager.AreAllied(targetUnit.ownerNationId, cityData.ownerNationId))
                 {
                     attackable.Add(target);
                 }

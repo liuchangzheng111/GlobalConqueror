@@ -32,6 +32,7 @@ namespace GlobalConqueror.Controllers
         [Header("标题/基础信息")]
         [SerializeField] private TextMeshProUGUI unitNameText;
         [SerializeField] private TextMeshProUGUI nationNameText;
+        [SerializeField] private TextMeshProUGUI nationPropertyText;
 
         [Header("图标")]
         [SerializeField] private Image nationFlagImage;
@@ -140,6 +141,9 @@ namespace GlobalConqueror.Controllers
             if (nationNameText != null)
                 nationNameText.text = nation != null ? nation.nationName : "未知国家";
 
+            if (nationPropertyText != null)
+                nationPropertyText.text = UnitData.GetUnitPropertyString(type);
+
             if (nationFlagImage != null)
             {
                 nationFlagImage.sprite = nation?.nationFlag;
@@ -227,6 +231,9 @@ namespace GlobalConqueror.Controllers
 
             if (nationNameText != null)
                 nationNameText.text = nation != null ? nation.nationName : "未知国家";
+
+            if (nationPropertyText != null)
+                nationPropertyText.text = UnitData.GetUnitPropertyString(landUnitType);
 
             if (nationFlagImage != null)
             {

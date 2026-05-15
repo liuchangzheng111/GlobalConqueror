@@ -105,6 +105,29 @@ namespace GlobalConqueror.Controllers
             }
         }
 
+        /// <summary>
+        /// 刷新血条颜色
+        /// </summary>
+        /// <param name="color"></param>
+        public void RefreshHealthBarColor(Color color)
+        {
+            if (healthSlider != null)
+            {
+                if (_boundUnit == null)
+                {
+                    healthSlider.gameObject.SetActive(false);
+                    return;
+                }
+
+                healthSlider.fillRect.GetComponent<Image>().color = color;
+                healthSlider.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError("UnitView: 未绑定healthSlider！");
+            }
+        }
+
         private void RefreshFlag()
         {
             if (flagImage != null)
