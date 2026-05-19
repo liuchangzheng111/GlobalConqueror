@@ -32,6 +32,8 @@ namespace GlobalConqueror.Controllers
         [SerializeField] private float initialZoomRatio = 0.8f; // 初始缩放比例（0.8表示显示80%的地图）
         [SerializeField] private float minZoomRatio = 1f; // 最小缩放比例（能看到100%的地图）
         [SerializeField] private float maxZoomRatio = 0.1f; // 最大缩放比例（能看到10%的地图，即放大10倍）
+        [Tooltip("缩放到接近「看全图」时，改用地图中心作为缩放锚点，避免滚轮把画面带偏")]
+        [SerializeField] [Range(0.02f, 0.25f)] private float minZoomAnchorBlendRange = 0.08f;
 
         private Camera mapCamera;
         private Vector3 lastMousePosition;
@@ -132,25 +134,14 @@ namespace GlobalConqueror.Controllers
             targetZoom = initialSize;
             mapCamera.orthographicSize = initialSize;
 
-            // 设置相机位置为地图中心
-            Vector3 mapCenter = mapBounds.center;
-            mapCenter.z = transform.position.z;
+            Vector3 mapCenter = GetMapCenter();
             targetPosition = mapCenter;
             transform.position = mapCenter;
-
-            float cameraHalfWidth = mapCamera.orthographicSize * cameraAspect;
-            float cameraHalfHeight = mapCamera.orthographicSize;
-            // 拖拽边界 = 地图边界 - 相机视野溢出部分（确保拖动时视野不超出地图）
-            dragBoundsMin = new Vector2(
-                mapBounds.min.x + cameraHalfWidth,
-                mapBounds.min.y + cameraHalfHeight
-            );
-            dragBoundsMax = new Vector2(
-                mapBounds.max.x - cameraHalfWidth,
-                mapBounds.max.y - cameraHalfHeight
-            );
+            _positionVelocity = Vector3.zero;
+            _zoomVelocity = 0f;
 
             UpdateDynamicDragBounds();
+            SnapPositionToMapCenterForLockedAxes();
 
             Debug.Log($"相机初始化完成:\n" +
                      $"  地图尺寸: {mapWidth}×{mapHeight}\n" +
@@ -225,15 +216,14 @@ namespace GlobalConqueror.Controllers
                 targetZoom -= scroll * zoomSpeed * zoomSensitivity * speedMultiplier;
                 targetZoom = Mathf.Clamp(targetZoom, minZoom, maxZoom);
 
-                // 鼠标焦点缩放（原有逻辑）
-                Vector3 mouseWorldPos = mapCamera.ScreenToWorldPoint(Input.mousePosition);
-                mouseWorldPos.z = targetPosition.z;
+                Vector3 zoomAnchor = GetZoomAnchorWorldPosition(oldZoom, targetZoom);
+                zoomAnchor.z = targetPosition.z;
                 float zoomFactor = targetZoom / oldZoom;
-                Vector3 delta = mouseWorldPos - targetPosition;
-                targetPosition = mouseWorldPos - delta * zoomFactor;
+                Vector3 delta = zoomAnchor - targetPosition;
+                targetPosition = zoomAnchor - delta * zoomFactor;
 
-                // 缩放后立即更新动态拖拽边界
                 UpdateDynamicDragBounds();
+                SnapPositionToMapCenterForLockedAxes();
                 ClampCameraPosition();
             }
         }
@@ -267,28 +257,89 @@ namespace GlobalConqueror.Controllers
         }
 
         /// <summary>
-        /// 动态拖拽边界计算
+        /// 动态拖拽边界：视野大于地图的轴向锁定在地图中心，避免「看全图」时仍可拖偏。
         /// </summary>
         private void UpdateDynamicDragBounds()
         {
-            float cameraViewWidth = targetZoom * mapCamera.aspect * 2;
-            float cameraViewHeight = targetZoom * 2;
+            if (originalMapBounds.size.magnitude <= 0f)
+                return;
 
-            // 计算动态拖拽边界
-            float dragMinX = originalMapBounds.min.x + cameraViewWidth / 2f - 0.1f; 
-            float dragMaxX = originalMapBounds.max.x - cameraViewWidth / 2f + 0.1f; 
-            float dragMinY = originalMapBounds.min.y + cameraViewHeight / 2f - 0.1f; 
-            float dragMaxY = originalMapBounds.max.y - cameraViewHeight / 2f + 0.1f; 
+            float cameraHalfWidth = targetZoom * mapCamera.aspect;
+            float cameraHalfHeight = targetZoom;
+            float mapHalfWidth = originalMapBounds.extents.x;
+            float mapHalfHeight = originalMapBounds.extents.y;
+            Vector3 center = originalMapBounds.center;
 
-            // 处理边界反转
-            dragMinX = Mathf.Min(dragMinX, dragMaxX);
-            dragMaxX = Mathf.Max(dragMinX, dragMaxX);
-            dragMinY = Mathf.Min(dragMinY, dragMaxY);
-            dragMaxY = Mathf.Max(dragMinY, dragMaxY);
+            float dragMinX;
+            float dragMaxX;
+            if (cameraHalfWidth >= mapHalfWidth)
+            {
+                dragMinX = dragMaxX = center.x;
+            }
+            else
+            {
+                dragMinX = originalMapBounds.min.x + cameraHalfWidth;
+                dragMaxX = originalMapBounds.max.x - cameraHalfWidth;
+            }
 
-            // 更新边界
+            float dragMinY;
+            float dragMaxY;
+            if (cameraHalfHeight >= mapHalfHeight)
+            {
+                dragMinY = dragMaxY = center.y;
+            }
+            else
+            {
+                dragMinY = originalMapBounds.min.y + cameraHalfHeight;
+                dragMaxY = originalMapBounds.max.y - cameraHalfHeight;
+            }
+
             dragBoundsMin = new Vector2(dragMinX, dragMinY);
             dragBoundsMax = new Vector2(dragMaxX, dragMaxY);
+        }
+
+        private Vector3 GetMapCenter()
+        {
+            Vector3 c = originalMapBounds.size.magnitude > 0f
+                ? originalMapBounds.center
+                : Vector3.zero;
+            c.z = transform.position.z;
+            return c;
+        }
+
+        /// <summary>
+        /// 接近「看全图」缩放时用地图中心作锚点，否则用鼠标世界坐标。
+        /// </summary>
+        private Vector3 GetZoomAnchorWorldPosition(float oldZoom, float newZoom)
+        {
+            float range = Mathf.Max(maxZoom - minZoom, 0.0001f);
+            float blendEnd = minZoom + range * minZoomAnchorBlendRange;
+            bool useMapCenter = newZoom <= blendEnd || oldZoom <= blendEnd;
+            if (useMapCenter)
+                return GetMapCenter();
+
+            Vector3 mouseWorldPos = mapCamera.ScreenToWorldPoint(Input.mousePosition);
+            mouseWorldPos.z = targetPosition.z;
+            return mouseWorldPos;
+        }
+
+        /// <summary>
+        /// 视野已包住地图的轴向，强制对齐地图中心。
+        /// </summary>
+        private void SnapPositionToMapCenterForLockedAxes()
+        {
+            if (originalMapBounds.size.magnitude <= 0f)
+                return;
+
+            float cameraHalfWidth = targetZoom * mapCamera.aspect;
+            float cameraHalfHeight = targetZoom;
+            Vector3 center = GetMapCenter();
+
+            if (cameraHalfWidth >= originalMapBounds.extents.x)
+                targetPosition.x = center.x;
+            if (cameraHalfHeight >= originalMapBounds.extents.y)
+                targetPosition.y = center.y;
+            targetPosition.z = transform.position.z;
         }
 
         /// <summary>

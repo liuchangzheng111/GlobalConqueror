@@ -10,7 +10,7 @@ using UnityEngine;
 namespace GlobalConqueror.EnemyAI
 {
     /// <summary>
-    /// AI 回合总管线：快照 → 战略 → 战役占位 → 经济占位 → 现有战术（野战）。
+    /// AI 回合总管线：快照 → 战略 → 战役计划 → 经济（购兵/防空/堡垒/空军）→ 野战战术。
     /// <see cref="Managers.NationManager"/> 仅依赖此入口，后续扩展阶段不改调度处。
     /// </summary>
     public static class AiNationTurnPipeline
@@ -42,8 +42,8 @@ namespace GlobalConqueror.EnemyAI
             if (shouldContinue != null && !shouldContinue())
                 yield break;
 
-            yield return SimpleNationSkirmishAi.RunSimpleSkirmishTurn(
-                actingNation,
+            yield return SimpleNationSkirmishAi.RunTacticalTurn(
+                context,
                 tacticalActionPauseSeconds,
                 shouldContinue);
         }

@@ -6,8 +6,7 @@ using UnityEngine;
 namespace GlobalConqueror.EnemyAI.Core
 {
     /// <summary>
-    /// AI 回合开始时的世界只读快照：敌国列表、城市摘要、兵力数量等。
-    /// 后续经济/空军/运营层均只读此结构，避免散落查表。
+    /// AI 回合开始时的世界只读快照：敌国列表、城市摘要、兵力数量、态势评估等。
     /// </summary>
     public sealed class AiWorldSnapshot
     {
@@ -16,24 +15,24 @@ namespace GlobalConqueror.EnemyAI.Core
         public IReadOnlyList<int> EnemyNationIds { get; }
         public IReadOnlyList<AiCityStrategicInfo> Cities { get; }
         public IReadOnlyDictionary<int, int> NationUnitCounts { get; }
+        public AiSituationAssessment Situation { get; }
 
         private AiWorldSnapshot(
             int actingNationId,
             int currentGlobalTurn,
             IReadOnlyList<int> enemyNationIds,
             IReadOnlyList<AiCityStrategicInfo> cities,
-            IReadOnlyDictionary<int, int> nationUnitCounts)
+            IReadOnlyDictionary<int, int> nationUnitCounts,
+            AiSituationAssessment situation)
         {
             ActingNationId = actingNationId;
             CurrentGlobalTurn = currentGlobalTurn;
             EnemyNationIds = enemyNationIds;
             Cities = cities;
             NationUnitCounts = nationUnitCounts;
+            Situation = situation;
         }
 
-        /// <summary>
-        /// 从当前场景管理器构建快照；管理器未就绪时返回尽量安全的空数据。
-        /// </summary>
         public static AiWorldSnapshot Build(int actingNationId)
         {
             var enemyIds = new List<int>();
@@ -89,7 +88,8 @@ namespace GlobalConqueror.EnemyAI.Core
                 }
             }
 
-            return new AiWorldSnapshot(actingNationId, turn, enemyIds, cities, unitCounts);
+            AiSituationAssessment situation = AiSituationAssessment.Build(actingNationId);
+            return new AiWorldSnapshot(actingNationId, turn, enemyIds, cities, unitCounts, situation);
         }
     }
 }

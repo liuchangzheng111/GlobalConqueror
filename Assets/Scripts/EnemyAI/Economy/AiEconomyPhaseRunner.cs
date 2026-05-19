@@ -5,11 +5,12 @@ using GlobalConqueror.EnemyAI;
 namespace GlobalConqueror.EnemyAI.Economy
 {
     /// <summary>
-    /// AI 经济阶段：造兵/升防/空军等。当前为空实现，仅占位与管线挂钩。
+    /// AI 经济阶段：购兵 → 防空/堡垒 → 空军任务（战术阶段由 <see cref="AiNationTurnPipeline"/> 接续）。
     /// </summary>
     public static class AiEconomyPhaseRunner
     {
-        /// <summary>预留：后续在此调用 <see cref="Managers.UnitManager.TryPurchaseUnit"/> 等 API。</summary>
+        public const float DefaultPauseAfterActionSeconds = 0.35f;
+
         public static IEnumerator Run(AiNationTurnContext context, Func<bool> shouldContinue)
         {
             if (context?.ActingNation == null)
@@ -17,7 +18,26 @@ namespace GlobalConqueror.EnemyAI.Economy
             if (shouldContinue != null && !shouldContinue())
                 yield break;
 
-            yield return null;
+            yield return AiEconomyPurchaseExecutor.CoExecutePurchases(
+                context,
+                DefaultPauseAfterActionSeconds,
+                shouldContinue);
+
+            if (shouldContinue != null && !shouldContinue())
+                yield break;
+
+            yield return AiEconomyDefenseExecutor.CoExecuteDefense(
+                context,
+                DefaultPauseAfterActionSeconds,
+                shouldContinue);
+
+            if (shouldContinue != null && !shouldContinue())
+                yield break;
+
+            yield return AiEconomyAirExecutor.CoExecuteAirMissions(
+                context,
+                DefaultPauseAfterActionSeconds,
+                shouldContinue);
         }
     }
 }

@@ -21,7 +21,8 @@ namespace GlobalConqueror.Controllers
 
         private IEnumerator BindWhenReady()
         {
-            while (MapManager.instance == null || !MapManager.instance.InitializeMapCompleted || AntiAirManager.instance == null)
+            while (MapManager.instance == null || !MapManager.instance.InitializeMapCompleted ||
+                   AntiAirManager.instance == null || !AntiAirManager.instance.IsInitialPlacementCompleted)
             {
                 yield return null;
             }

@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Controllers\CityDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\EnemyAI\Strategic\AiStrategicBrief.cs" />
     <Compile Include="Assets\Scripts\Debug\TileCoordinateDebugger.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\Economy\AiEconomyAnchor.cs" />
     <Compile Include="Assets\Scripts\EnemyAI\SimpleNationSkirmishAi.cs" />
     <Compile Include="Assets\Scripts\Models\BargeUnitData.cs" />
     <Compile Include="Assets\Scripts\Utils\PriorityQueue.cs" />
@@ -75,7 +76,9 @@
     <Compile Include="Assets\Scripts\EnemyAI\AiNationTurnPipeline.cs" />
     <Compile Include="Assets\Scripts\Models\NationData.cs" />
     <Compile Include="Assets\Scripts\Managers\NationManager.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\Economy\AiEconomyPurchaseExecutor.cs" />
     <Compile Include="Assets\Scripts\EnemyAI\Operational\AiOperationalPlanner.cs" />
+    <Compile Include="Assets\Scripts\Models\InitialAntiAirSpawn.cs" />
     <Compile Include="Assets\Scripts\Controllers\AntiAirBuildPanelController.cs" />
     <Compile Include="Assets\Scripts\Controllers\FloatingDamageManager.cs" />
     <Compile Include="Assets\Scripts\Managers\AllianceManager.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Assets\Scripts\Managers\MapManager.cs" />
     <Compile Include="Assets\Scripts\Models\PortMapping.cs" />
     <Compile Include="Assets\Scripts\Controllers\FloatingDamageText.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\Core\AiSituationAssessment.cs" />
     <Compile Include="Assets\Scripts\Managers\AirManager.cs" />
     <Compile Include="Assets\Scripts\Managers\AntiAirManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitController.cs" />
@@ -106,9 +110,12 @@
     <Compile Include="Assets\Scripts\Controllers\UnitDetailsPanelController.cs" />
     <Compile Include="Assets\Scripts\Managers\UnitManager.cs" />
     <Compile Include="Assets\Scripts\Models\AirMissionConfig.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\Tactical\AiTacticalExecutor.cs" />
     <Compile Include="Assets\Scripts\Models\PortData.cs" />
     <Compile Include="Assets\Scripts\Models\UnitData.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\Economy\AiEconomyAirExecutor.cs" />
     <Compile Include="Assets\Scripts\Controllers\CityView.cs" />
+    <Compile Include="Assets\Scripts\EnemyAI\Economy\AiEconomyDefenseExecutor.cs" />
     <Compile Include="Assets\Scripts\Controllers\NationListItemView.cs" />
     <Compile Include="Assets\Scripts\Controllers\UnitView.cs" />
     <Compile Include="Assets\Scripts\Controllers\PortVeiw.cs" />

@@ -1,21 +1,53 @@
+using System.Linq;
 using GlobalConqueror.EnemyAI.Core;
 using GlobalConqueror.EnemyAI.Strategic;
+using GlobalConqueror.Managers;
+using GlobalConqueror.Models;
+using GlobalConqueror.Utils;
+using UnityEngine;
 
 namespace GlobalConqueror.EnemyAI.Operational
 {
     /// <summary>
-    /// 根据战略简报生成战役占位计划；当前返回 <see cref="AiOperationalPlan.Empty"/>。
+    /// 根据战略简报与态势生成战役计划（主攻、集结、防守切换）。
     /// </summary>
     public static class AiOperationalPlanner
     {
-        public static AiOperationalPlan Draft(AiWorldSnapshot _, AiStrategicBrief brief)
+        public static AiOperationalPlan Draft(AiWorldSnapshot snapshot, AiStrategicBrief brief)
         {
             if (brief?.PrioritizedEnemyCities == null || brief.PrioritizedEnemyCities.Count == 0)
                 return AiOperationalPlan.Empty();
 
-            // 占位：以优先级最高的敌方城格作为「主攻锚点」，供后续路径/集结逻辑使用。
-            AiCityStrategicInfo top = brief.PrioritizedEnemyCities[0];
-            return new AiOperationalPlan(true, top.CityLocation);
+            AiCityStrategicInfo primary = brief.PrioritizedEnemyCities[0];
+            Vector3Int anchor = primary.CityLocation;
+
+            bool defensive = snapshot?.Situation != null && snapshot.Situation.DefensiveThreatActive;
+            Vector3Int? assembly = FindNearestOwnCityTo(snapshot.ActingNationId, anchor);
+
+            return new AiOperationalPlan(
+                true,
+                anchor,
+                primary,
+                assembly,
+                defensive);
+        }
+
+        private static Vector3Int? FindNearestOwnCityTo(int nationId, Vector3Int target)
+        {
+            if (CityManager.instance?.AllCities == null) return null;
+            CityData best = null;
+            int bestDist = int.MaxValue;
+            foreach (CityData c in CityManager.instance.AllCities)
+            {
+                if (c == null || c.ownerNationId != nationId) continue;
+                int d = HexGridUtils.GetHexDistance(c.cityLocation, target);
+                if (d < bestDist)
+                {
+                    bestDist = d;
+                    best = c;
+                }
+            }
+            return best?.cityLocation;
         }
     }
 }
